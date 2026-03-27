@@ -566,11 +566,15 @@ function initMap() {
   apiKey = 'AIzaSyBg2JIpzx5BdUabIGhOXmwqdGVUTR-uBoI';
   courseName = document.getElementById('course-name-input').value.trim() || 'Golf Round';
 
+  document.getElementById('api-modal').style.display = 'none';
+  document.getElementById('map').innerHTML = '<div style="color:rgba(255,255,255,0.4);font-family:monospace;font-size:12px;padding:40px;text-align:center;margin-top:40vh">Loading map...</div>';
+
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=onMapLoaded`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&callback=onMapLoaded&loading=async`;
+  script.async = true;
+  script.defer = true;
   script.onerror = () => {
-    document.getElementById('api-error').style.display = 'block';
-    document.getElementById('api-error').textContent = 'Failed to load Google Maps. Check your API key.';
+    document.getElementById('map').innerHTML = '<div style="color:#e05555;font-family:monospace;font-size:12px;padding:40px;text-align:center;margin-top:40vh">SCRIPT LOAD FAILED<br>Check internet connection or API key.</div>';
   };
   document.head.appendChild(script);
 }
