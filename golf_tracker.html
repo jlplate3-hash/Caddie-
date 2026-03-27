@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -575,6 +574,11 @@ function initMap() {
   };
   document.head.appendChild(script);
 }
+
+window.gm_authFailure = function() {
+  document.getElementById('map').style.background = '#1a0000';
+  document.getElementById('map').innerHTML = '<div style="color:#e05555;font-family:monospace;font-size:13px;padding:40px;text-align:center;margin-top:40vh">AUTH FAILURE<br>API key rejected by Google.<br>Billing may not be activated.</div>';
+};
 
 window.onMapLoaded = function() {
   document.getElementById('api-modal').style.display = 'none';
