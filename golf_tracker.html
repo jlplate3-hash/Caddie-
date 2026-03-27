@@ -3,832 +3,244 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Caddie — Shot Tracker</title>
+<title>Caddie</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --green: #1a5c2a;
-    --green-light: #2d8c46;
-    --fairway: #3aaf5c;
-    --gold: #c9a84c;
-    --white: #f5f2eb;
-    --dark: #0d1a10;
-    --panel: rgba(13,26,16,0.95);
-    --radius: 12px;
+    --green: #1a5c2a; --green-light: #2d8c46; --fairway: #3aaf5c;
+    --gold: #c9a84c; --white: #f5f2eb; --dark: #0d1a10;
+    --panel: rgba(13,26,16,0.95); --radius: 12px;
   }
-
-  html, body {
-    height: 100%;
-    overflow: hidden;
-    background: var(--dark);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--white);
-  }
-
-  #map {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-  }
-
-  /* TOP BAR */
+  html, body { height: 100%; overflow: hidden; background: var(--dark); font-family: 'DM Sans', sans-serif; color: var(--white); }
+  #map { position: fixed; inset: 0; z-index: 0; }
   #topbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 12px 16px;
     background: linear-gradient(to bottom, rgba(13,26,16,0.98) 70%, transparent);
   }
-
-  #logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    letter-spacing: 3px;
-    color: var(--gold);
-    text-shadow: 0 0 20px rgba(201,168,76,0.4);
-  }
-
-  #hole-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .info-chip {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--white);
-  }
-
-  .info-chip span {
-    color: var(--gold);
-    font-weight: 500;
-  }
-
-  #btn-settings {
-    background: none;
-    border: none;
-    color: var(--white);
-    font-size: 22px;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-  #btn-settings:hover { opacity: 1; }
-
-  /* BOTTOM PANEL */
+  #logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--gold); }
+  #hole-info { display: flex; align-items: center; gap: 10px; }
+  .info-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 4px 12px; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .info-chip span { color: var(--gold); font-weight: 500; }
+  #btn-settings { background: none; border: none; color: var(--white); font-size: 22px; cursor: pointer; }
   #bottom-panel {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 10;
-    background: var(--panel);
-    border-top: 1px solid rgba(201,168,76,0.2);
-    border-radius: 20px 20px 0 0;
-    padding: 16px 16px 32px;
-    backdrop-filter: blur(20px);
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--panel); border-top: 1px solid rgba(201,168,76,0.2);
+    border-radius: 20px 20px 0 0; padding: 16px 16px 36px;
   }
-
-  #panel-handle {
-    width: 36px;
-    height: 4px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    margin: 0 auto 16px;
-  }
-
-  /* CLUB SELECTOR */
-  #club-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-    margin-bottom: 8px;
-  }
-
-  #club-scroll {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-bottom: 16px;
-    scrollbar-width: none;
-  }
+  #panel-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 16px; }
+  #club-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+  #club-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
   #club-scroll::-webkit-scrollbar { display: none; }
-
-  .club-btn {
-    flex-shrink: 0;
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.06);
-    color: var(--white);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .club-btn:hover { border-color: var(--gold); }
-  .club-btn.active {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: var(--dark);
-    font-weight: 500;
-  }
-
-  /* ACTION ROW */
-  #action-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  #btn-track {
-    flex: 1;
-    padding: 16px;
-    border-radius: var(--radius);
-    border: none;
-    background: var(--fairway);
-    color: white;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.15s;
-    box-shadow: 0 4px 20px rgba(58,175,92,0.3);
-  }
-  #btn-track:active {
-    transform: scale(0.97);
-    background: var(--green-light);
-  }
-  #btn-track.locked {
-    background: rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.3);
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-
-  #btn-undo {
-    padding: 16px 18px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.06);
-    color: var(--white);
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  #btn-undo:active { transform: scale(0.95); }
-
-  #btn-next-hole {
-    padding: 16px 14px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(201,168,76,0.3);
-    background: rgba(201,168,76,0.1);
-    color: var(--gold);
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  #btn-next-hole:active { transform: scale(0.95); }
-
-  /* STATUS BAR */
-  #status-bar {
-    margin-top: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  #gps-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: rgba(255,255,255,0.4);
-  }
-
-  #gps-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #888;
-    transition: background 0.3s;
-  }
+  .club-btn { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: var(--white); font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; }
+  .club-btn.active { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 500; }
+  #action-row { display: flex; gap: 10px; align-items: center; }
+  #btn-track { flex: 1; padding: 16px; border-radius: var(--radius); border: none; background: var(--fairway); color: white; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; cursor: pointer; box-shadow: 0 4px 20px rgba(58,175,92,0.3); }
+  #btn-undo { padding: 16px 18px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: var(--white); font-size: 18px; cursor: pointer; }
+  #btn-next { padding: 16px 14px; border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.3); background: rgba(201,168,76,0.1); color: var(--gold); font-size: 18px; cursor: pointer; }
+  #status-bar { margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+  #gps-status { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); }
+  #gps-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; }
   #gps-dot.active { background: var(--fairway); animation: pulse 2s infinite; }
   #gps-dot.error { background: #e05555; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  #shot-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: rgba(255,255,255,0.4);
-  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  #shot-count { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); }
   #shot-count span { color: var(--gold); }
-
-  /* SCORECARD OVERLAY */
-  #scorecard-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    background: rgba(13,26,16,0.97);
-    display: none;
-    flex-direction: column;
-    padding: 24px 16px;
-    overflow-y: auto;
-  }
+  #scorecard-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(13,26,16,0.97); display: none; flex-direction: column; padding: 24px 16px; overflow-y: auto; }
   #scorecard-overlay.open { display: flex; }
-
-  #scorecard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-
-  #scorecard-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 32px;
-    letter-spacing: 3px;
-    color: var(--gold);
-  }
-
-  #btn-close-scorecard {
-    background: none;
-    border: none;
-    color: var(--white);
-    font-size: 28px;
-    cursor: pointer;
-  }
-
-  .hole-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius);
-    padding: 14px;
-    margin-bottom: 10px;
-  }
-
-  .hole-card-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .hole-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    color: var(--gold);
-    letter-spacing: 2px;
-  }
-
-  .hole-shots {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-  }
-
-  .shot-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    font-size: 13px;
-  }
+  #scorecard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  #scorecard-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: var(--gold); }
+  #btn-close-sc { background: none; border: none; color: var(--white); font-size: 28px; cursor: pointer; }
+  .hole-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+  .hole-card-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .hole-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold); letter-spacing: 2px; }
+  .hole-shots { font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.5); }
+  .shot-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
   .shot-row:last-child { border-bottom: none; }
-
   .shot-num { font-family: 'DM Mono', monospace; color: rgba(255,255,255,0.4); font-size: 11px; }
-  .shot-club { color: var(--white); }
   .shot-dist { font-family: 'DM Mono', monospace; color: var(--fairway); font-size: 12px; }
-
-  /* API KEY MODAL */
-  #api-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 30;
-    background: rgba(13,26,16,0.98);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-    text-align: center;
-  }
-
-  #api-modal h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 40px;
-    letter-spacing: 4px;
-    color: var(--gold);
-    margin-bottom: 8px;
-  }
-
-  #api-modal p {
-    color: rgba(255,255,255,0.5);
-    font-size: 14px;
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-
-  #api-input {
-    width: 100%;
-    max-width: 420px;
-    padding: 14px 16px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(201,168,76,0.3);
-    background: rgba(255,255,255,0.06);
-    color: var(--white);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    outline: none;
-    margin-bottom: 12px;
-  }
-  #api-input:focus { border-color: var(--gold); }
-
-  #btn-load-map {
-    width: 100%;
-    max-width: 420px;
-    padding: 16px;
-    border-radius: var(--radius);
-    border: none;
-    background: var(--fairway);
-    color: white;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  #btn-load-map:hover { background: var(--green-light); }
-
-  #api-error {
-    color: #e05555;
-    font-size: 12px;
-    margin-top: 8px;
-    font-family: 'DM Mono', monospace;
-    display: none;
-  }
-
-  /* TOAST */
-  #toast {
-    position: fixed;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-    background: var(--green);
-    border: 1px solid var(--fairway);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 25;
-    white-space: nowrap;
-  }
-  #toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* Export btn */
-  #btn-export {
-    margin-top: 20px;
-    padding: 14px 32px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(201,168,76,0.3);
-    background: transparent;
-    color: var(--gold);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  #btn-export:hover { background: rgba(201,168,76,0.1); }
-
-  #course-name-input {
-    width: 100%;
-    max-width: 420px;
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    outline: none;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-  #course-name-input::placeholder { color: rgba(255,255,255,0.25); }
-  #course-name-input:focus { border-color: rgba(201,168,76,0.4); }
+  #btn-export { margin-top: 20px; padding: 14px 32px; border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.3); background: transparent; color: var(--gold); font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; cursor: pointer; }
+  #start-modal { position: fixed; inset: 0; z-index: 3000; background: rgba(13,26,16,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; text-align: center; }
+  #start-modal h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 6px; color: var(--gold); margin-bottom: 8px; }
+  #start-modal p { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+  #course-input { width: 100%; max-width: 380px; padding: 14px 16px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; margin-bottom: 12px; text-align: center; }
+  #course-input::placeholder { color: rgba(255,255,255,0.25); }
+  #btn-start { width: 100%; max-width: 380px; padding: 18px; border-radius: var(--radius); border: none; background: var(--fairway); color: white; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; cursor: pointer; }
+  #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--green); border: 1px solid var(--fairway); color: white; padding: 10px 20px; border-radius: 30px; font-family: 'DM Mono', monospace; font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 1500; white-space: nowrap; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .leaflet-container { background: #1a2e1e; }
 </style>
 </head>
 <body>
 
-<!-- API KEY MODAL -->
-<div id="api-modal">
+<div id="start-modal">
   <h1>CADDIE</h1>
-  <p>GPS shot tracker with satellite maps.</p>
-  <input id="course-name-input" type="text" placeholder="Course name (optional)" />
-  <button id="btn-load-map" onclick="initMap()">START ROUND</button>
-  <div id="api-error">Could not load map. Check your API key.</div>
+  <p>GPS shot tracker with satellite map.<br>Open this on the course — map centers on you.</p>
+  <input id="course-input" type="text" placeholder="Course name (optional)" />
+  <button id="btn-start" onclick="startRound()">START ROUND</button>
 </div>
 
-<!-- MAP -->
 <div id="map"></div>
 
-<!-- TOP BAR -->
 <div id="topbar">
   <div id="logo">CADDIE</div>
-  <div id="hole-info">
-    <div class="info-chip">HOLE <span id="current-hole">1</span></div>
-    <div class="info-chip">PAR <span id="current-par">4</span></div>
-  </div>
+  <div id="hole-info"><div class="info-chip">HOLE <span id="current-hole">1</span></div></div>
   <button id="btn-settings" onclick="openScorecard()">📋</button>
 </div>
 
-<!-- BOTTOM PANEL -->
 <div id="bottom-panel">
   <div id="panel-handle"></div>
-
   <div id="club-label">Select Club</div>
   <div id="club-scroll"></div>
-
   <div id="action-row">
-    <button id="btn-undo" onclick="undoShot()" title="Undo last shot">↩</button>
+    <button id="btn-undo" onclick="undoShot()">↩</button>
     <button id="btn-track" onclick="trackShot()">TRACK SHOT</button>
-    <button id="btn-next-hole" onclick="nextHole()" title="Next hole">▶</button>
+    <button id="btn-next" onclick="nextHole()">▶</button>
   </div>
-
   <div id="status-bar">
-    <div id="gps-status">
-      <div id="gps-dot"></div>
-      <span id="gps-text">Acquiring GPS...</span>
-    </div>
-    <div id="shot-count">HOLE SHOTS: <span id="shot-num">0</span></div>
+    <div id="gps-status"><div id="gps-dot"></div><span id="gps-text">Acquiring GPS...</span></div>
+    <div id="shot-count">SHOTS: <span id="shot-num">0</span></div>
   </div>
 </div>
 
-<!-- SCORECARD OVERLAY -->
 <div id="scorecard-overlay">
   <div id="scorecard-header">
     <div id="scorecard-title">SCORECARD</div>
-    <button id="btn-close-scorecard" onclick="closeScorecard()">✕</button>
+    <button id="btn-close-sc" onclick="closeScorecard()">✕</button>
   </div>
   <div id="scorecard-body"></div>
-  <button id="btn-export" onclick="exportRound()">EXPORT ROUND</button>
+  <button id="btn-export" onclick="exportRound()">EXPORT CSV</button>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
-// ── STATE ──────────────────────────────────────────────────────────────────
 const CLUBS = ['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
-let map, gpsMarker, watchId;
-let currentPos = null;
-let selectedClub = 'Driver';
-let currentHole = 1;
-let currentPar = 4;
-let shots = []; // {hole, shotNum, club, lat, lng, distYards}
-let holeShots = []; // shots this hole
-let polylines = []; // map polylines
-let markers = []; // shot markers
-let apiKey = '';
-let courseName = '';
-let lastShotPos = null;
+let map, gpsMarker, currentPos = null, selectedClub = 'Driver';
+let currentHole = 1, shots = [], holeShots = [], lastShotPos = null;
+let shotMarkers = [], shotLines = [], courseName = '';
 
-// ── CLUBS ──────────────────────────────────────────────────────────────────
-function buildClubScroll() {
-  const el = document.getElementById('club-scroll');
-  el.innerHTML = '';
-  CLUBS.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'club-btn' + (c === selectedClub ? ' active' : '');
-    btn.textContent = c;
-    btn.onclick = () => selectClub(c);
-    el.appendChild(btn);
-  });
-}
+function startRound() {
+  courseName = document.getElementById('course-input').value.trim() || 'Golf Round';
+  document.getElementById('start-modal').style.display = 'none';
 
-function selectClub(c) {
-  selectedClub = c;
-  document.querySelectorAll('.club-btn').forEach(b => b.classList.toggle('active', b.textContent === c));
-}
+  map = L.map('map', { zoomControl: false, attributionControl: false });
 
-// ── GPS ────────────────────────────────────────────────────────────────────
-function startGPS() {
-  if (!navigator.geolocation) {
-    setGPSStatus('error', 'GPS not supported');
-    return;
-  }
-  watchId = navigator.geolocation.watchPosition(
-    pos => {
-      currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      setGPSStatus('active', `±${Math.round(pos.coords.accuracy)}m accuracy`);
-      if (gpsMarker) {
-        gpsMarker.setPosition(currentPos);
-      }
-    },
-    err => setGPSStatus('error', 'GPS error'),
-    { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
-  );
-}
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 20
+  }).addTo(map);
 
-function setGPSStatus(state, text) {
-  const dot = document.getElementById('gps-dot');
-  const label = document.getElementById('gps-text');
-  dot.className = state === 'active' ? 'active' : state === 'error' ? 'error' : '';
-  label.textContent = text;
-}
+  map.setView([42.36, -71.05], 17);
 
-// ── MAP ────────────────────────────────────────────────────────────────────
-function initMap() {
-  apiKey = 'AIzaSyBg2JIpzx5BdUabIGhOXmwqdGVUTR-uBoI';
-  courseName = document.getElementById('course-name-input').value.trim() || 'Golf Round';
-
-  document.getElementById('api-modal').style.display = 'none';
-  document.getElementById('map').innerHTML = '<div style="color:rgba(255,255,255,0.4);font-family:monospace;font-size:12px;padding:40px;text-align:center;margin-top:40vh">Loading map...</div>';
-
-  const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&callback=onMapLoaded&loading=async`;
-  script.async = true;
-  script.defer = true;
-  script.onerror = () => {
-    document.getElementById('map').innerHTML = '<div style="color:#e05555;font-family:monospace;font-size:12px;padding:40px;text-align:center;margin-top:40vh">SCRIPT LOAD FAILED<br>Check internet connection or API key.</div>';
-  };
-  document.head.appendChild(script);
-}
-
-window.gm_authFailure = function() {
-  document.getElementById('map').style.background = '#1a0000';
-  document.getElementById('map').innerHTML = '<div style="color:#e05555;font-family:monospace;font-size:13px;padding:40px;text-align:center;margin-top:40vh">AUTH FAILURE<br>API key rejected by Google.<br>Billing may not be activated.</div>';
-};
-
-window.onMapLoaded = function() {
-  document.getElementById('api-modal').style.display = 'none';
-
-  map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 18,
-    mapTypeId: 'satellite',
-    tilt: 0,
-    disableDefaultUI: true,
-    gestureHandling: 'greedy',
-  });
-
-  // GPS marker (blue dot)
-  gpsMarker = new google.maps.Marker({
-    map,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 10,
-      fillColor: '#4a90e2',
-      fillOpacity: 1,
-      strokeColor: 'white',
-      strokeWeight: 2,
-    },
-    zIndex: 999,
-  });
+  gpsMarker = L.circleMarker([42.36, -71.05], {
+    radius: 10, fillColor: '#4a90e2', fillOpacity: 1, color: 'white', weight: 2
+  }).addTo(map);
 
   startGPS();
+}
 
-  // Center map on first GPS fix
+function startGPS() {
+  if (!navigator.geolocation) { setGPS('error', 'GPS not supported'); return; }
   let centered = false;
-  const centerWatch = navigator.geolocation.watchPosition(pos => {
-    if (!centered) {
-      const latlng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      map.setCenter(latlng);
-      gpsMarker.setPosition(latlng);
-      centered = true;
-    }
-  }, null, { enableHighAccuracy: true });
+  navigator.geolocation.watchPosition(pos => {
+    currentPos = [pos.coords.latitude, pos.coords.longitude];
+    setGPS('active', `±${Math.round(pos.coords.accuracy)}m`);
+    gpsMarker.setLatLng(currentPos);
+    if (!centered) { map.setView(currentPos, 18); centered = true; }
+  }, () => setGPS('error', 'GPS error — allow location access'), { enableHighAccuracy: true, maximumAge: 3000 });
+}
 
-  buildClubScroll();
-  updateShotCount();
-  showToast('Map loaded. GPS acquiring...');
-};
+function setGPS(state, text) {
+  document.getElementById('gps-dot').className = state;
+  document.getElementById('gps-text').textContent = text;
+}
 
-// ── TRACK SHOT ─────────────────────────────────────────────────────────────
 function trackShot() {
-  if (!currentPos) {
-    showToast('Waiting for GPS signal...');
-    return;
-  }
-
+  if (!currentPos) { showToast('Waiting for GPS...'); return; }
   const shotNum = holeShots.length + 1;
   let distYards = 0;
-
   if (lastShotPos) {
     distYards = Math.round(haversineYards(lastShotPos, currentPos));
-    // Draw line from last shot to current
-    const line = new google.maps.Polyline({
-      path: [lastShotPos, currentPos],
-      strokeColor: '#3aaf5c',
-      strokeOpacity: 0.9,
-      strokeWeight: 3,
-      map,
-    });
-    polylines.push(line);
+    shotLines.push(L.polyline([lastShotPos, currentPos], { color: '#3aaf5c', weight: 3, opacity: 0.9 }).addTo(map));
   }
-
-  // Shot marker
-  const marker = new google.maps.Marker({
-    position: currentPos,
-    map,
-    label: {
-      text: String(shotNum),
-      color: '#0d1a10',
-      fontFamily: 'DM Mono',
-      fontSize: '11px',
-      fontWeight: '500',
-    },
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 14,
-      fillColor: '#c9a84c',
-      fillOpacity: 1,
-      strokeColor: '#0d1a10',
-      strokeWeight: 2,
-    },
-    zIndex: 100 + shotNum,
-    title: `Shot ${shotNum}: ${selectedClub}`,
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="background:#c9a84c;color:#0d1a10;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid #0d1a10;box-shadow:0 2px 6px rgba(0,0,0,0.5)">${shotNum}</div>`,
+    iconSize: [28, 28], iconAnchor: [14, 14]
   });
-  markers.push(marker);
-
-  const shot = {
-    hole: currentHole,
-    shotNum,
-    club: selectedClub,
-    lat: currentPos.lat,
-    lng: currentPos.lng,
-    distYards,
-  };
-
-  holeShots.push(shot);
-  shots.push(shot);
-  lastShotPos = { ...currentPos };
-
-  updateShotCount();
-
-  const distText = distYards > 0 ? ` · ${distYards}y` : '';
-  showToast(`Shot ${shotNum} tracked — ${selectedClub}${distText}`);
+  const marker = L.marker(currentPos, { icon }).addTo(map);
+  marker.bindPopup(`Shot ${shotNum}: ${selectedClub}${distYards > 0 ? ' · ' + distYards + 'y' : ''}`);
+  shotMarkers.push(marker);
+  const shot = { hole: currentHole, shotNum, club: selectedClub, lat: currentPos[0], lng: currentPos[1], distYards };
+  holeShots.push(shot); shots.push(shot); lastShotPos = [...currentPos];
+  updateCount();
+  showToast(`Shot ${shotNum} — ${selectedClub}${distYards > 0 ? ' · ' + distYards + 'y' : ''}`);
 }
 
-// ── UNDO ───────────────────────────────────────────────────────────────────
 function undoShot() {
-  if (holeShots.length === 0) { showToast('No shots to undo'); return; }
-
-  holeShots.pop();
-  shots.pop();
-
-  // Remove last marker
-  const m = markers.pop();
-  if (m) m.setMap(null);
-
-  // Remove last polyline
-  const p = polylines.pop();
-  if (p) p.setMap(null);
-
-  // Reset lastShotPos
-  if (holeShots.length > 0) {
-    const prev = holeShots[holeShots.length - 1];
-    lastShotPos = { lat: prev.lat, lng: prev.lng };
-  } else {
-    lastShotPos = null;
-  }
-
-  updateShotCount();
-  showToast('Last shot removed');
+  if (!holeShots.length) { showToast('No shots to undo'); return; }
+  holeShots.pop(); shots.pop();
+  const m = shotMarkers.pop(); if (m) map.removeLayer(m);
+  const l = shotLines.pop(); if (l) map.removeLayer(l);
+  lastShotPos = holeShots.length ? [holeShots[holeShots.length-1].lat, holeShots[holeShots.length-1].lng] : null;
+  updateCount(); showToast('Shot removed');
 }
 
-// ── NEXT HOLE ──────────────────────────────────────────────────────────────
 function nextHole() {
-  if (holeShots.length === 0) {
-    showToast('Track at least one shot first');
-    return;
-  }
-  currentHole++;
-  holeShots = [];
-  lastShotPos = null;
+  if (!holeShots.length) { showToast('Track a shot first'); return; }
+  currentHole++; holeShots = []; lastShotPos = null;
   document.getElementById('current-hole').textContent = currentHole;
-  updateShotCount();
-  showToast(`Hole ${currentHole} — Let\'s go`);
+  updateCount(); showToast(`Hole ${currentHole}`);
 }
 
-// ── SCORECARD ──────────────────────────────────────────────────────────────
-function openScorecard() {
-  buildScorecard();
-  document.getElementById('scorecard-overlay').classList.add('open');
-}
-
-function closeScorecard() {
-  document.getElementById('scorecard-overlay').classList.remove('open');
-}
+function updateCount() { document.getElementById('shot-num').textContent = holeShots.length; }
+function openScorecard() { buildScorecard(); document.getElementById('scorecard-overlay').classList.add('open'); }
+function closeScorecard() { document.getElementById('scorecard-overlay').classList.remove('open'); }
 
 function buildScorecard() {
   const body = document.getElementById('scorecard-body');
-  body.innerHTML = '';
-
+  if (!shots.length) { body.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px 0;">No shots yet</p>'; return; }
   const byHole = {};
-  shots.forEach(s => {
-    if (!byHole[s.hole]) byHole[s.hole] = [];
-    byHole[s.hole].push(s);
-  });
-
-  if (Object.keys(byHole).length === 0) {
-    body.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px 0;font-size:14px;">No shots tracked yet</p>';
-    return;
-  }
-
-  Object.entries(byHole).forEach(([hole, hShots]) => {
-    const card = document.createElement('div');
-    card.className = 'hole-card';
-
-    const totalDist = hShots.reduce((a,s) => a + s.distYards, 0);
-
-    card.innerHTML = `
-      <div class="hole-card-header">
-        <div class="hole-num">HOLE ${hole}</div>
-        <div class="hole-shots">${hShots.length} shots · ${totalDist}y total</div>
-      </div>
-      ${hShots.map(s => `
-        <div class="shot-row">
-          <span class="shot-num">#${s.shotNum}</span>
-          <span class="shot-club">${s.club}</span>
-          <span class="shot-dist">${s.distYards > 0 ? s.distYards + 'y' : '—'}</span>
-        </div>
-      `).join('')}
-    `;
-    body.appendChild(card);
-  });
+  shots.forEach(s => { if (!byHole[s.hole]) byHole[s.hole] = []; byHole[s.hole].push(s); });
+  body.innerHTML = Object.entries(byHole).map(([hole, hs]) => `
+    <div class="hole-card">
+      <div class="hole-card-header"><div class="hole-num">HOLE ${hole}</div><div class="hole-shots">${hs.length} shots · ${hs.reduce((a,s)=>a+s.distYards,0)}y</div></div>
+      ${hs.map(s=>`<div class="shot-row"><span class="shot-num">#${s.shotNum}</span><span>${s.club}</span><span class="shot-dist">${s.distYards>0?s.distYards+'y':'—'}</span></div>`).join('')}
+    </div>`).join('');
 }
 
-// ── EXPORT ─────────────────────────────────────────────────────────────────
 function exportRound() {
-  if (shots.length === 0) { showToast('No shots to export'); return; }
-
-  const date = new Date().toLocaleDateString();
-  let csv = `Caddie Shot Tracker\n${courseName}\n${date}\n\n`;
-  csv += 'Hole,Shot,Club,Distance (yds),Lat,Lng\n';
-  shots.forEach(s => {
-    csv += `${s.hole},${s.shotNum},${s.club},${s.distYards},${s.lat.toFixed(6)},${s.lng.toFixed(6)}\n`;
-  });
-
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `caddie_${courseName.replace(/\s+/g,'_')}_${date.replace(/\//g,'-')}.csv`;
-  a.click();
-  showToast('Round exported');
+  if (!shots.length) { showToast('No shots to export'); return; }
+  let csv = `Caddie\n${courseName}\n${new Date().toLocaleDateString()}\n\nHole,Shot,Club,Yards,Lat,Lng\n`;
+  shots.forEach(s => { csv += `${s.hole},${s.shotNum},${s.club},${s.distYards},${s.lat.toFixed(6)},${s.lng.toFixed(6)}\n`; });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `caddie_${courseName.replace(/\s+/g,'_')}.csv`; a.click(); showToast('Exported');
 }
 
-// ── UTILS ──────────────────────────────────────────────────────────────────
 function haversineYards(a, b) {
-  const R = 6371000;
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
-  const x = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(a.lat * Math.PI/180) * Math.cos(b.lat * Math.PI/180) *
-            Math.sin(dLng/2) * Math.sin(dLng/2);
-  const meters = R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
-  return meters * 1.09361;
-}
-
-function updateShotCount() {
-  document.getElementById('shot-num').textContent = holeShots.length;
+  const R = 6371000, dLat=(b[0]-a[0])*Math.PI/180, dLng=(b[1]-a[1])*Math.PI/180;
+  const x = Math.sin(dLat/2)**2 + Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*1.09361;
 }
 
 let toastTimer;
 function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────────
-buildClubScroll();
+const scroll = document.getElementById('club-scroll');
+CLUBS.forEach(c => {
+  const btn = document.createElement('button');
+  btn.className = 'club-btn' + (c===selectedClub?' active':'');
+  btn.textContent = c;
+  btn.onclick = () => { selectedClub = c; document.querySelectorAll('.club-btn').forEach(b=>b.classList.toggle('active',b.textContent===c)); };
+  scroll.appendChild(btn);
+});
 </script>
 </body>
 </html>
