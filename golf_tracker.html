@@ -721,8 +721,8 @@ function startRound(){
   shotMarkers=[];shotLines=[];pinMarkers={};teeMarkers={};
   distRings=[];ringsOn=false;measureMode=false;
   document.getElementById('play-course-chip').textContent=activeCourse.name.substring(0,14);
-  initMap(activeCourse.lat,activeCourse.lng);
-  buildClubs();buildHoleStrip();startGPS();loadOverlay();
+  buildClubs();buildHoleStrip();
+  setTimeout(function(){initMap(activeCourse.lat,activeCourse.lng);startGPS();loadOverlay();},150);
 }
 
 // ── MAP ────────────────────────────────────────────────────────────────────
@@ -734,6 +734,7 @@ function initMap(lat,lng){
   gpsMarker=L.circleMarker([lat,lng],{radius:10,fillColor:'#4a90e2',fillOpacity:1,color:'white',weight:2,zIndexOffset:1000}).addTo(map);
   measureMarker=L.marker([lat,lng],{draggable:true,icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#4a90e2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.7)"></div>',iconSize:[22,22],iconAnchor:[11,11]})});
   measureMarker.on('drag',doMeasure);
+  setTimeout(function(){map.invalidateSize();},200);
   Object.entries(pinsByHole).forEach(([h,p])=>drawPin(parseInt(h),p));
   Object.entries(teesByHole).forEach(([h,p])=>drawTeeM(parseInt(h),p));
 }
@@ -795,7 +796,7 @@ async function loadOverlay(){
     });
     if(gc>0)showToast(`Course loaded · ${gc} greens found`);
     buildHoleStrip();
-  }catch(e){showToast('Course overlay unavailable');}
+  }catch(e){console.log('Overlay error:',e);showToast('GPS tracking ready');}
 }
 function ctr(coords){return[coords.reduce((s,c)=>s+c[0],0)/coords.length,coords.reduce((s,c)=>s+c[1],0)/coords.length];}
 
