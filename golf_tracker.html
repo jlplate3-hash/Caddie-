@@ -11,630 +11,902 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --green:#1a5c2a;--gl:#2d8c46;--fairway:#3aaf5c;
-  --gold:#c9a84c;--white:#f5f2eb;--dark:#0d1a10;
-  --panel:rgba(13,26,16,0.96);--radius:12px;
+  --gold:#c9a84c;--white:#f5f2eb;--dark:#0d1209;
+  --panel:rgba(10,20,12,0.97);--radius:14px;
   --red:#e05555;--blue:#4a90e2;--purple:#9b59b6;
+  --card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.08);
 }
 html,body{height:100%;overflow:hidden;background:var(--dark);font-family:'DM Sans',sans-serif;color:var(--white)}
-#map{position:fixed;inset:0;z-index:0}
 
-/* TOP BAR */
-#topbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(to bottom,rgba(13,26,16,0.98) 70%,transparent)}
-#logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:var(--gold)}
-#top-chips{display:flex;gap:8px;align-items:center}
-.chip{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--white);white-space:nowrap}
-.chip span{color:var(--gold);font-weight:500}
-#btn-menu{background:none;border:none;color:var(--white);font-size:20px;cursor:pointer;padding:4px}
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;background:var(--dark);overflow:hidden}
+.screen.active{display:flex}
 
-/* WEATHER BAR */
-#weather-bar{position:fixed;top:56px;left:0;right:0;z-index:999;display:flex;gap:12px;align-items:center;padding:6px 16px;background:rgba(13,26,16,0.85);font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);overflow-x:auto;scrollbar-width:none}
-#weather-bar::-webkit-scrollbar{display:none}
-.wx-item{display:flex;align-items:center;gap:4px;white-space:nowrap}
-.wx-item span{color:var(--white)}
+/* ── HOME SCREEN ── */
+#home-screen{overflow-y:auto}
+#home-header{padding:52px 20px 16px;background:linear-gradient(to bottom,rgba(13,26,16,1),rgba(13,26,16,0.8))}
+#home-logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:6px;color:var(--gold);line-height:1}
+#home-sub{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-top:2px}
+#home-body{padding:0 16px 40px;flex:1}
 
-/* DISTANCE PANEL - shows when pin is set */
-#dist-panel{position:fixed;top:96px;right:12px;z-index:999;background:var(--panel);border:1px solid rgba(201,168,76,0.3);border-radius:var(--radius);padding:10px 14px;display:none;min-width:110px}
-#dist-to-pin{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1}
-#dist-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:6px}
-#plays-like-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--fairway)}
-#plays-like-label{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin:20px 0 10px}
+
+/* SEARCH BAR */
+#search-wrap{display:flex;gap:8px;margin-bottom:4px}
+#home-search{flex:1;padding:13px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none}
+#home-search::placeholder{color:rgba(255,255,255,0.22)}
+#home-search:focus{border-color:rgba(201,168,76,0.4)}
+#btn-do-search{padding:13px 18px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer}
+
+#search-results-home{margin-top:8px;display:none}
+.sr-item{padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);margin-bottom:6px;cursor:pointer;transition:background 0.15s}
+.sr-item:hover{background:rgba(255,255,255,0.08)}
+.sr-name{font-weight:500;font-size:14px}
+.sr-loc{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;font-family:'DM Mono',monospace}
+
+/* SAVED COURSES */
+.course-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.15s}
+.course-card:hover{background:rgba(255,255,255,0.08)}
+.cc-left{}
+.cc-name{font-size:15px;font-weight:500}
+.cc-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px}
+.cc-pin-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--fairway)}
+.cc-arrow{font-size:20px;color:rgba(255,255,255,0.2)}
+.cc-right{display:flex;align-items:center;gap:10px}
+.btn-delete-course{background:none;border:none;color:rgba(255,255,255,0.2);font-size:16px;cursor:pointer;padding:4px}
+
+#no-courses{text-align:center;padding:32px 0;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:1px}
+
+/* SETUP SCREEN */
+#setup-screen{}
+#setup-header{padding:52px 20px 16px;display:flex;align-items:center;gap:12px;background:rgba(13,26,16,0.95);flex-shrink:0}
+#btn-back-setup{background:none;border:none;color:var(--white);font-size:22px;cursor:pointer}
+#setup-course-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:var(--gold)}
+#setup-body{flex:1;overflow-y:auto;padding:16px}
+.setup-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.setup-section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px}
+.hcp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hcp-label{font-size:14px}
+#hcp-val-display{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold)}
+#hcp-slider{width:100%;accent-color:var(--gold);margin-top:6px}
+
+.tee-row{display:flex;gap:8px;margin-bottom:12px}
+.tee-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--white);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s}
+.tee-btn.active{border-color:var(--gold);background:rgba(201,168,76,0.12);color:var(--gold)}
+
+.hole-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.hole-cell{padding:8px 0;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);text-align:center;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s;position:relative}
+.hole-cell.pinned{border-color:var(--fairway);color:var(--fairway)}
+.hole-cell.tee-marked{border-color:var(--blue);color:var(--blue)}
+.hole-cell.both{border-color:var(--gold);color:var(--gold)}
+.hole-cell-num{display:block}
+.hole-cell-dot{display:block;font-size:8px;margin-top:1px;opacity:0.7}
+
+#btn-start-round-setup{width:100%;padding:18px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;margin-top:4px;box-shadow:0 4px 20px rgba(58,175,92,0.25)}
+
+/* PLAY SCREEN */
+#play-screen{overflow:hidden}
+#map{position:absolute;inset:0;z-index:0}
+
+#play-topbar{position:absolute;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:44px 14px 10px;background:linear-gradient(to bottom,rgba(10,20,12,0.98) 60%,transparent)}
+#play-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold)}
+#play-chips{display:flex;gap:6px;align-items:center}
+.pchip{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;backdrop-filter:blur(8px)}
+.pchip span{color:var(--gold);font-weight:500}
+#btn-home-from-play{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 12px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);cursor:pointer;backdrop-filter:blur(8px)}
+
+#weather-strip{position:absolute;top:88px;left:0;right:0;z-index:99;display:flex;gap:14px;padding:5px 14px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);overflow-x:auto;scrollbar-width:none}
+#weather-strip::-webkit-scrollbar{display:none}
+.wx{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.wx b{color:var(--white);font-weight:500}
+
+/* HOLE SELECTOR */
+#hole-strip{position:absolute;top:118px;left:0;right:0;z-index:99;display:flex;gap:6px;padding:6px 12px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none;align-items:center}
+#hole-strip::-webkit-scrollbar{display:none}
+.hpill{flex-shrink:0;padding:5px 11px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.hpill.cur{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600}
+.hpill.done{border-color:rgba(58,175,92,0.5);color:rgba(58,175,92,0.8)}
+.hpill.pinned{border-color:rgba(58,175,92,0.4)}
+
+/* DIST PANEL */
+#dist-panel{position:absolute;top:160px;right:12px;z-index:100;background:rgba(0,0,0,0.75);border:1px solid rgba(201,168,76,0.35);border-radius:var(--radius);padding:10px 14px;display:none;min-width:90px;text-align:center;backdrop-filter:blur(10px)}
+#dtp-val{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);line-height:1}
+#dtp-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-top:1px}
+#dtp-plays{font-family:'DM Mono',monospace;font-size:12px;color:var(--fairway);margin-top:6px}
+#dtp-plays-label{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px}
+
+/* MEASURE TOOL */
+#measure-panel{position:absolute;top:160px;left:12px;z-index:100;background:rgba(0,0,0,0.75);border:1px solid rgba(74,144,226,0.4);border-radius:var(--radius);padding:10px 14px;display:none;backdrop-filter:blur(10px);min-width:100px;text-align:center}
+#measure-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--blue);line-height:1}
+#measure-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px}
+#measure-hint{font-family:'DM Mono',monospace;font-size:9px;color:rgba(74,144,226,0.6);margin-top:4px;line-height:1.3}
 
 /* BOTTOM PANEL */
-#bottom-panel{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:var(--panel);border-top:1px solid rgba(201,168,76,0.2);border-radius:20px 20px 0 0;padding:14px 16px 32px;transition:transform 0.3s}
-#panel-handle{width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 14px}
-#club-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px}
-#club-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+#play-bottom{position:absolute;bottom:0;left:0;right:0;z-index:100;background:rgba(10,20,12,0.97);border-top:1px solid rgba(201,168,76,0.15);border-radius:20px 20px 0 0;padding:12px 14px 32px;backdrop-filter:blur(20px)}
+#panel-handle{width:32px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 12px}
+#club-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:7px}
+#club-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
 #club-scroll::-webkit-scrollbar{display:none}
-.club-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--white);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s}
-.club-btn.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:500}
+.cbt{flex-shrink:0;padding:5px 13px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--white);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s}
+.cbt.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600}
 
-#action-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-#btn-track{flex:1;padding:15px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 20px rgba(58,175,92,0.3);transition:all 0.15s}
-#btn-track:active{transform:scale(0.97)}
-#btn-undo{padding:15px 16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--white);font-size:17px;cursor:pointer}
-#btn-pin{padding:15px 16px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.1);color:var(--gold);font-size:17px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:1px}
-#btn-pin.set{background:rgba(201,168,76,0.25);border-color:var(--gold)}
-#btn-next{padding:15px 14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);font-size:17px;cursor:pointer}
+#action-row{display:flex;gap:7px;margin-bottom:10px}
+#btn-track{flex:1;padding:15px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 16px rgba(58,175,92,0.25);transition:all 0.15s}
+#btn-track:active{transform:scale(0.97);background:#2d9e44}
+#btn-undo{padding:15px 14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--white);font-size:16px;cursor:pointer}
+#btn-pin-play{padding:15px 10px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.25);background:rgba(201,168,76,0.06);color:var(--gold);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;line-height:1.4;text-align:center;min-width:46px}
+#btn-pin-play.set{background:rgba(201,168,76,0.18);border-color:var(--gold)}
+#btn-measure{padding:15px 10px;border-radius:var(--radius);border:1px solid rgba(74,144,226,0.25);background:rgba(74,144,226,0.06);color:var(--blue);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;line-height:1.4;text-align:center;min-width:46px}
+#btn-measure.active{background:rgba(74,144,226,0.18);border-color:var(--blue)}
+#btn-next-hole{padding:15px 12px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer}
 
-#status-row{display:flex;justify-content:space-between;align-items:center}
-#gps-status{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4)}
-#gps-dot{width:8px;height:8px;border-radius:50%;background:#888}
+#status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#gps-status{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35)}
+#gps-dot{width:7px;height:7px;border-radius:50%;background:#555}
 #gps-dot.active{background:var(--fairway);animation:pulse 2s infinite}
 #gps-dot.error{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-#shot-cat{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4)}
-#shot-cat span{color:var(--gold)}
+#cat-display{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35)}
+#cat-display span{color:var(--gold)}
+
+#tab-bar{display:flex;border-top:1px solid rgba(255,255,255,0.05);margin:0 -14px -32px;padding:0 6px}
+.tab{flex:1;padding:9px 2px 3px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);cursor:pointer;letter-spacing:1px;border:none;background:none;transition:color 0.15s}
+.tab:hover{color:rgba(255,255,255,0.6)}
+.tab-icon{font-size:14px;display:block;margin-bottom:1px}
 
 /* OVERLAYS */
-.overlay{position:fixed;inset:0;z-index:2000;background:rgba(13,26,16,0.97);display:none;flex-direction:column;padding:0;overflow:hidden}
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(10,20,12,0.97);display:none;flex-direction:column;overflow:hidden}
 .overlay.open{display:flex}
-.overlay-header{display:flex;justify-content:space-between;align-items:center;padding:20px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.overlay-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
-.overlay-body{flex:1;overflow-y:auto;padding:16px}
-.btn-close{background:none;border:none;color:var(--white);font-size:26px;cursor:pointer}
+.ov-header{display:flex;justify-content:space-between;align-items:center;padding:52px 16px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ov-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
+.btn-close-ov{background:none;border:none;color:rgba(255,255,255,0.5);font-size:24px;cursor:pointer}
+.ov-body{flex:1;overflow-y:auto;padding:16px}
 
 /* SCORECARD */
-.hole-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-.hole-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.hole-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:2px}
-.hole-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);text-align:right}
-.shot-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
-.shot-row:last-child{border-bottom:none}
-.shot-badge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
-.shot-badge.tee{background:rgba(74,144,226,0.2);color:#4a90e2}
-.shot-badge.approach{background:rgba(58,175,92,0.2);color:#3aaf5c}
-.shot-badge.chip{background:rgba(201,168,76,0.2);color:#c9a84c}
-.shot-badge.putt{background:rgba(155,89,182,0.2);color:#9b59b6}
-.shot-dist-val{font-family:'DM Mono',monospace;color:var(--fairway);font-size:12px}
-.sg-val{font-family:'DM Mono',monospace;font-size:12px}
-.sg-pos{color:#3aaf5c}
-.sg-neg{color:#e05555}
+.hole-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hc-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px}
+.hc-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);text-align:right}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;gap:8px}
+.srow:last-child{border-bottom:none}
+.sbadge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;flex-shrink:0}
+.sbadge.tee{background:rgba(74,144,226,0.18);color:#4a90e2}
+.sbadge.approach{background:rgba(58,175,92,0.18);color:#3aaf5c}
+.sbadge.chip{background:rgba(201,168,76,0.18);color:#c9a84c}
+.sbadge.putt{background:rgba(155,89,182,0.18);color:#9b59b6}
+.sdist{font-family:'DM Mono',monospace;color:var(--fairway);font-size:12px}
+.sgv{font-family:'DM Mono',monospace;font-size:12px}
+.sgv.pos{color:#3aaf5c}.sgv.neg{color:#e05555}
 
 /* ANALYTICS */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius);padding:14px}
-.stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold);letter-spacing:1px}
-.stat-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
-.sg-bar-wrap{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-.sg-bar-title{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;letter-spacing:1px}
-.sg-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sg-bar-label{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);width:70px;flex-shrink:0}
-.sg-bar-track{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.sg-bar-fill{height:100%;border-radius:3px;transition:width 0.5s}
-.sg-bar-fill.pos{background:var(--fairway)}
-.sg-bar-fill.neg{background:var(--red)}
-.sg-bar-num{font-family:'DM Mono',monospace;font-size:11px;width:44px;text-align:right;flex-shrink:0}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold)}
+.sl{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sg-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.sg-title{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:12px;letter-spacing:1px}
+.sg-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sg-lbl{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55);width:72px;flex-shrink:0}
+.sg-track{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.sg-fill{height:100%;border-radius:3px}
+.sg-fill.pos{background:var(--fairway)}.sg-fill.neg{background:var(--red)}
+.sg-num{font-family:'DM Mono',monospace;font-size:11px;width:46px;text-align:right;flex-shrink:0}
+.sg-num.pos{color:#3aaf5c}.sg-num.neg{color:#e05555}
 
-/* START MODAL */
-#start-modal{position:fixed;inset:0;z-index:3000;background:rgba(13,26,16,0.98);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
-#start-modal h1{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:6px;color:var(--gold);margin-bottom:6px}
-#start-modal p{color:rgba(255,255,255,0.45);font-size:14px;margin-bottom:32px;line-height:1.7}
-.modal-input{width:100%;max-width:360px;padding:14px 16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;margin-bottom:10px;text-align:center}
-.modal-input::placeholder{color:rgba(255,255,255,0.22)}
-.modal-input:focus{border-color:rgba(201,168,76,0.4)}
-#btn-start{width:100%;max-width:360px;padding:18px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;margin-top:4px}
-
-/* BOTTOM TABS */
-#tab-bar{display:flex;border-top:1px solid rgba(255,255,255,0.06);margin:0 -16px -32px;padding:0 8px}
-.tab{flex:1;padding:10px 4px 4px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);cursor:pointer;letter-spacing:1px;border:none;background:none;transition:color 0.15s}
-.tab.active{color:var(--gold)}
-.tab-icon{font-size:16px;display:block;margin-bottom:2px}
-
-/* EXPORT */
-#btn-export{width:100%;padding:14px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.3);background:transparent;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:4px}
+#btn-export-sc{width:100%;padding:14px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.3);background:transparent;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:8px}
 
 /* TOAST */
-#toast{position:fixed;top:100px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--green);border:1px solid var(--fairway);color:white;padding:10px 20px;border-radius:30px;font-family:'DM Mono',monospace;font-size:13px;opacity:0;transition:all 0.3s;z-index:4000;white-space:nowrap;pointer-events:none}
+#toast{position:fixed;top:110px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(26,92,42,0.95);border:1px solid var(--fairway);color:white;padding:9px 20px;border-radius:30px;font-family:'DM Mono',monospace;font-size:12px;opacity:0;transition:all 0.25s;z-index:9999;white-space:nowrap;pointer-events:none;backdrop-filter:blur(10px)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.leaflet-container{background:#1a2e1e}
+.leaflet-container{background:#141f16}
+.leaflet-tooltip{background:rgba(10,20,12,0.9);border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;border-radius:6px;padding:3px 8px;box-shadow:none}
 </style>
 </head>
 <body>
 
-<!-- START MODAL -->
-<div id="start-modal">
-  <h1>CADDIE</h1>
-  <p>GPS shot tracker with strokes gained,<br>weather-adjusted distances, and shot analytics.</p>
-  <input class="modal-input" id="course-input" type="text" placeholder="Course name" />
-  <input class="modal-input" id="hcp-input" type="number" placeholder="Your handicap (e.g. 12)" min="0" max="54" />
-  <button id="btn-start" onclick="startRound()">START ROUND</button>
-</div>
-
-<!-- MAP -->
-<div id="map"></div>
-
-<!-- TOP BAR -->
-<div id="topbar">
-  <div id="logo">CADDIE</div>
-  <div id="top-chips">
-    <div class="chip">HOLE <span id="cur-hole">1</span></div>
-    <div class="chip">SG <span id="cur-sg">+0.0</span></div>
+<!-- ── HOME SCREEN ── -->
+<div class="screen active" id="home-screen">
+  <div id="home-header">
+    <div id="home-logo">CADDIE</div>
+    <div id="home-sub">GPS SHOT TRACKER</div>
   </div>
-  <button id="btn-menu" onclick="openOverlay('scorecard-overlay')">📋</button>
-</div>
+  <div id="home-body">
+    <div class="section-label">Find a Course</div>
+    <div id="search-wrap">
+      <input id="home-search" type="text" placeholder="Search course name..." />
+      <button id="btn-do-search" onclick="doHomeSearch()">GO</button>
+    </div>
+    <div id="search-results-home"></div>
 
-<!-- WEATHER BAR -->
-<div id="weather-bar">
-  <div class="wx-item">🌡 <span id="wx-temp">--°F</span></div>
-  <div class="wx-item">💨 <span id="wx-wind">-- mph</span></div>
-  <div class="wx-item">🧭 <span id="wx-dir">--</span></div>
-  <div class="wx-item">💧 <span id="wx-hum">--%</span></div>
-  <div class="wx-item">⛰ <span id="wx-alt">-- ft</span></div>
-  <div class="wx-item" id="plays-like-bar" style="display:none">▶ plays like <span id="wx-plays">--y</span></div>
-</div>
-
-<!-- DISTANCE TO PIN -->
-<div id="dist-panel">
-  <div id="dist-label">TO PIN</div>
-  <div id="dist-to-pin">---</div>
-  <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-top:2px">YARDS</div>
-  <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08)">
-    <div id="plays-like-label" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px">PLAYS LIKE</div>
-    <div id="plays-like-val" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--fairway)">---y</div>
+    <div class="section-label">My Courses</div>
+    <div id="saved-courses-list"></div>
+    <div id="no-courses">No saved courses yet.<br>Search for a course above to get started.</div>
   </div>
 </div>
 
-<!-- BOTTOM PANEL -->
-<div id="bottom-panel">
-  <div id="panel-handle"></div>
-  <div id="club-label">Select Club</div>
-  <div id="club-scroll"></div>
-  <div id="action-row">
-    <button id="btn-undo" onclick="undoShot()" title="Undo">↩</button>
-    <button id="btn-track" onclick="trackShot()">TRACK SHOT</button>
-    <button id="btn-pin" onclick="setPin()">📍 PIN</button>
-    <button id="btn-next" onclick="nextHole()" title="Next hole">▶</button>
+<!-- ── SETUP SCREEN ── -->
+<div class="screen" id="setup-screen">
+  <div id="setup-header">
+    <button id="btn-back-setup" onclick="goHome()">←</button>
+    <div id="setup-course-name">Course Setup</div>
   </div>
-  <div id="status-row">
-    <div id="gps-status"><div id="gps-dot"></div><span id="gps-text">Acquiring GPS...</span></div>
-    <div id="shot-cat">TYPE: <span id="cat-label">—</span></div>
+  <div id="setup-body">
+    <!-- HANDICAP -->
+    <div class="setup-section">
+      <div class="setup-section-title">Your Handicap</div>
+      <div class="hcp-row"><span class="hcp-label">Handicap Index</span><span id="hcp-val-display">18</span></div>
+      <input type="range" id="hcp-slider" min="0" max="54" value="18" oninput="document.getElementById('hcp-val-display').textContent=this.value;handicap=parseInt(this.value)">
+    </div>
+
+    <!-- TEE SELECTION -->
+    <div class="setup-section">
+      <div class="setup-section-title">Tee Color</div>
+      <div class="tee-row">
+        <button class="tee-btn active" onclick="selectTee('black',this)">⬛ Black</button>
+        <button class="tee-btn" onclick="selectTee('blue',this)">🔵 Blue</button>
+        <button class="tee-btn" onclick="selectTee('white',this)">⚪ White</button>
+        <button class="tee-btn" onclick="selectTee('red',this)">🔴 Red</button>
+      </div>
+    </div>
+
+    <!-- HOLE STATUS -->
+    <div class="setup-section">
+      <div class="setup-section-title">Hole Setup — Tap to configure</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);margin-bottom:10px;letter-spacing:1px">
+        🟢 PIN SET &nbsp;|&nbsp; 🔵 TEE MARKED &nbsp;|&nbsp; 🟡 BOTH
+      </div>
+      <div class="hole-grid" id="hole-grid"></div>
+    </div>
+
+    <button id="btn-start-round-setup" onclick="startRound()">START ROUND →</button>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-align:center;margin-top:10px;letter-spacing:1px">
+      You can also set pins on the course during play
+    </div>
   </div>
-  <div id="tab-bar">
-    <button class="tab active" onclick="openOverlay('scorecard-overlay')"><span class="tab-icon">📋</span>CARD</button>
-    <button class="tab" onclick="openOverlay('analytics-overlay')"><span class="tab-icon">📊</span>STATS</button>
-    <button class="tab" onclick="toggleRings()"><span class="tab-icon">🎯</span>RINGS</button>
-    <button class="tab" onclick="exportRound()"><span class="tab-icon">⬇</span>EXPORT</button>
+</div>
+
+<!-- ── PLAY SCREEN ── -->
+<div class="screen" id="play-screen">
+  <div id="map"></div>
+
+  <div id="play-topbar">
+    <div id="play-logo">CADDIE</div>
+    <div id="play-chips">
+      <div class="pchip" id="course-name-chip">—</div>
+      <div class="pchip">H<span id="cur-hole-play">1</span></div>
+      <div class="pchip">SG <span id="cur-sg">+0.0</span></div>
+    </div>
+    <button id="btn-home-from-play" onclick="goHome()">⌂ HOME</button>
+  </div>
+
+  <div id="weather-strip">
+    <div class="wx">🌡 <b id="wx-temp">--°F</b></div>
+    <div class="wx">💨 <b id="wx-wind">--mph</b></div>
+    <div class="wx">🧭 <b id="wx-dir">--</b></div>
+    <div class="wx">💧 <b id="wx-hum">--%</b></div>
+    <div class="wx">⛰ <b id="wx-alt">--ft</b></div>
+    <div class="wx" id="plays-wx" style="display:none">▶ plays <b id="wx-plays">--y</b></div>
+  </div>
+
+  <div id="hole-strip"></div>
+
+  <div id="dist-panel">
+    <div id="dtp-sub">TO PIN</div>
+    <div id="dtp-val">---</div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px">YDS</div>
+    <div id="dtp-plays" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--fairway);margin-top:6px">---y</div>
+    <div id="dtp-plays-label" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px">PLAYS LIKE</div>
+  </div>
+
+  <div id="measure-panel">
+    <div id="measure-val">---</div>
+    <div id="measure-sub" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px">YARDS</div>
+    <div id="measure-hint">Drag marker<br>on map</div>
+  </div>
+
+  <div id="play-bottom">
+    <div id="panel-handle"></div>
+    <div id="club-row-label">Select Club</div>
+    <div id="club-scroll"></div>
+    <div id="action-row">
+      <button id="btn-undo" onclick="undoShot()">↩</button>
+      <button id="btn-track" onclick="trackShot()">TRACK SHOT</button>
+      <button id="btn-pin-play" onclick="setPinAtGPS()">📍<br>PIN</button>
+      <button id="btn-measure" onclick="toggleMeasure()">📏<br>MEASURE</button>
+      <button id="btn-next-hole" onclick="nextHole()">▶</button>
+    </div>
+    <div id="status-row">
+      <div id="gps-status"><div id="gps-dot"></div><span id="gps-text">Acquiring GPS...</span></div>
+      <div id="cat-display">TYPE: <span id="cat-label">TEE</span></div>
+    </div>
+    <div id="tab-bar">
+      <button class="tab" onclick="openOverlay('sc-overlay')"><span class="tab-icon">📋</span>CARD</button>
+      <button class="tab" onclick="openOverlay('stats-overlay')"><span class="tab-icon">📊</span>STATS</button>
+      <button class="tab" onclick="toggleRings()"><span class="tab-icon">🎯</span>RINGS</button>
+      <button class="tab" onclick="saveCurrentCourse()"><span class="tab-icon">💾</span>SAVE</button>
+    </div>
   </div>
 </div>
 
 <!-- SCORECARD OVERLAY -->
-<div class="overlay" id="scorecard-overlay">
-  <div class="overlay-header">
-    <div class="overlay-title">SCORECARD</div>
-    <button class="btn-close" onclick="closeOverlay('scorecard-overlay')">✕</button>
-  </div>
-  <div class="overlay-body" id="scorecard-body"></div>
+<div class="overlay" id="sc-overlay">
+  <div class="ov-header"><div class="ov-title">SCORECARD</div><button class="btn-close-ov" onclick="closeOverlay('sc-overlay')">✕</button></div>
+  <div class="ov-body" id="sc-body"></div>
 </div>
 
-<!-- ANALYTICS OVERLAY -->
-<div class="overlay" id="analytics-overlay">
-  <div class="overlay-header">
-    <div class="overlay-title">ANALYTICS</div>
-    <button class="btn-close" onclick="closeOverlay('analytics-overlay')">✕</button>
-  </div>
-  <div class="overlay-body" id="analytics-body"></div>
+<!-- STATS OVERLAY -->
+<div class="overlay" id="stats-overlay">
+  <div class="ov-header"><div class="ov-title">ANALYTICS</div><button class="btn-close-ov" onclick="closeOverlay('stats-overlay')">✕</button></div>
+  <div class="ov-body" id="stats-body"></div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// ── CLUBS & STROKES GAINED BASELINES ──────────────────────────────────────
-// Strokes to hole out from distance (yards) for scratch golfer baseline
-// Based on PGA Tour strokes gained framework
-const SG_BASELINE = {
-  tee: {200:3.9,220:3.85,240:3.8,260:3.75,280:3.7,300:3.6,320:3.55,340:3.5,360:3.45,380:3.4,400:3.35,420:3.3,440:3.25,460:3.2,480:3.15,500:3.1},
-  fairway: {50:2.7,75:2.6,100:2.55,125:2.5,150:2.45,175:2.42,200:2.4,225:2.42,250:2.45},
-  rough: {50:2.85,75:2.75,100:2.65,125:2.6,150:2.55,175:2.52,200:2.5,225:2.55,250:2.6},
-  bunker: {20:2.6,30:2.55,40:2.5,50:2.55,75:2.65,100:2.75},
-  green: {3:1.08,5:1.12,8:1.18,10:1.2,15:1.3,20:1.4,30:1.55,40:1.7,50:1.85,60:2.0}
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
+const CLUBS=['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
+const SG_BASE={
+  tee:{200:3.9,240:3.8,280:3.7,300:3.6,320:3.55,340:3.5,360:3.45,400:3.35,440:3.25,460:3.2},
+  approach:{50:2.7,75:2.6,100:2.55,125:2.5,150:2.45,175:2.42,200:2.4,225:2.43,250:2.46},
+  chip:{10:2.3,20:2.4,30:2.5,40:2.6,50:2.7,60:2.8},
+  putt:{3:1.08,5:1.12,8:1.18,10:1.2,15:1.3,20:1.4,30:1.55,40:1.7,50:1.85}
 };
 
-const CLUBS = ['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
-const AVG_CARRY = {Driver:245,['3W']:215,['5W']:195,['4i']:185,['5i']:175,['6i']:165,['7i']:155,['8i']:145,['9i']:135,PW:120,GW:105,SW:85,LW:65,Putter:0};
+// ── STATE ──────────────────────────────────────────────────────────────────
+let map, gpsMarker, measureMarker, measureLine;
+let currentPos=null, altitude=0, weather=null;
+let selectedClub='Driver', selectedTee='white';
+let currentHole=1, handicap=18;
+let shots=[], holeShots=[], lastShotPos=null;
+let shotMarkers=[], shotLines=[];
+let pinsByHole={}, pinMarkers={};
+let teesByHole={}, teeMarkers={};
+let distRings=[], ringsOn=false;
+let measureMode=false, measurePos=null;
+let activeCourse=null;
 
-let map, gpsMarker, pinMarker, distRings = [], ringsVisible = false;
-let currentPos = null, selectedClub = 'Driver';
-let currentHole = 1, shots = [], holeShots = [], lastShotPos = null;
-let shotMarkers = [], shotLines = [], courseName = '', handicap = 18;
-let pinPos = null, weather = null, altitude = 0;
+// Course library stored in localStorage
+let courseLibrary = JSON.parse(localStorage.getItem('caddie_courses')||'[]');
 
-// ── START ──────────────────────────────────────────────────────────────────
-function startRound() {
-  courseName = document.getElementById('course-input').value.trim() || 'Golf Round';
-  handicap = parseFloat(document.getElementById('hcp-input').value) || 18;
-  document.getElementById('start-modal').style.display = 'none';
-  initMap();
+// ── HOME SCREEN ────────────────────────────────────────────────────────────
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goHome(){showScreen('home-screen');renderSavedCourses();}
+
+function renderSavedCourses(){
+  const list=document.getElementById('saved-courses-list');
+  const none=document.getElementById('no-courses');
+  if(!courseLibrary.length){list.innerHTML='';none.style.display='block';return;}
+  none.style.display='none';
+  list.innerHTML=courseLibrary.map((c,i)=>`
+    <div class="course-card" onclick="openCourse(${i})">
+      <div class="cc-left">
+        <div class="cc-name">${c.name}</div>
+        <div class="cc-meta">${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}</div>
+        <div class="cc-pin-count">${Object.keys(c.pins||{}).length} pins saved · ${Object.keys(c.tees||{}).length} tees saved</div>
+      </div>
+      <div class="cc-right">
+        <button class="btn-delete-course" onclick="event.stopPropagation();deleteCourse(${i})">🗑</button>
+        <span class="cc-arrow">›</span>
+      </div>
+    </div>`).join('');
+}
+
+function deleteCourse(i){
+  if(!confirm('Delete '+courseLibrary[i].name+'?'))return;
+  courseLibrary.splice(i,1);
+  localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
+  renderSavedCourses();
+  showToast('Course deleted');
+}
+
+async function doHomeSearch(){
+  const q=document.getElementById('home-search').value.trim();
+  if(!q){showToast('Enter a course name');return;}
+  showToast('Searching...');
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+' golf course')}&format=json&limit=5`,{headers:{'Accept-Language':'en'}});
+    const data=await r.json();
+    const el=document.getElementById('search-results-home');
+    if(!data.length){el.style.display='block';el.innerHTML='<div style="font-family:DM Mono,monospace;font-size:12px;color:rgba(255,255,255,0.3);padding:12px 0">No results found. Try a different name.</div>';return;}
+    el.style.display='block';
+    el.innerHTML=data.map(d=>`<div class="sr-item" onclick="selectSearchResult(${d.lat},${d.lon},'${escStr(d.display_name.split(',')[0])}')">
+      <div class="sr-name">${d.display_name.split(',')[0]}</div>
+      <div class="sr-loc">${d.display_name.split(',').slice(1,3).join(',').trim()}</div>
+    </div>`).join('');
+  }catch(e){showToast('Search failed — check connection');}
+}
+
+document.getElementById('home-search').addEventListener('keydown',e=>{if(e.key==='Enter')doHomeSearch();});
+
+function escStr(s){return s.replace(/'/g,"\\'");}
+
+function selectSearchResult(lat,lon,name){
+  // Check if already saved
+  const existing=courseLibrary.find(c=>c.name===name);
+  if(existing){openCourse(courseLibrary.indexOf(existing));return;}
+  // Add to library
+  const course={name,lat:parseFloat(lat),lng:parseFloat(lon),pins:{},tees:{},addedAt:Date.now()};
+  courseLibrary.unshift(course);
+  localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
+  openCourse(0);
+}
+
+function openCourse(idx){
+  activeCourse=courseLibrary[idx];
+  pinsByHole={...activeCourse.pins};
+  teesByHole={...activeCourse.tees};
+  document.getElementById('setup-course-name').textContent=activeCourse.name;
+  document.getElementById('search-results-home').style.display='none';
+  buildHoleGrid();
+  showScreen('setup-screen');
+}
+
+// ── SETUP SCREEN ──────────────────────────────────────────────────────────
+function selectTee(color,btn){
+  selectedTee=color;
+  document.querySelectorAll('.tee-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildHoleGrid(){
+  const grid=document.getElementById('hole-grid');
+  grid.innerHTML='';
+  for(let i=1;i<=18;i++){
+    const hasPins=!!pinsByHole[i];
+    const hasTees=!!teesByHole[i];
+    const cls=hasPins&&hasTees?'both':hasPins?'pinned':hasTees?'tee-marked':'';
+    const dot=hasPins&&hasTees?'⬛+📍':hasPins?'📍':hasTees?'📐':'';
+    const cell=document.createElement('div');
+    cell.className='hole-cell '+cls;
+    cell.id='hole-cell-'+i;
+    cell.innerHTML=`<span class="hole-cell-num">${i}</span><span class="hole-cell-dot">${dot}</span>`;
+    grid.appendChild(cell);
+  }
+}
+
+function startRound(){
+  if(!activeCourse){showToast('Select a course first');return;}
+  showScreen('play-screen');
+  currentHole=1;shots=[];holeShots=[];lastShotPos=null;
+  shotMarkers=[];shotLines=[];pinMarkers={};teeMarkers={};
+  distRings=[];ringsOn=false;measureMode=false;
+
+  document.getElementById('course-name-chip').textContent=activeCourse.name.substring(0,16);
+  initMap(activeCourse.lat,activeCourse.lng);
+  buildClubScroll();
+  buildHoleStrip();
   startGPS();
+  loadCourseOverlay();
 }
 
-function initMap() {
-  map = L.map('map', { zoomControl: false, attributionControl: false });
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20 }).addTo(map);
-  map.setView([42.36, -71.05], 17);
-  gpsMarker = L.circleMarker([42.36,-71.05], { radius:10, fillColor:'#4a90e2', fillOpacity:1, color:'white', weight:2 }).addTo(map);
-  map.on('click', onMapClick);
+// ── MAP INIT ──────────────────────────────────────────────────────────────
+function initMap(lat,lng){
+  if(map){map.remove();map=null;}
+  map=L.map('map',{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(map);
+  map.setView([lat,lng],17);
+
+  // GPS dot
+  gpsMarker=L.circleMarker([lat,lng],{radius:10,fillColor:'#4a90e2',fillOpacity:1,color:'white',weight:2,zIndexOffset:1000}).addTo(map);
+
+  // Measure marker (draggable)
+  measureMarker=L.marker([lat,lng],{
+    draggable:true,
+    icon:L.divIcon({className:'',html:'<div style="width:20px;height:20px;background:#4a90e2;border:2px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.6)"></div>',iconSize:[20,20],iconAnchor:[10,10]})
+  });
+  measureMarker.on('drag',updateMeasure);
+
+  // Draw saved pins and tees
+  Object.entries(pinsByHole).forEach(([h,pos])=>drawPin(parseInt(h),pos,false));
+  Object.entries(teesByHole).forEach(([h,pos])=>drawTee(parseInt(h),pos,false));
 }
 
-function onMapClick(e) {
-  // Long press sets pin — on mobile tap just centers
-}
-
-// ── GPS ────────────────────────────────────────────────────────────────────
-function startGPS() {
-  if (!navigator.geolocation) { setGPS('error','GPS not supported'); return; }
-  let centered = false;
-  navigator.geolocation.watchPosition(pos => {
-    currentPos = [pos.coords.latitude, pos.coords.longitude];
-    altitude = pos.coords.altitude ? pos.coords.altitude * 3.28084 : 0;
-    setGPS('active', `±${Math.round(pos.coords.accuracy)}m`);
-    gpsMarker.setLatLng(currentPos);
-    if (!centered) {
-      map.setView(currentPos, 18);
-      centered = true;
-      fetchWeather(pos.coords.latitude, pos.coords.longitude);
+// ── GPS ───────────────────────────────────────────────────────────────────
+function startGPS(){
+  if(!navigator.geolocation){setGPS('error','GPS not supported');return;}
+  let centered=false;
+  navigator.geolocation.watchPosition(pos=>{
+    currentPos=[pos.coords.latitude,pos.coords.longitude];
+    altitude=pos.coords.altitude?pos.coords.altitude*3.28084:0;
+    setGPS('active',`±${Math.round(pos.coords.accuracy)}m`);
+    if(gpsMarker)gpsMarker.setLatLng(currentPos);
+    if(!centered){
+      map.setView(currentPos,18);centered=true;
+      fetchWeather(pos.coords.latitude,pos.coords.longitude);
     }
     updateDistToPin();
-    updatePlaysLike();
-    updateShotCat();
-  }, () => setGPS('error','Allow location access'), { enableHighAccuracy:true, maximumAge:3000 });
+    updateCatDisplay();
+    if(measureMode&&measureMarker&&!map.hasLayer(measureMarker)){
+      measureMarker.setLatLng(currentPos);
+      measureMarker.addTo(map);
+    }
+  },()=>setGPS('error','Allow location access'),{enableHighAccuracy:true,maximumAge:3000});
+}
+function setGPS(s,t){document.getElementById('gps-dot').className=s;document.getElementById('gps-text').textContent=t;}
+
+// ── WEATHER ───────────────────────────────────────────────────────────────
+async function fetchWeather(lat,lng){
+  try{
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit`);
+    const d=await r.json();weather=d.current;
+    document.getElementById('wx-temp').textContent=Math.round(weather.temperature_2m)+'°F';
+    document.getElementById('wx-wind').textContent=Math.round(weather.wind_speed_10m)+'mph';
+    document.getElementById('wx-dir').textContent=degToCompass(weather.wind_direction_10m);
+    document.getElementById('wx-hum').textContent=weather.relative_humidity_2m+'%';
+    document.getElementById('wx-alt').textContent=Math.round(altitude)+'ft';
+  }catch(e){}
+}
+function degToCompass(d){return['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];}
+function playsLike(y){
+  if(!y)return y;
+  let a=y;
+  a-=(altitude/1000)*y*0.01;
+  if(weather){a+=((75-weather.temperature_2m)/10)*y*0.01;a+=weather.wind_speed_10m*0.35;}
+  return Math.round(a);
 }
 
-function setGPS(state, text) {
-  document.getElementById('gps-dot').className = state;
-  document.getElementById('gps-text').textContent = text;
+// ── COURSE OVERLAY ────────────────────────────────────────────────────────
+async function loadCourseOverlay(){
+  if(!activeCourse)return;
+  const {lat,lng}=activeCourse;
+  try{
+    const q=`[out:json][timeout:25];(way["golf"="fairway"](around:2000,${lat},${lng});way["golf"="green"](around:2000,${lat},${lng});way["golf"="tee"](around:2000,${lat},${lng});way["golf"="bunker"](around:2000,${lat},${lng});way["golf"="water_hazard"](around:2000,${lat},${lng}););out body;>;out skel qt;`;
+    const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q});
+    const data=await r.json();
+    const nodes={};
+    data.elements.filter(e=>e.type==='node').forEach(n=>{nodes[n.id]={lat:n.lat,lng:n.lon};});
+    let greensFound=0;
+    data.elements.filter(e=>e.type==='way'&&e.tags).forEach(w=>{
+      const coords=(w.nodes||[]).map(id=>nodes[id]).filter(Boolean).map(n=>[n.lat,n.lng]);
+      if(!coords.length)return;
+      const g=w.tags.golf;
+      if(g==='fairway')L.polygon(coords,{color:'#3aaf5c',weight:1,opacity:0.5,fillColor:'#3aaf5c',fillOpacity:0.12}).addTo(map);
+      else if(g==='green'){
+        greensFound++;
+        L.polygon(coords,{color:'#6de88a',weight:1.5,opacity:0.7,fillColor:'#5dde7a',fillOpacity:0.22}).addTo(map);
+        const c=centroid(coords);
+        const h=w.tags.ref?parseInt(w.tags.ref):greensFound;
+        if(h>=1&&h<=18&&!pinsByHole[h])autoSetPin(h,c);
+      }
+      else if(g==='tee')L.polygon(coords,{color:'#4a90e2',weight:1,opacity:0.5,fillColor:'#4a90e2',fillOpacity:0.18}).addTo(map);
+      else if(g==='bunker')L.polygon(coords,{color:'#c8b560',weight:1,opacity:0.5,fillColor:'#d4c46a',fillOpacity:0.2}).addTo(map);
+      else if(g==='water_hazard')L.polygon(coords,{color:'#4a90e2',weight:1,opacity:0.4,fillColor:'#4a90e2',fillOpacity:0.25}).addTo(map);
+    });
+    if(greensFound>0)showToast(`Course loaded · ${greensFound} greens`);
+    buildHoleStrip();
+  }catch(e){showToast('Course overlay unavailable');}
 }
 
-// ── WEATHER ────────────────────────────────────────────────────────────────
-async function fetchWeather(lat, lng) {
-  try {
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit`);
-    const d = await r.json();
-    weather = d.current;
-    document.getElementById('wx-temp').textContent = Math.round(weather.temperature_2m) + '°F';
-    document.getElementById('wx-wind').textContent = Math.round(weather.wind_speed_10m) + ' mph';
-    document.getElementById('wx-dir').textContent = degToCompass(weather.wind_direction_10m);
-    document.getElementById('wx-hum').textContent = weather.relative_humidity_2m + '%';
-    document.getElementById('wx-alt').textContent = Math.round(altitude) + ' ft';
-    updatePlaysLike();
-  } catch(e) { console.log('Weather unavailable'); }
+function centroid(coords){
+  return[coords.reduce((s,c)=>s+c[0],0)/coords.length,coords.reduce((s,c)=>s+c[1],0)/coords.length];
 }
 
-function degToCompass(d) {
-  const dirs = ['N','NE','E','SE','S','SW','W','NW'];
-  return dirs[Math.round(d/45) % 8];
+// ── PINS & TEES ───────────────────────────────────────────────────────────
+function autoSetPin(h,pos){
+  pinsByHole[h]=pos;
+  drawPin(h,pos,false);
+  buildHoleStrip();
 }
 
-// Plays-like adjustment: altitude, temp, wind component
-function playsLikeDistance(actualYards) {
-  if (!actualYards) return actualYards;
-  let adj = actualYards;
-  // Altitude: ~1% per 1000ft
-  adj -= (altitude / 1000) * actualYards * 0.01;
-  if (weather) {
-    // Temp: colder = shorter (~1% per 10°F below 75)
-    const tempDelta = (75 - weather.temperature_2m) / 10;
-    adj += tempDelta * actualYards * 0.01;
-    // Wind: headwind adds, tailwind subtracts (simplified)
-    const windEffect = (weather.wind_speed_10m * 0.5);
-    adj += windEffect; // positive = plays longer (headwind assumption)
+function drawPin(h,pos,animate){
+  if(pinMarkers[h])map.removeLayer(pinMarkers[h]);
+  const icon=L.divIcon({className:'',html:`<div style="background:var(--gold,#c9a84c);color:#0d1209;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.7)">${h}</div>`,iconSize:[22,22],iconAnchor:[11,11]});
+  pinMarkers[h]=L.marker(pos,{icon,zIndexOffset:500}).addTo(map);
+  pinMarkers[h].bindTooltip(`H${h} pin`,{direction:'top'});
+}
+
+function drawTee(h,pos,animate){
+  if(teeMarkers[h])map.removeLayer(teeMarkers[h]);
+  const colors={black:'#222',blue:'#4a90e2',white:'#f5f5f5',red:'#e05555'};
+  const col=colors[selectedTee]||'#f5f5f5';
+  const icon=L.divIcon({className:'',html:`<div style="background:${col};border:2px solid rgba(0,0,0,0.5);border-radius:3px;width:16px;height:16px;box-shadow:0 2px 6px rgba(0,0,0,0.7)"></div>`,iconSize:[16,16],iconAnchor:[8,8]});
+  teeMarkers[h]=L.marker(pos,{icon,zIndexOffset:400}).addTo(map);
+  teeMarkers[h].bindTooltip(`H${h} tee (${selectedTee})`,{direction:'top'});
+}
+
+function setPinAtGPS(){
+  if(!currentPos){showToast('Waiting for GPS...');return;}
+  const h=currentHole;
+  pinsByHole[h]=[...currentPos];
+  drawPin(h,currentPos,true);
+  // Save to course library
+  if(activeCourse){
+    activeCourse.pins=pinsByHole;
+    activeCourse.tees=teesByHole;
+    localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
   }
-  return Math.round(adj);
+  document.getElementById('btn-pin-play').classList.add('set');
+  buildHoleStrip();
+  updateDistToPin();
+  showToast(`Pin set — Hole ${h}`);
 }
 
-function updatePlaysLike() {
-  if (!pinPos || !currentPos) return;
-  const dist = Math.round(haversineYards(currentPos, pinPos));
-  const pl = playsLikeDistance(dist);
-  document.getElementById('dist-to-pin').textContent = dist;
-  document.getElementById('plays-like-val').textContent = pl + 'y';
-  document.getElementById('wx-plays').textContent = pl + 'y';
-  document.getElementById('plays-like-bar').style.display = 'flex';
-  document.getElementById('dist-panel').style.display = 'block';
+function setTeeAtGPS(){
+  if(!currentPos){showToast('Waiting for GPS...');return;}
+  const h=currentHole;
+  teesByHole[h]=[...currentPos];
+  drawTee(h,currentPos,true);
+  if(activeCourse){
+    activeCourse.tees=teesByHole;
+    localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
+  }
+  showToast(`Tee marked — Hole ${h}`);
 }
 
-// ── PIN ────────────────────────────────────────────────────────────────────
-function setPin() {
-  if (!currentPos) { showToast('Waiting for GPS...'); return; }
-  pinPos = [...currentPos];
-  if (pinMarker) map.removeLayer(pinMarker);
-  const pinIcon = L.divIcon({
-    className:'',
-    html:`<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8))">📍</div>`,
-    iconSize:[28,28], iconAnchor:[14,28]
-  });
-  pinMarker = L.marker(pinPos, { icon: pinIcon }).addTo(map);
-  document.getElementById('btn-pin').classList.add('set');
-  document.getElementById('dist-panel').style.display = 'block';
-  updatePlaysLike();
-  showToast('Pin set');
+// ── HOLE STRIP ────────────────────────────────────────────────────────────
+function buildHoleStrip(){
+  const strip=document.getElementById('hole-strip');
+  strip.innerHTML='';
+  for(let i=1;i<=18;i++){
+    const p=document.createElement('button');
+    const done=shots.some(s=>s.hole===i);
+    const hasPins=!!pinsByHole[i];
+    p.className='hpill'+(i===currentHole?' cur':done?' done':hasPins?' pinned':'');
+    p.id='hpill-'+i;
+    p.textContent=`${i}${hasPins?'●':''}`;
+    p.onclick=(()=>{const h=i;return()=>jumpHole(h);})();
+    strip.appendChild(p);
+  }
 }
 
-function updateDistToPin() {
-  if (!pinPos || !currentPos) return;
-  const dist = Math.round(haversineYards(currentPos, pinPos));
-  document.getElementById('dist-to-pin').textContent = dist;
+function jumpHole(h){
+  currentHole=h;
+  document.getElementById('cur-hole-play').textContent=h;
+  document.querySelectorAll('.hpill').forEach(p=>p.classList.remove('cur'));
+  const pill=document.getElementById('hpill-'+h);
+  if(pill){pill.classList.add('cur');pill.scrollIntoView({inline:'center',behavior:'smooth'});}
+  document.getElementById('btn-pin-play').classList.toggle('set',!!pinsByHole[h]);
+  if(pinsByHole[h])map.setView(pinsByHole[h],18);
+  else if(teesByHole[h])map.setView(teesByHole[h],18);
+  updateDistToPin();
+  showToast(`Hole ${h}`);
 }
 
-// ── DISTANCE RINGS ─────────────────────────────────────────────────────────
-function toggleRings() {
-  if (!currentPos) { showToast('Waiting for GPS...'); return; }
-  if (ringsVisible) {
-    distRings.forEach(r => map.removeLayer(r));
-    distRings = [];
-    ringsVisible = false;
-    showToast('Rings hidden');
+// ── DIST TO PIN ───────────────────────────────────────────────────────────
+function updateDistToPin(){
+  const pin=pinsByHole[currentHole];
+  if(!pin||!currentPos){document.getElementById('dist-panel').style.display='none';return;}
+  const d=Math.round(haversineYards(currentPos,pin));
+  const pl=playsLike(d);
+  document.getElementById('dtp-val').textContent=d;
+  document.getElementById('dtp-plays').textContent=pl+'y';
+  document.getElementById('dist-panel').style.display='block';
+  document.getElementById('wx-plays').textContent=pl+'y';
+  document.getElementById('plays-wx').style.display='flex';
+}
+
+// ── MEASURE TOOL ──────────────────────────────────────────────────────────
+function toggleMeasure(){
+  measureMode=!measureMode;
+  const btn=document.getElementById('btn-measure');
+  const panel=document.getElementById('measure-panel');
+  if(measureMode){
+    btn.classList.add('active');
+    panel.style.display='block';
+    if(currentPos){
+      measureMarker.setLatLng(currentPos);
+      measureMarker.addTo(map);
+      measureLine=L.polyline([currentPos,currentPos],{color:'#4a90e2',weight:2,dashArray:'6 4',opacity:0.8}).addTo(map);
+      showToast('Drag the blue marker to measure');
+    }
   } else {
-    [50, 100, 150, 200].forEach((yards, i) => {
-      const meters = yards * 0.9144;
-      const colors = ['#9b59b6','#3aaf5c','#c9a84c','#4a90e2'];
-      const ring = L.circle(currentPos, {
-        radius: meters,
-        color: colors[i], weight: 1.5, opacity: 0.8,
-        fillColor: colors[i], fillOpacity: 0.04
-      }).addTo(map);
-      ring.bindTooltip(`${yards}y`, { permanent: true, direction: 'top', className: '' });
+    btn.classList.remove('active');
+    panel.style.display='none';
+    if(map.hasLayer(measureMarker))map.removeLayer(measureMarker);
+    if(measureLine){map.removeLayer(measureLine);measureLine=null;}
+  }
+}
+
+function updateMeasure(){
+  if(!currentPos||!measureMarker)return;
+  measurePos=measureMarker.getLatLng();
+  const d=Math.round(haversineYards(currentPos,[measurePos.lat,measurePos.lng]));
+  document.getElementById('measure-val').textContent=d;
+  if(measureLine)measureLine.setLatLngs([currentPos,[measurePos.lat,measurePos.lng]]);
+}
+
+// ── RINGS ──────────────────────────────────────────────────────────────────
+function toggleRings(){
+  if(!currentPos){showToast('Waiting for GPS...');return;}
+  if(ringsOn){distRings.forEach(r=>map.removeLayer(r));distRings=[];ringsOn=false;showToast('Rings off');}
+  else{
+    [50,100,150,200].forEach((y,i)=>{
+      const cols=['#9b59b6','#3aaf5c','#c9a84c','#4a90e2'];
+      const ring=L.circle(currentPos,{radius:y*0.9144,color:cols[i],weight:1.5,opacity:0.8,fillColor:cols[i],fillOpacity:0.04}).addTo(map);
+      ring.bindTooltip(`${y}y`,{permanent:true,direction:'top'});
       distRings.push(ring);
     });
-    ringsVisible = true;
-    showToast('Distance rings on');
+    ringsOn=true;showToast('Distance rings on');
   }
 }
 
-// ── SHOT CATEGORIZATION ────────────────────────────────────────────────────
-function categorizeShot(club, distFromLastYards) {
-  if (holeShots.length === 0) return 'tee';
-  if (club === 'Putter') return 'putt';
-  if (distFromLastYards !== null && distFromLastYards < 30) return 'chip';
-  if (['SW','LW','GW'].includes(club) && distFromLastYards < 50) return 'chip';
-  return 'approach';
+// ── SHOT TRACKING ─────────────────────────────────────────────────────────
+function categorize(club,dist){
+  if(holeShots.length===0)return'tee';
+  if(club==='Putter')return'putt';
+  if(dist!==null&&dist<40)return'chip';
+  if(['SW','LW','GW'].includes(club)&&dist<60)return'chip';
+  return'approach';
+}
+function updateCatDisplay(){
+  if(!lastShotPos||!currentPos){document.getElementById('cat-label').textContent=holeShots.length===0?'TEE':'—';return;}
+  const d=Math.round(haversineYards(lastShotPos,currentPos));
+  document.getElementById('cat-label').textContent=categorize(selectedClub,d).toUpperCase();
 }
 
-function updateShotCat() {
-  if (!lastShotPos || !currentPos) { document.getElementById('cat-label').textContent = holeShots.length === 0 ? 'TEE' : '—'; return; }
-  const dist = Math.round(haversineYards(lastShotPos, currentPos));
-  const cat = categorizeShot(selectedClub, dist);
-  document.getElementById('cat-label').textContent = cat.toUpperCase();
+const CAT_COLOR={tee:'#4a90e2',approach:'#3aaf5c',chip:'#c9a84c',putt:'#9b59b6'};
+
+function trackShot(){
+  if(!currentPos){showToast('Waiting for GPS...');return;}
+  const sn=holeShots.length+1;
+  let dy=0;
+  if(lastShotPos){
+    dy=Math.round(haversineYards(lastShotPos,currentPos));
+    shotLines.push(L.polyline([lastShotPos,currentPos],{color:'#3aaf5c',weight:3,opacity:0.85}).addTo(map));
+  }
+  const dist2=lastShotPos?Math.round(haversineYards(lastShotPos,currentPos)):null;
+  const cat=categorize(selectedClub,dist2);
+  const pin=pinsByHole[currentHole];
+  const dtp=pin?Math.round(haversineYards(currentPos,pin)):null;
+  const icon=L.divIcon({className:'',html:`<div style="background:${CAT_COLOR[cat]||'#c9a84c'};color:#0d1209;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.6)">${sn}</div>`,iconSize:[28,28],iconAnchor:[14,14]});
+  const marker=L.marker(currentPos,{icon}).addTo(map);
+  marker.bindPopup(`<b>Shot ${sn}</b><br>${selectedClub} · ${cat}<br>${dy>0?dy+'y':''}`);
+  shotMarkers.push(marker);
+  const shot={hole:currentHole,shotNum:sn,club:selectedClub,lat:currentPos[0],lng:currentPos[1],distYards:dy,category:cat,distToPin:dtp,playsLike:playsLike(dy)};
+  holeShots.push(shot);shots.push(shot);lastShotPos=[...currentPos];
+  updateSGDisplay();
+  showToast(`${cat.toUpperCase()} · ${selectedClub}${dy>0?' · '+dy+'y':''}`);
+  if(ringsOn){distRings.forEach(r=>map.removeLayer(r));distRings=[];ringsOn=false;toggleRings();}
 }
 
-// ── STROKES GAINED ─────────────────────────────────────────────────────────
-function getSGBaseline(category, distYards) {
-  const table = SG_BASELINE[category] || SG_BASELINE.fairway;
-  const keys = Object.keys(table).map(Number).sort((a,b)=>a-b);
-  if (distYards <= keys[0]) return table[keys[0]];
-  if (distYards >= keys[keys.length-1]) return table[keys[keys.length-1]];
-  for (let i = 0; i < keys.length-1; i++) {
-    if (distYards >= keys[i] && distYards <= keys[i+1]) {
-      const t = (distYards - keys[i]) / (keys[i+1] - keys[i]);
-      return table[keys[i]] + t * (table[keys[i+1]] - table[keys[i]]);
+function undoShot(){
+  if(!holeShots.length){showToast('No shots to undo');return;}
+  holeShots.pop();shots.pop();
+  const m=shotMarkers.pop();if(m)map.removeLayer(m);
+  const l=shotLines.pop();if(l)map.removeLayer(l);
+  lastShotPos=holeShots.length?[holeShots[holeShots.length-1].lat,holeShots[holeShots.length-1].lng]:null;
+  updateSGDisplay();showToast('Shot removed');
+}
+
+function nextHole(){
+  if(!holeShots.length){showToast('Track a shot first');return;}
+  holeShots=[];lastShotPos=null;
+  currentHole++;
+  document.getElementById('cur-hole-play').textContent=currentHole;
+  document.getElementById('btn-pin-play').classList.remove('set');
+  buildHoleStrip();
+  const pill=document.getElementById('hpill-'+currentHole);
+  if(pill)pill.scrollIntoView({inline:'center',behavior:'smooth'});
+  if(pinsByHole[currentHole])map.setView(pinsByHole[currentHole],18);
+  else if(teesByHole[currentHole])map.setView(teesByHole[currentHole],18);
+  updateDistToPin();updateCatDisplay();
+  showToast(`Hole ${currentHole}`);
+}
+
+// ── SG ────────────────────────────────────────────────────────────────────
+function getSGBase(cat,d){
+  const t=SG_BASE[cat]||SG_BASE.approach;
+  const keys=Object.keys(t).map(Number).sort((a,b)=>a-b);
+  if(d<=keys[0])return t[keys[0]];
+  if(d>=keys[keys.length-1])return t[keys[keys.length-1]];
+  for(let i=0;i<keys.length-1;i++){
+    if(d>=keys[i]&&d<=keys[i+1]){
+      const p=(d-keys[i])/(keys[i+1]-keys[i]);
+      return t[keys[i]]+p*(t[keys[i+1]]-t[keys[i]]);
     }
   }
   return 2.5;
 }
-
-function calcSG(shot, nextShot) {
-  // SG = baseline_before - (1 + baseline_after)
-  const cat = shot.category;
-  const baselineBefore = getSGBaseline(cat, shot.distToPin || 150);
-  if (!nextShot) return 0; // last shot (holed out) — simplified
-  const baselineAfter = getSGBaseline(nextShot.category, nextShot.distToPin || 10);
-  return parseFloat((baselineBefore - (1 + baselineAfter)).toFixed(2));
+function calcSG(s,next){
+  const b=getSGBase(s.category,s.distToPin||150);
+  if(!next)return 0;
+  const a=getSGBase(next.category,next.distToPin||10);
+  return parseFloat((b-(1+a)).toFixed(2));
+}
+function updateSGDisplay(){
+  let sg=0;for(let i=0;i<shots.length-1;i++)sg+=calcSG(shots[i],shots[i+1]);
+  const el=document.getElementById('cur-sg');
+  el.textContent=(sg>=0?'+':'')+sg.toFixed(1);
+  el.style.color=sg>=0?'#3aaf5c':'#e05555';
 }
 
-// ── TRACK SHOT ─────────────────────────────────────────────────────────────
-function trackShot() {
-  if (!currentPos) { showToast('Waiting for GPS...'); return; }
-  const shotNum = holeShots.length + 1;
-  let distYards = 0;
-
-  if (lastShotPos) {
-    distYards = Math.round(haversineYards(lastShotPos, currentPos));
-    const line = L.polyline([lastShotPos, currentPos], { color:'#3aaf5c', weight:3, opacity:0.85 }).addTo(map);
-    shotLines.push(line);
-  }
-
-  const cat = categorizeShot(selectedClub, lastShotPos ? Math.round(haversineYards(lastShotPos, currentPos)) : null);
-  const distToPin = pinPos ? Math.round(haversineYards(currentPos, pinPos)) : null;
-
-  const icon = L.divIcon({
-    className:'',
-    html:`<div style="background:${catColor(cat)};color:#0d1a10;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid #0d1a10;box-shadow:0 2px 8px rgba(0,0,0,0.6)">${shotNum}</div>`,
-    iconSize:[28,28], iconAnchor:[14,14]
-  });
-  const marker = L.marker(currentPos, { icon }).addTo(map);
-  marker.bindPopup(`<b>Shot ${shotNum}</b><br>${selectedClub}<br>${distYards > 0 ? distYards + 'y' : ''}<br><i>${cat}</i>`);
-  shotMarkers.push(marker);
-
-  const shot = {
-    hole: currentHole, shotNum, club: selectedClub,
-    lat: currentPos[0], lng: currentPos[1],
-    distYards, category: cat, distToPin,
-    playsLike: playsLikeDistance(distYards)
-  };
-
-  holeShots.push(shot);
-  shots.push(shot);
-  lastShotPos = [...currentPos];
-
-  // Update SG display
-  updateSGDisplay();
-
-  const distText = distYards > 0 ? ` · ${distYards}y` : '';
-  showToast(`${cat.toUpperCase()} · ${selectedClub}${distText}`);
-
-  // Update rings to new position
-  if (ringsVisible) { distRings.forEach(r => map.removeLayer(r)); distRings = []; ringsVisible = false; toggleRings(); }
+// ── SAVE COURSE ───────────────────────────────────────────────────────────
+function saveCurrentCourse(){
+  if(!activeCourse){showToast('No active course');return;}
+  activeCourse.pins=pinsByHole;
+  activeCourse.tees=teesByHole;
+  localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
+  showToast('Course saved with current pins');
 }
 
-function catColor(cat) {
-  return {tee:'#4a90e2',approach:'#3aaf5c',chip:'#c9a84c',putt:'#9b59b6'}[cat] || '#c9a84c';
-}
-
-function updateSGDisplay() {
-  // Simple running SG estimate
-  let totalSG = 0;
-  for (let i = 0; i < shots.length - 1; i++) {
-    totalSG += calcSG(shots[i], shots[i+1]);
-  }
-  const sgEl = document.getElementById('cur-sg');
-  sgEl.textContent = (totalSG >= 0 ? '+' : '') + totalSG.toFixed(1);
-  sgEl.style.color = totalSG >= 0 ? '#3aaf5c' : '#e05555';
-}
-
-// ── UNDO ───────────────────────────────────────────────────────────────────
-function undoShot() {
-  if (!holeShots.length) { showToast('No shots to undo'); return; }
-  holeShots.pop(); shots.pop();
-  const m = shotMarkers.pop(); if (m) map.removeLayer(m);
-  const l = shotLines.pop(); if (l) map.removeLayer(l);
-  lastShotPos = holeShots.length ? [holeShots[holeShots.length-1].lat, holeShots[holeShots.length-1].lng] : null;
-  updateSGDisplay();
-  showToast('Shot removed');
-}
-
-// ── NEXT HOLE ──────────────────────────────────────────────────────────────
-function nextHole() {
-  if (!holeShots.length) { showToast('Track a shot first'); return; }
-  currentHole++;
-  holeShots = []; lastShotPos = null; pinPos = null;
-  if (pinMarker) { map.removeLayer(pinMarker); pinMarker = null; }
-  document.getElementById('btn-pin').classList.remove('set');
-  document.getElementById('dist-panel').style.display = 'none';
-  document.getElementById('cur-hole').textContent = currentHole;
-  showToast(`Hole ${currentHole}`);
-}
-
-// ── OVERLAYS ───────────────────────────────────────────────────────────────
-function openOverlay(id) {
-  if (id === 'scorecard-overlay') buildScorecard();
-  if (id === 'analytics-overlay') buildAnalytics();
+// ── OVERLAYS ──────────────────────────────────────────────────────────────
+function openOverlay(id){
+  if(id==='sc-overlay')buildScorecard();
+  if(id==='stats-overlay')buildStats();
   document.getElementById(id).classList.add('open');
 }
-function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
 
-// ── SCORECARD ──────────────────────────────────────────────────────────────
-function buildScorecard() {
-  const body = document.getElementById('scorecard-body');
-  if (!shots.length) { body.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px 0;font-size:14px">No shots yet</p>'; return; }
-  const byHole = {};
-  shots.forEach(s => { if (!byHole[s.hole]) byHole[s.hole] = []; byHole[s.hole].push(s); });
-  body.innerHTML = Object.entries(byHole).map(([hole, hs]) => {
-    const totalDist = hs.reduce((a,s)=>a+s.distYards,0);
-    const putts = hs.filter(s=>s.category==='putt').length;
-    return `<div class="hole-card">
-      <div class="hole-card-header">
-        <div class="hole-num">HOLE ${hole}</div>
-        <div class="hole-meta">${hs.length} shots · ${putts} putts<br>${totalDist}y total</div>
-      </div>
-      ${hs.map((s,i) => {
-        const sgVal = i < hs.length-1 ? calcSG(s, hs[i+1]) : 0;
-        return `<div class="shot-row">
-          <span class="shot-badge ${s.category}">${s.category}</span>
-          <span style="font-size:13px">${s.club}</span>
-          <span class="shot-dist-val">${s.distYards>0?s.distYards+'y':'—'}</span>
-          <span class="sg-val ${sgVal>=0?'sg-pos':'sg-neg'}">${sgVal!==0?(sgVal>0?'+':'')+sgVal.toFixed(2):''}</span>
-        </div>`;
-      }).join('')}
+function buildScorecard(){
+  const body=document.getElementById('sc-body');
+  if(!shots.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>';return;}
+  const bh={};shots.forEach(s=>{if(!bh[s.hole])bh[s.hole]=[];bh[s.hole].push(s);});
+  body.innerHTML=Object.entries(bh).map(([h,hs])=>{
+    const td=hs.reduce((a,s)=>a+s.distYards,0);
+    const putts=hs.filter(s=>s.category==='putt').length;
+    return`<div class="hole-card">
+      <div class="hc-header"><div class="hc-num">HOLE ${h}</div><div class="hc-meta">${hs.length} shots · ${putts}p · ${td}y</div></div>
+      ${hs.map((s,i)=>{const sg=i<hs.length-1?calcSG(s,hs[i+1]):0;return`<div class="srow"><span class="sbadge ${s.category}">${s.category}</span><span>${s.club}</span><span class="sdist">${s.distYards>0?s.distYards+'y':'—'}</span><span class="sgv ${sg>=0?'pos':'neg'}">${sg!==0?(sg>0?'+':'')+sg.toFixed(2):''}</span></div>`;}).join('')}
     </div>`;
-  }).join('') + `<button id="btn-export" onclick="exportRound()">EXPORT CSV</button>`;
+  }).join('')+'<button id="btn-export-sc" onclick="exportRound()">EXPORT CSV</button>';
 }
 
-// ── ANALYTICS ──────────────────────────────────────────────────────────────
-function buildAnalytics() {
-  const body = document.getElementById('analytics-body');
-  if (!shots.length) { body.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:40px 0;">No shots yet</p>'; return; }
-
-  const totalShots = shots.length;
-  const putts = shots.filter(s=>s.category==='putt').length;
-  const teeShots = shots.filter(s=>s.category==='tee');
-  const approaches = shots.filter(s=>s.category==='approach');
-  const chips = shots.filter(s=>s.category==='chip');
-
-  // Strokes gained by category
-  let sgTee=0, sgApp=0, sgChip=0, sgPutt=0, sgTotal=0;
-  for (let i=0; i<shots.length-1; i++) {
-    const sg = calcSG(shots[i], shots[i+1]);
-    sgTotal += sg;
-    if (shots[i].category==='tee') sgTee+=sg;
-    else if (shots[i].category==='approach') sgApp+=sg;
-    else if (shots[i].category==='chip') sgChip+=sg;
-    else if (shots[i].category==='putt') sgPutt+=sg;
+function buildStats(){
+  const body=document.getElementById('stats-body');
+  if(!shots.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>';return;}
+  const tees=shots.filter(s=>s.category==='tee');
+  const apps=shots.filter(s=>s.category==='approach');
+  const chips=shots.filter(s=>s.category==='chip');
+  const putts=shots.filter(s=>s.category==='putt');
+  let sgT=0,sgA=0,sgC=0,sgP=0,sgTot=0;
+  for(let i=0;i<shots.length-1;i++){
+    const sg=calcSG(shots[i],shots[i+1]);sgTot+=sg;
+    if(shots[i].category==='tee')sgT+=sg;
+    else if(shots[i].category==='approach')sgA+=sg;
+    else if(shots[i].category==='chip')sgC+=sg;
+    else if(shots[i].category==='putt')sgP+=sg;
   }
-
-  const avgDriveYards = teeShots.length ? Math.round(teeShots.reduce((a,s)=>a+s.distYards,0)/teeShots.length) : 0;
-  const holes = Math.max(currentHole-1, 1);
-  const puttsPerHole = (putts/holes).toFixed(1);
-
-  const sgBar = (label, val) => {
-    const maxVal = 1.5, pct = Math.min(Math.abs(val)/maxVal*100, 100);
-    const pos = val >= 0;
-    return `<div class="sg-bar-row">
-      <div class="sg-bar-label">${label}</div>
-      <div class="sg-bar-track"><div class="sg-bar-fill ${pos?'pos':'neg'}" style="width:${pct}%"></div></div>
-      <div class="sg-bar-num ${pos?'sg-pos':'sg-neg'}">${pos?'+':''}${val.toFixed(2)}</div>
-    </div>`;
-  };
-
-  body.innerHTML = `
+  const avgDr=tees.length?Math.round(tees.reduce((a,s)=>a+s.distYards,0)/tees.length):0;
+  const holes=Math.max(currentHole-1,1);
+  const bar=(l,v)=>{const p=Math.min(Math.abs(v)/1.5*100,100);return`<div class="sg-row"><div class="sg-lbl">${l}</div><div class="sg-track"><div class="sg-fill ${v>=0?'pos':'neg'}" style="width:${p}%"></div></div><div class="sg-num ${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}</div></div>`;};
+  body.innerHTML=`
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-val">${totalShots}</div><div class="stat-label">Total Shots</div></div>
-      <div class="stat-card"><div class="stat-val">${puttsPerHole}</div><div class="stat-label">Putts / Hole</div></div>
-      <div class="stat-card"><div class="stat-val">${avgDriveYards > 0 ? avgDriveYards+'y' : '—'}</div><div class="stat-label">Avg Drive</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:${sgTotal>=0?'var(--fairway)':'var(--red)'}">${sgTotal>=0?'+':''}${sgTotal.toFixed(1)}</div><div class="stat-label">Total SG</div></div>
+      <div class="stat-card"><div class="sv">${shots.length}</div><div class="sl">Total Shots</div></div>
+      <div class="stat-card"><div class="sv">${(putts.length/holes).toFixed(1)}</div><div class="sl">Putts/Hole</div></div>
+      <div class="stat-card"><div class="sv">${avgDr>0?avgDr+'y':'—'}</div><div class="sl">Avg Drive</div></div>
+      <div class="stat-card"><div class="sv" style="color:${sgTot>=0?'var(--fairway)':'var(--red)'}">${sgTot>=0?'+':''}${sgTot.toFixed(1)}</div><div class="sl">Total SG</div></div>
     </div>
-    <div class="sg-bar-wrap">
-      <div class="sg-bar-title">STROKES GAINED BY CATEGORY</div>
-      ${sgBar('Off Tee', sgTee)}
-      ${sgBar('Approach', sgApp)}
-      ${sgBar('Chipping', sgChip)}
-      ${sgBar('Putting', sgPutt)}
-    </div>
-    <div class="sg-bar-wrap">
-      <div class="sg-bar-title">SHOT MIX</div>
-      ${sgBar('Tee shots', teeShots.length)}
-      ${sgBar('Approaches', approaches.length)}
-      ${sgBar('Chips', chips.length)}
-      ${sgBar('Putts', putts)}
-    </div>
-  `;
+    <div class="sg-wrap"><div class="sg-title">STROKES GAINED</div>${bar('Off Tee',sgT)}${bar('Approach',sgA)}${bar('Chipping',sgC)}${bar('Putting',sgP)}</div>`;
 }
 
-// ── EXPORT ─────────────────────────────────────────────────────────────────
-function exportRound() {
-  if (!shots.length) { showToast('No shots to export'); return; }
-  let csv = `Caddie\n${courseName}\n${new Date().toLocaleDateString()}\n\nHole,Shot,Category,Club,Yards,PlaysLike,DistToPin,Lat,Lng\n`;
-  shots.forEach(s => { csv += `${s.hole},${s.shotNum},${s.category},${s.club},${s.distYards},${s.playsLike||''},${s.distToPin||''},${s.lat.toFixed(6)},${s.lng.toFixed(6)}\n`; });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = `caddie_${courseName.replace(/\s+/g,'_')}.csv`;
-  a.click(); showToast('Exported');
+function exportRound(){
+  if(!shots.length){showToast('No shots');return;}
+  let csv=`Caddie\n${activeCourse?activeCourse.name:'Round'}\n${new Date().toLocaleDateString()}\n\nHole,Shot,Cat,Club,Yards,PlaysLike,DistToPin,Lat,Lng\n`;
+  shots.forEach(s=>{csv+=`${s.hole},${s.shotNum},${s.category},${s.club},${s.distYards},${s.playsLike||''},${s.distToPin||''},${s.lat.toFixed(6)},${s.lng.toFixed(6)}\n`;});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`caddie_${(activeCourse?activeCourse.name:'round').replace(/\s+/g,'_')}.csv`;
+  a.click();showToast('Exported');
 }
 
-// ── UTILS ──────────────────────────────────────────────────────────────────
-function haversineYards(a, b) {
-  const R=6371000, dLat=(b[0]-a[0])*Math.PI/180, dLng=(b[1]-a[1])*Math.PI/180;
-  const x=Math.sin(dLat/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dLng/2)**2;
+// ── CLUBS ─────────────────────────────────────────────────────────────────
+function buildClubScroll(){
+  const scroll=document.getElementById('club-scroll');
+  scroll.innerHTML='';
+  CLUBS.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='cbt'+(c===selectedClub?' active':'');
+    btn.textContent=c;
+    btn.onclick=()=>{selectedClub=c;document.querySelectorAll('.cbt').forEach(b=>b.classList.toggle('active',b.textContent===c));updateCatDisplay();};
+    scroll.appendChild(btn);
+  });
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function haversineYards(a,b){
+  const R=6371000,dL=(b[0]-a[0])*Math.PI/180,dG=(b[1]-a[1])*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dG/2)**2;
   return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*1.09361;
 }
-let toastTimer;
-function showToast(msg) {
-  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2400);
+let toastT;
+function showToast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2400);
 }
 
-// ── BUILD CLUBS ────────────────────────────────────────────────────────────
-const scroll = document.getElementById('club-scroll');
-CLUBS.forEach(c => {
-  const btn = document.createElement('button');
-  btn.className = 'club-btn'+(c===selectedClub?' active':'');
-  btn.textContent = c;
-  btn.onclick = () => {
-    selectedClub = c;
-    document.querySelectorAll('.club-btn').forEach(b=>b.classList.toggle('active',b.textContent===c));
-    updateShotCat();
-  };
-  scroll.appendChild(btn);
-});
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderSavedCourses();
 </script>
 </body>
 </html>
