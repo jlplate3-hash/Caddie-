@@ -11,340 +11,588 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --green:#1a5c2a;--gl:#2d8c46;--fairway:#3aaf5c;
-  --gold:#c9a84c;--white:#f5f2eb;--dark:#0d1209;
+  --gold:#c9a84c;--white:#f5f2eb;--dark:#0a140c;
   --panel:rgba(10,20,12,0.97);--radius:14px;
   --red:#e05555;--blue:#4a90e2;--purple:#9b59b6;
   --card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.08);
 }
 html,body{height:100%;overflow:hidden;background:var(--dark);font-family:'DM Sans',sans-serif;color:var(--white)}
-
-/* ── SCREENS ── */
 .screen{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;background:var(--dark);overflow:hidden}
 .screen.active{display:flex}
 
-/* ── HOME SCREEN ── */
+/* HOME */
 #home-screen{overflow-y:auto}
-#home-header{padding:52px 20px 16px;background:linear-gradient(to bottom,rgba(13,26,16,1),rgba(13,26,16,0.8))}
-#home-logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:6px;color:var(--gold);line-height:1}
-#home-sub{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-top:2px}
-#home-body{padding:0 16px 40px;flex:1}
+#home-header{padding:52px 20px 16px;flex-shrink:0}
+#home-logo{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:6px;color:var(--gold);line-height:1}
+#home-sub{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:3px;margin-top:2px}
+#home-body{padding:0 16px 60px}
+.sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin:18px 0 8px}
 
-.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin:20px 0 10px}
+#search-box{width:100%;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--white);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:6px}
+#search-box::placeholder{color:rgba(255,255,255,0.2)}
+#search-box:focus{border-color:rgba(201,168,76,0.4)}
 
-/* SEARCH BAR */
-#search-wrap{display:flex;gap:8px;margin-bottom:4px}
-#home-search{flex:1;padding:13px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none}
-#home-search::placeholder{color:rgba(255,255,255,0.22)}
-#home-search:focus{border-color:rgba(201,168,76,0.4)}
-#btn-do-search{padding:13px 18px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer}
+#state-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.sf-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.15s}
+.sf-btn.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600}
 
-#search-results-home{margin-top:8px;display:none}
-.sr-item{padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);margin-bottom:6px;cursor:pointer;transition:background 0.15s}
-.sr-item:hover{background:rgba(255,255,255,0.08)}
-.sr-name{font-weight:500;font-size:14px}
-.sr-loc{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;font-family:'DM Mono',monospace}
+#course-list{margin-bottom:8px}
+.course-item{padding:13px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);margin-bottom:7px;cursor:pointer;transition:background 0.15s;display:flex;justify-content:space-between;align-items:center}
+.course-item:hover,.course-item:active{background:rgba(255,255,255,0.09)}
+.ci-left{}
+.ci-name{font-size:14px;font-weight:500;color:var(--white)}
+.ci-town{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.ci-right{display:flex;align-items:center;gap:8px}
+.ci-state{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35)}
+.ci-saved{font-size:14px}
+.ci-arrow{color:rgba(255,255,255,0.2);font-size:18px}
 
-/* SAVED COURSES */
-.course-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.15s}
-.course-card:hover{background:rgba(255,255,255,0.08)}
-.cc-left{}
-.cc-name{font-size:15px;font-weight:500}
-.cc-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px}
-.cc-pin-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--fairway)}
-.cc-arrow{font-size:20px;color:rgba(255,255,255,0.2)}
-.cc-right{display:flex;align-items:center;gap:10px}
-.btn-delete-course{background:none;border:none;color:rgba(255,255,255,0.2);font-size:16px;cursor:pointer;padding:4px}
+#no-results{text-align:center;padding:28px 0;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:1px;display:none}
 
-#no-courses{text-align:center;padding:32px 0;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:1px}
+.sec-label-row{display:flex;justify-content:space-between;align-items:center}
+.sec-clear{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);cursor:pointer;letter-spacing:1px}
 
-/* SETUP SCREEN */
+/* SAVED */
+#saved-list{}
+.saved-item{padding:13px 14px;border-radius:var(--radius);border:1px solid rgba(58,175,92,0.2);background:rgba(58,175,92,0.05);margin-bottom:7px;cursor:pointer;transition:background 0.15s;display:flex;justify-content:space-between;align-items:center}
+.saved-item:hover{background:rgba(58,175,92,0.1)}
+.si-name{font-size:14px;font-weight:500}
+.si-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px}
+.si-pins{font-family:'DM Mono',monospace;font-size:10px;color:var(--fairway)}
+.si-del{background:none;border:none;color:rgba(255,255,255,0.2);font-size:15px;cursor:pointer;padding:4px}
+
+/* SETUP */
 #setup-screen{}
-#setup-header{padding:52px 20px 16px;display:flex;align-items:center;gap:12px;background:rgba(13,26,16,0.95);flex-shrink:0}
-#btn-back-setup{background:none;border:none;color:var(--white);font-size:22px;cursor:pointer}
-#setup-course-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:var(--gold)}
+#setup-hdr{padding:48px 16px 14px;display:flex;align-items:center;gap:12px;background:rgba(10,20,12,0.98);border-bottom:1px solid var(--border);flex-shrink:0}
+#btn-back{background:none;border:none;color:var(--white);font-size:22px;cursor:pointer;padding:4px}
+.setup-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--gold)}
+.setup-sub{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px}
 #setup-body{flex:1;overflow-y:auto;padding:16px}
-.setup-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
-.setup-section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:12px}
-.hcp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.hcp-label{font-size:14px}
-#hcp-val-display{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold)}
-#hcp-slider{width:100%;accent-color:var(--gold);margin-top:6px}
-
-.tee-row{display:flex;gap:8px;margin-bottom:12px}
-.tee-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--white);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s}
+.setup-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.setup-card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:12px}
+.hcp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#hcp-disp{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold)}
+#hcp-slider{width:100%;accent-color:var(--gold)}
+.tee-row{display:flex;gap:7px;margin-bottom:4px}
+.tee-btn{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--white);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s}
 .tee-btn.active{border-color:var(--gold);background:rgba(201,168,76,0.12);color:var(--gold)}
+.hole-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:8px}
+.hcell{padding:8px 2px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);text-align:center;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.15s}
+.hcell.has-pin{border-color:var(--fairway);color:var(--fairway)}
+.hcell.has-tee{border-color:var(--blue);color:var(--blue)}
+.hcell.has-both{border-color:var(--gold);color:var(--gold)}
+.hcell-n{display:block;font-size:12px}
+.hcell-d{display:block;font-size:8px;margin-top:1px;opacity:0.7}
+#btn-go{width:100%;padding:18px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;margin-top:4px;box-shadow:0 4px 20px rgba(58,175,92,0.2)}
 
-.hole-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
-.hole-cell{padding:8px 0;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);text-align:center;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s;position:relative}
-.hole-cell.pinned{border-color:var(--fairway);color:var(--fairway)}
-.hole-cell.tee-marked{border-color:var(--blue);color:var(--blue)}
-.hole-cell.both{border-color:var(--gold);color:var(--gold)}
-.hole-cell-num{display:block}
-.hole-cell-dot{display:block;font-size:8px;margin-top:1px;opacity:0.7}
-
-#btn-start-round-setup{width:100%;padding:18px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;cursor:pointer;margin-top:4px;box-shadow:0 4px 20px rgba(58,175,92,0.25)}
-
-/* PLAY SCREEN */
-#play-screen{overflow:hidden}
+/* PLAY */
+#play-screen{overflow:hidden;position:relative}
 #map{position:absolute;inset:0;z-index:0}
-
-#play-topbar{position:absolute;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:44px 14px 10px;background:linear-gradient(to bottom,rgba(10,20,12,0.98) 60%,transparent)}
+#play-top{position:absolute;top:0;left:0;right:0;z-index:100;padding:44px 14px 10px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(10,20,12,0.97) 55%,transparent)}
 #play-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold)}
-#play-chips{display:flex;gap:6px;align-items:center}
-.pchip{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;backdrop-filter:blur(8px)}
-.pchip span{color:var(--gold);font-weight:500}
-#btn-home-from-play{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:4px 12px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);cursor:pointer;backdrop-filter:blur(8px)}
-
-#weather-strip{position:absolute;top:88px;left:0;right:0;z-index:99;display:flex;gap:14px;padding:5px 14px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);overflow-x:auto;scrollbar-width:none}
-#weather-strip::-webkit-scrollbar{display:none}
-.wx{display:flex;align-items:center;gap:4px;white-space:nowrap}
-.wx b{color:var(--white);font-weight:500}
-
-/* HOLE SELECTOR */
-#hole-strip{position:absolute;top:118px;left:0;right:0;z-index:99;display:flex;gap:6px;padding:6px 12px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none;align-items:center}
+#play-chips{display:flex;gap:5px}
+.pchip{background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;backdrop-filter:blur(8px)}
+.pchip span{color:var(--gold);font-weight:600}
+#btn-home-play{background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 12px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);cursor:pointer;backdrop-filter:blur(8px)}
+#wx-strip{position:absolute;top:87px;left:0;right:0;z-index:99;display:flex;gap:12px;padding:5px 14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.45);overflow-x:auto;scrollbar-width:none;align-items:center}
+#wx-strip::-webkit-scrollbar{display:none}
+.wx{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.wx b{color:var(--white)}
+#hole-strip{position:absolute;top:117px;left:0;right:0;z-index:99;display:flex;gap:5px;padding:5px 12px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none;align-items:center}
 #hole-strip::-webkit-scrollbar{display:none}
-.hpill{flex-shrink:0;padding:5px 11px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.hpill.cur{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600}
-.hpill.done{border-color:rgba(58,175,92,0.5);color:rgba(58,175,92,0.8)}
-.hpill.pinned{border-color:rgba(58,175,92,0.4)}
+.hpill{flex-shrink:0;padding:5px 10px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.15s}
+.hpill.cur{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+.hpill.done{border-color:rgba(58,175,92,0.4);color:rgba(58,175,92,0.7)}
+.hpill.has-p{border-color:rgba(58,175,92,0.3)}
 
-/* DIST PANEL */
-#dist-panel{position:absolute;top:160px;right:12px;z-index:100;background:rgba(0,0,0,0.75);border:1px solid rgba(201,168,76,0.35);border-radius:var(--radius);padding:10px 14px;display:none;min-width:90px;text-align:center;backdrop-filter:blur(10px)}
-#dtp-val{font-family:'Bebas Neue',sans-serif;font-size:42px;color:var(--gold);line-height:1}
-#dtp-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-top:1px}
-#dtp-plays{font-family:'DM Mono',monospace;font-size:12px;color:var(--fairway);margin-top:6px}
-#dtp-plays-label{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px}
+#dist-panel{position:absolute;top:158px;right:12px;z-index:100;background:rgba(0,0,0,0.8);border:1px solid rgba(201,168,76,0.3);border-radius:var(--radius);padding:10px 14px;display:none;min-width:88px;text-align:center;backdrop-filter:blur(10px)}
+#dtp{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--gold);line-height:1}
+.dp-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px;margin-top:1px}
+#dtp-pl{font-family:'DM Mono',monospace;font-size:12px;color:var(--fairway);margin-top:5px}
 
-/* MEASURE TOOL */
-#measure-panel{position:absolute;top:160px;left:12px;z-index:100;background:rgba(0,0,0,0.75);border:1px solid rgba(74,144,226,0.4);border-radius:var(--radius);padding:10px 14px;display:none;backdrop-filter:blur(10px);min-width:100px;text-align:center}
-#measure-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--blue);line-height:1}
-#measure-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px}
-#measure-hint{font-family:'DM Mono',monospace;font-size:9px;color:rgba(74,144,226,0.6);margin-top:4px;line-height:1.3}
+#meas-panel{position:absolute;top:158px;left:12px;z-index:100;background:rgba(0,0,0,0.8);border:1px solid rgba(74,144,226,0.35);border-radius:var(--radius);padding:10px 14px;display:none;backdrop-filter:blur(10px);text-align:center;min-width:90px}
+#meas-val{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--blue);line-height:1}
+.mp-sub{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px}
+.mp-hint{font-family:'DM Mono',monospace;font-size:9px;color:rgba(74,144,226,0.5);margin-top:4px;line-height:1.4}
 
-/* BOTTOM PANEL */
-#play-bottom{position:absolute;bottom:0;left:0;right:0;z-index:100;background:rgba(10,20,12,0.97);border-top:1px solid rgba(201,168,76,0.15);border-radius:20px 20px 0 0;padding:12px 14px 32px;backdrop-filter:blur(20px)}
-#panel-handle{width:32px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 12px}
-#club-row-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:7px}
-#club-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
-#club-scroll::-webkit-scrollbar{display:none}
-.cbt{flex-shrink:0;padding:5px 13px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--white);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s}
-.cbt.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:600}
-
-#action-row{display:flex;gap:7px;margin-bottom:10px}
-#btn-track{flex:1;padding:15px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 16px rgba(58,175,92,0.25);transition:all 0.15s}
-#btn-track:active{transform:scale(0.97);background:#2d9e44}
-#btn-undo{padding:15px 14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--white);font-size:16px;cursor:pointer}
-#btn-pin-play{padding:15px 10px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.25);background:rgba(201,168,76,0.06);color:var(--gold);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;line-height:1.4;text-align:center;min-width:46px}
-#btn-pin-play.set{background:rgba(201,168,76,0.18);border-color:var(--gold)}
-#btn-measure{padding:15px 10px;border-radius:var(--radius);border:1px solid rgba(74,144,226,0.25);background:rgba(74,144,226,0.06);color:var(--blue);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;line-height:1.4;text-align:center;min-width:46px}
-#btn-measure.active{background:rgba(74,144,226,0.18);border-color:var(--blue)}
-#btn-next-hole{padding:15px 12px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer}
-
-#status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-#gps-status{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35)}
-#gps-dot{width:7px;height:7px;border-radius:50%;background:#555}
-#gps-dot.active{background:var(--fairway);animation:pulse 2s infinite}
-#gps-dot.error{background:var(--red)}
+#play-bottom{position:absolute;bottom:0;left:0;right:0;z-index:100;background:rgba(10,20,12,0.97);border-top:1px solid rgba(201,168,76,0.12);border-radius:20px 20px 0 0;padding:12px 14px 30px;backdrop-filter:blur(20px)}
+#ph{width:30px;height:3px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 11px}
+#club-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.25);margin-bottom:6px}
+#club-scr{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;margin-bottom:11px;scrollbar-width:none}
+#club-scr::-webkit-scrollbar{display:none}
+.cbt{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--white);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.12s}
+.cbt.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+#act-row{display:flex;gap:6px;margin-bottom:9px}
+#btn-track{flex:1;padding:14px;border-radius:var(--radius);border:none;background:var(--fairway);color:white;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 16px rgba(58,175,92,0.2);transition:transform 0.1s}
+#btn-track:active{transform:scale(0.97)}
+.act-sm{padding:14px 11px;border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;line-height:1.4;text-align:center;min-width:44px;transition:all 0.12s}
+#btn-undo{border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--white);font-size:16px;padding:14px 13px;border-radius:var(--radius);cursor:pointer}
+#btn-pin-p{border:1px solid rgba(201,168,76,0.2);background:rgba(201,168,76,0.05);color:var(--gold)}
+#btn-pin-p.set{background:rgba(201,168,76,0.18);border-color:var(--gold)}
+#btn-meas{border:1px solid rgba(74,144,226,0.2);background:rgba(74,144,226,0.05);color:var(--blue)}
+#btn-meas.on{background:rgba(74,144,226,0.18);border-color:var(--blue)}
+#btn-next{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);font-size:16px;padding:14px 12px;border-radius:var(--radius);cursor:pointer}
+#stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+#gps-wrap{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3)}
+#gdot{width:7px;height:7px;border-radius:50%;background:#444}
+#gdot.active{background:var(--fairway);animation:pulse 2s infinite}
+#gdot.error{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-#cat-display{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35)}
-#cat-display span{color:var(--gold)}
-
-#tab-bar{display:flex;border-top:1px solid rgba(255,255,255,0.05);margin:0 -14px -32px;padding:0 6px}
-.tab{flex:1;padding:9px 2px 3px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);cursor:pointer;letter-spacing:1px;border:none;background:none;transition:color 0.15s}
-.tab:hover{color:rgba(255,255,255,0.6)}
-.tab-icon{font-size:14px;display:block;margin-bottom:1px}
+#cat-disp{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3)}
+#cat-disp span{color:var(--gold)}
+#tab-row{display:flex;border-top:1px solid rgba(255,255,255,0.05);margin:0 -14px -30px;padding:0 4px}
+.tab{flex:1;padding:8px 2px 3px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.28);cursor:pointer;letter-spacing:1px;border:none;background:none}
+.ti{font-size:14px;display:block;margin-bottom:1px}
 
 /* OVERLAYS */
-.overlay{position:fixed;inset:0;z-index:200;background:rgba(10,20,12,0.97);display:none;flex-direction:column;overflow:hidden}
-.overlay.open{display:flex}
-.ov-header{display:flex;justify-content:space-between;align-items:center;padding:52px 16px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-.ov-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
-.btn-close-ov{background:none;border:none;color:rgba(255,255,255,0.5);font-size:24px;cursor:pointer}
+.ov{position:fixed;inset:0;z-index:200;background:rgba(10,20,12,0.98);display:none;flex-direction:column;overflow:hidden}
+.ov.open{display:flex}
+.ov-hdr{display:flex;justify-content:space-between;align-items:center;padding:50px 16px 13px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ov-ttl{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
+.ov-cls{background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer}
 .ov-body{flex:1;overflow-y:auto;padding:16px}
-
-/* SCORECARD */
-.hole-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-.hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.hc-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px}
-.hc-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);text-align:right}
-.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;gap:8px}
+.hcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.hc-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hc-n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px}
+.hc-m{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);text-align:right}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;gap:6px}
 .srow:last-child{border-bottom:none}
-.sbadge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:10px;flex-shrink:0}
-.sbadge.tee{background:rgba(74,144,226,0.18);color:#4a90e2}
-.sbadge.approach{background:rgba(58,175,92,0.18);color:#3aaf5c}
-.sbadge.chip{background:rgba(201,168,76,0.18);color:#c9a84c}
-.sbadge.putt{background:rgba(155,89,182,0.18);color:#9b59b6}
+.sbadge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 6px;border-radius:10px;flex-shrink:0}
+.sbadge.tee{background:rgba(74,144,226,0.15);color:#4a90e2}
+.sbadge.approach{background:rgba(58,175,92,0.15);color:#3aaf5c}
+.sbadge.chip{background:rgba(201,168,76,0.15);color:#c9a84c}
+.sbadge.putt{background:rgba(155,89,182,0.15);color:#9b59b6}
 .sdist{font-family:'DM Mono',monospace;color:var(--fairway);font-size:12px}
 .sgv{font-family:'DM Mono',monospace;font-size:12px}
 .sgv.pos{color:#3aaf5c}.sgv.neg{color:#e05555}
-
-/* ANALYTICS */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
 .sv{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--gold)}
-.sl{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sl{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 .sg-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-.sg-title{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:12px;letter-spacing:1px}
-.sg-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.sg-lbl{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55);width:72px;flex-shrink:0}
-.sg-track{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
-.sg-fill{height:100%;border-radius:3px}
-.sg-fill.pos{background:var(--fairway)}.sg-fill.neg{background:var(--red)}
-.sg-num{font-family:'DM Mono',monospace;font-size:11px;width:46px;text-align:right;flex-shrink:0}
-.sg-num.pos{color:#3aaf5c}.sg-num.neg{color:#e05555}
-
-#btn-export-sc{width:100%;padding:14px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.3);background:transparent;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:8px}
-
-/* TOAST */
+.sg-ttl{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:12px;letter-spacing:1px}
+.sgrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sglbl{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);width:72px;flex-shrink:0}
+.sgtrack{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden}
+.sgfill{height:100%;border-radius:3px}
+.sgfill.pos{background:var(--fairway)}.sgfill.neg{background:var(--red)}
+.sgnum{font-family:'DM Mono',monospace;font-size:11px;width:46px;text-align:right;flex-shrink:0}
+.sgnum.pos{color:#3aaf5c}.sgnum.neg{color:#e05555}
+#btn-exp{width:100%;padding:14px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.25);background:transparent;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:8px}
 #toast{position:fixed;top:110px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(26,92,42,0.95);border:1px solid var(--fairway);color:white;padding:9px 20px;border-radius:30px;font-family:'DM Mono',monospace;font-size:12px;opacity:0;transition:all 0.25s;z-index:9999;white-space:nowrap;pointer-events:none;backdrop-filter:blur(10px)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
 .leaflet-container{background:#141f16}
 .leaflet-tooltip{background:rgba(10,20,12,0.9);border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;border-radius:6px;padding:3px 8px;box-shadow:none}
 </style>
 </head>
 <body>
 
-<!-- ── HOME SCREEN ── -->
+<!-- HOME -->
 <div class="screen active" id="home-screen">
   <div id="home-header">
     <div id="home-logo">CADDIE</div>
-    <div id="home-sub">GPS SHOT TRACKER</div>
+    <div id="home-sub">NEW ENGLAND GPS SHOT TRACKER</div>
   </div>
   <div id="home-body">
-    <div class="section-label">Find a Course</div>
-    <div id="search-wrap">
-      <input id="home-search" type="text" placeholder="Search course name..." />
-      <button id="btn-do-search" onclick="doHomeSearch()">GO</button>
+    <div class="sec-label">Search Course</div>
+    <input id="search-box" type="text" placeholder="Type course name..." oninput="filterCourses()" autocomplete="off" />
+    <div id="state-filter">
+      <button class="sf-btn active" onclick="setFilter('ALL',this)">All</button>
+      <button class="sf-btn" onclick="setFilter('NH',this)">NH</button>
+      <button class="sf-btn" onclick="setFilter('MA',this)">MA</button>
+      <button class="sf-btn" onclick="setFilter('VT',this)">VT</button>
+      <button class="sf-btn" onclick="setFilter('ME',this)">ME</button>
     </div>
-    <div id="search-results-home"></div>
+    <div id="course-list"></div>
+    <div id="no-results">No courses found</div>
 
-    <div class="section-label">My Courses</div>
-    <div id="saved-courses-list"></div>
-    <div id="no-courses">No saved courses yet.<br>Search for a course above to get started.</div>
+    <div class="sec-label-row">
+      <div class="sec-label" style="margin-top:0">My Saved Courses</div>
+      <div class="sec-clear" onclick="clearSaved()">CLEAR ALL</div>
+    </div>
+    <div id="saved-list"></div>
   </div>
 </div>
 
-<!-- ── SETUP SCREEN ── -->
+<!-- SETUP -->
 <div class="screen" id="setup-screen">
-  <div id="setup-header">
-    <button id="btn-back-setup" onclick="goHome()">←</button>
-    <div id="setup-course-name">Course Setup</div>
+  <div id="setup-hdr">
+    <button id="btn-back" onclick="goHome()">←</button>
+    <div>
+      <div class="setup-title" id="setup-ttl">Course</div>
+      <div class="setup-sub" id="setup-sub-loc">—</div>
+    </div>
   </div>
   <div id="setup-body">
-    <!-- HANDICAP -->
-    <div class="setup-section">
-      <div class="setup-section-title">Your Handicap</div>
-      <div class="hcp-row"><span class="hcp-label">Handicap Index</span><span id="hcp-val-display">18</span></div>
-      <input type="range" id="hcp-slider" min="0" max="54" value="18" oninput="document.getElementById('hcp-val-display').textContent=this.value;handicap=parseInt(this.value)">
+    <div class="setup-card">
+      <div class="setup-card-title">Handicap</div>
+      <div class="hcp-row"><span style="font-size:14px">Handicap Index</span><span id="hcp-disp">18</span></div>
+      <input type="range" id="hcp-slider" min="0" max="54" value="18" oninput="handicap=parseInt(this.value);document.getElementById('hcp-disp').textContent=this.value">
     </div>
-
-    <!-- TEE SELECTION -->
-    <div class="setup-section">
-      <div class="setup-section-title">Tee Color</div>
+    <div class="setup-card">
+      <div class="setup-card-title">Tee Color</div>
       <div class="tee-row">
-        <button class="tee-btn active" onclick="selectTee('black',this)">⬛ Black</button>
-        <button class="tee-btn" onclick="selectTee('blue',this)">🔵 Blue</button>
-        <button class="tee-btn" onclick="selectTee('white',this)">⚪ White</button>
-        <button class="tee-btn" onclick="selectTee('red',this)">🔴 Red</button>
+        <button class="tee-btn" onclick="setTee('black',this)">⬛ Black</button>
+        <button class="tee-btn active" onclick="setTee('blue',this)">🔵 Blue</button>
+        <button class="tee-btn" onclick="setTee('white',this)">⚪ White</button>
+        <button class="tee-btn" onclick="setTee('red',this)">🔴 Red</button>
       </div>
     </div>
-
-    <!-- HOLE STATUS -->
-    <div class="setup-section">
-      <div class="setup-section-title">Hole Setup — Tap to configure</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);margin-bottom:10px;letter-spacing:1px">
-        🟢 PIN SET &nbsp;|&nbsp; 🔵 TEE MARKED &nbsp;|&nbsp; 🟡 BOTH
-      </div>
+    <div class="setup-card">
+      <div class="setup-card-title">Holes — tap to view · 📍 pin saved · 📐 tee saved</div>
       <div class="hole-grid" id="hole-grid"></div>
     </div>
-
-    <button id="btn-start-round-setup" onclick="startRound()">START ROUND →</button>
-    <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);text-align:center;margin-top:10px;letter-spacing:1px">
-      You can also set pins on the course during play
-    </div>
+    <button id="btn-go" onclick="startRound()">START ROUND →</button>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.18);text-align:center;margin-top:10px;letter-spacing:1px;padding-bottom:20px">Set pins & tees on the course during play — they save automatically</div>
   </div>
 </div>
 
-<!-- ── PLAY SCREEN ── -->
+<!-- PLAY -->
 <div class="screen" id="play-screen">
   <div id="map"></div>
-
-  <div id="play-topbar">
+  <div id="play-top">
     <div id="play-logo">CADDIE</div>
     <div id="play-chips">
-      <div class="pchip" id="course-name-chip">—</div>
-      <div class="pchip">H<span id="cur-hole-play">1</span></div>
+      <div class="pchip" id="play-course-chip">—</div>
+      <div class="pchip">H<span id="cur-h">1</span></div>
       <div class="pchip">SG <span id="cur-sg">+0.0</span></div>
     </div>
-    <button id="btn-home-from-play" onclick="goHome()">⌂ HOME</button>
+    <button id="btn-home-play" onclick="confirmHome()">⌂</button>
   </div>
-
-  <div id="weather-strip">
-    <div class="wx">🌡 <b id="wx-temp">--°F</b></div>
-    <div class="wx">💨 <b id="wx-wind">--mph</b></div>
-    <div class="wx">🧭 <b id="wx-dir">--</b></div>
-    <div class="wx">💧 <b id="wx-hum">--%</b></div>
-    <div class="wx">⛰ <b id="wx-alt">--ft</b></div>
-    <div class="wx" id="plays-wx" style="display:none">▶ plays <b id="wx-plays">--y</b></div>
+  <div id="wx-strip">
+    <div class="wx">🌡 <b id="wx-t">--°F</b></div>
+    <div class="wx">💨 <b id="wx-w">--mph</b></div>
+    <div class="wx">🧭 <b id="wx-d">--</b></div>
+    <div class="wx">💧 <b id="wx-h">--%</b></div>
+    <div class="wx">⛰ <b id="wx-a">--ft</b></div>
+    <div class="wx" id="wx-pl" style="display:none">▶ <b id="wx-plv">--y</b></div>
   </div>
-
   <div id="hole-strip"></div>
-
   <div id="dist-panel">
-    <div id="dtp-sub">TO PIN</div>
-    <div id="dtp-val">---</div>
-    <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px">YDS</div>
-    <div id="dtp-plays" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--fairway);margin-top:6px">---y</div>
-    <div id="dtp-plays-label" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px">PLAYS LIKE</div>
+    <div class="dp-sub">TO PIN</div>
+    <div id="dtp">---</div>
+    <div class="dp-sub">YDS</div>
+    <div id="dtp-pl" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--fairway);margin-top:5px">---y</div>
+    <div class="dp-sub">PLAYS LIKE</div>
   </div>
-
-  <div id="measure-panel">
-    <div id="measure-val">---</div>
-    <div id="measure-sub" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px">YARDS</div>
-    <div id="measure-hint">Drag marker<br>on map</div>
+  <div id="meas-panel">
+    <div id="meas-val">---</div>
+    <div class="mp-sub">YARDS</div>
+    <div class="mp-hint">Drag blue marker<br>to measure</div>
   </div>
-
   <div id="play-bottom">
-    <div id="panel-handle"></div>
-    <div id="club-row-label">Select Club</div>
-    <div id="club-scroll"></div>
-    <div id="action-row">
+    <div id="ph"></div>
+    <div id="club-lbl">Select Club</div>
+    <div id="club-scr"></div>
+    <div id="act-row">
       <button id="btn-undo" onclick="undoShot()">↩</button>
       <button id="btn-track" onclick="trackShot()">TRACK SHOT</button>
-      <button id="btn-pin-play" onclick="setPinAtGPS()">📍<br>PIN</button>
-      <button id="btn-measure" onclick="toggleMeasure()">📏<br>MEASURE</button>
-      <button id="btn-next-hole" onclick="nextHole()">▶</button>
+      <button class="act-sm" id="btn-pin-p" onclick="setPinGPS()">📍<br>PIN</button>
+      <button class="act-sm" id="btn-meas" onclick="toggleMeasure()">📏<br>MEAS</button>
+      <button id="btn-next" onclick="nextHole()">▶</button>
     </div>
-    <div id="status-row">
-      <div id="gps-status"><div id="gps-dot"></div><span id="gps-text">Acquiring GPS...</span></div>
-      <div id="cat-display">TYPE: <span id="cat-label">TEE</span></div>
+    <div id="stat-row">
+      <div id="gps-wrap"><div id="gdot"></div><span id="gtxt">Acquiring GPS...</span></div>
+      <div id="cat-disp">TYPE: <span id="cat-lbl">TEE</span></div>
     </div>
-    <div id="tab-bar">
-      <button class="tab" onclick="openOverlay('sc-overlay')"><span class="tab-icon">📋</span>CARD</button>
-      <button class="tab" onclick="openOverlay('stats-overlay')"><span class="tab-icon">📊</span>STATS</button>
-      <button class="tab" onclick="toggleRings()"><span class="tab-icon">🎯</span>RINGS</button>
-      <button class="tab" onclick="saveCurrentCourse()"><span class="tab-icon">💾</span>SAVE</button>
+    <div id="tab-row">
+      <button class="tab" onclick="openOv('sc-ov')"><span class="ti">📋</span>CARD</button>
+      <button class="tab" onclick="openOv('stats-ov')"><span class="ti">📊</span>STATS</button>
+      <button class="tab" onclick="toggleRings()"><span class="ti">🎯</span>RINGS</button>
+      <button class="tab" onclick="saveCourse()"><span class="ti">💾</span>SAVE</button>
     </div>
   </div>
 </div>
 
-<!-- SCORECARD OVERLAY -->
-<div class="overlay" id="sc-overlay">
-  <div class="ov-header"><div class="ov-title">SCORECARD</div><button class="btn-close-ov" onclick="closeOverlay('sc-overlay')">✕</button></div>
+<!-- SCORECARD OV -->
+<div class="ov" id="sc-ov">
+  <div class="ov-hdr"><div class="ov-ttl">SCORECARD</div><button class="ov-cls" onclick="closeOv('sc-ov')">✕</button></div>
   <div class="ov-body" id="sc-body"></div>
 </div>
-
-<!-- STATS OVERLAY -->
-<div class="overlay" id="stats-overlay">
-  <div class="ov-header"><div class="ov-title">ANALYTICS</div><button class="btn-close-ov" onclick="closeOverlay('stats-overlay')">✕</button></div>
+<!-- STATS OV -->
+<div class="ov" id="stats-ov">
+  <div class="ov-hdr"><div class="ov-ttl">ANALYTICS</div><button class="ov-cls" onclick="closeOv('stats-ov')">✕</button></div>
   <div class="ov-body" id="stats-body"></div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// ── CONSTANTS ──────────────────────────────────────────────────────────────
+// ── NEW ENGLAND COURSE DATABASE ────────────────────────────────────────────
+const COURSES = [
+  // NEW HAMPSHIRE
+  {name:"Pease Golf Course",town:"Portsmouth",state:"NH",lat:43.0784,lng:-70.8234},
+  {name:"Breakfast Hill Golf Club",town:"Greenland",state:"NH",lat:43.0432,lng:-70.8176},
+  {name:"Rockingham Country Club",town:"Newmarket",state:"NH",lat:43.0762,lng:-70.9398},
+  {name:"Sagamore-Hampton Golf Club",town:"North Hampton",state:"NH",lat:42.9876,lng:-70.8312},
+  {name:"Wentworth by the Sea Country Club",town:"Rye",state:"NH",lat:43.0198,lng:-70.7654},
+  {name:"Abenaqui Country Club",town:"Rye",state:"NH",lat:43.0101,lng:-70.7812},
+  {name:"Portsmouth Country Club",town:"Greenland",state:"NH",lat:43.0521,lng:-70.8543},
+  {name:"Derryfield Country Club",town:"Manchester",state:"NH",lat:42.9987,lng:-71.4765},
+  {name:"Manchester Country Club",town:"Bedford",state:"NH",lat:42.9601,lng:-71.5123},
+  {name:"Beaver Meadow Golf Course",town:"Concord",state:"NH",lat:43.2198,lng:-71.5543},
+  {name:"Concord Country Club",town:"Concord",state:"NH",lat:43.2312,lng:-71.4987},
+  {name:"Plausawa Valley Country Club",town:"Pembroke",state:"NH",lat:43.1432,lng:-71.4321},
+  {name:"Dunegrass Golf Club",town:"Old Orchard Beach",state:"NH",lat:43.5234,lng:-71.1876},
+  {name:"Nashua Country Club",town:"Nashua",state:"NH",lat:42.7654,lng:-71.5234},
+  {name:"Passaconaway Country Club",town:"Litchfield",state:"NH",lat:42.8432,lng:-71.4876},
+  {name:"Souhegan Woods Golf Club",town:"Amherst",state:"NH",lat:42.8765,lng:-71.6123},
+  {name:"Ridgewood Country Club",town:"Meredith",state:"NH",lat:43.6543,lng:-71.5012},
+  {name:"Laconia Country Club",town:"Laconia",state:"NH",lat:43.5876,lng:-71.4765},
+  {name:"Owl's Nest Golf Club",town:"Campton",state:"NH",lat:43.8234,lng:-71.6432},
+  {name:"Bretwood Golf Course",town:"Keene",state:"NH",lat:42.9321,lng:-72.2876},
+  {name:"Keene Country Club",town:"Keene",state:"NH",lat:42.9543,lng:-72.3012},
+  {name:"Angus Lea Golf Course",town:"Hillsborough",state:"NH",lat:43.1098,lng:-71.9012},
+  {name:"Windham Country Club",town:"Windham",state:"NH",lat:42.8012,lng:-71.3087},
+  {name:"Campbell's Scottish Highlands",town:"Salem",state:"NH",lat:42.7876,lng:-71.2432},
+  {name:"Tuscan Village Golf Course",town:"Salem",state:"NH",lat:42.7765,lng:-71.2198},
+  {name:"Crotched Mountain Golf Club",town:"Francestown",state:"NH",lat:43.0432,lng:-71.8654},
+  {name:"Stonebridge Country Club",town:"Goffstown",state:"NH",lat:43.0198,lng:-71.5876},
+  {name:"Candia Woods Golf Links",town:"Candia",state:"NH",lat:43.0654,lng:-71.3012},
+  {name:"Northwood Meadows Golf Course",town:"Northwood",state:"NH",lat:43.1987,lng:-71.2098},
+  {name:"Rochester Country Club",town:"Rochester",state:"NH",lat:43.3012,lng:-70.9876},
+  {name:"Cochecho Country Club",town:"Farmington",state:"NH",lat:43.3876,lng:-71.0654},
+  {name:"Monadnock Country Club",town:"Peterborough",state:"NH",lat:42.8765,lng:-71.9543},
+  {name:"Tory Pines Golf Course",town:"Francestown",state:"NH",lat:43.0098,lng:-71.8012},
+  {name:"The Golf Club of New England",town:"Stratham",state:"NH",lat:43.0098,lng:-70.9098},
+  {name:"Atkinson Country Club",town:"Atkinson",state:"NH",lat:42.8376,lng:-71.1543},
+  {name:"Haverhill Country Club",town:"North Haverhill",state:"NH",lat:44.0543,lng:-72.0543},
+  {name:"Mountain View Grand Resort Golf",town:"Whitefield",state:"NH",lat:44.3654,lng:-71.6098},
+  {name:"Waumbekk Golf Club",town:"Jefferson",state:"NH",lat:44.4098,lng:-71.4765},
+  {name:"Balsams Grand Resort Golf",town:"Dixville Notch",state:"NH",lat:44.8654,lng:-71.3098},
+  {name:"Redhook Brewery Golf Course",town:"Portsmouth",state:"NH",lat:43.0654,lng:-70.8098},
+
+  // MASSACHUSETTS
+  {name:"Granite Links Golf Club",town:"Quincy",state:"MA",lat:42.2198,lng:-71.0098},
+  {name:"Trull Brook Golf Course",town:"Tewksbury",state:"MA",lat:42.6098,lng:-71.2543},
+  {name:"Pine Valley Golf Club",town:"Middleton",state:"MA",lat:42.5876,lng:-71.0098},
+  {name:"Meadow at Peabody",town:"Peabody",state:"MA",lat:42.5432,lng:-70.9654},
+  {name:"Middleton Golf Course",town:"Middleton",state:"MA",lat:42.5901,lng:-71.0234},
+  {name:"Wenham Country Club",town:"Wenham",state:"MA",lat:42.5987,lng:-70.8901},
+  {name:"Ipswich Country Club",town:"Ipswich",state:"MA",lat:42.6765,lng:-70.8432},
+  {name:"Cape Ann Golf Course",town:"Essex",state:"MA",lat:42.6321,lng:-70.7765},
+  {name:"Rockport Golf Club",town:"Rockport",state:"MA",lat:42.6654,lng:-70.6232},
+  {name:"Beverly Golf and Tennis",town:"Beverly",state:"MA",lat:42.5654,lng:-70.8765},
+  {name:"Kernwood Country Club",town:"Salem",state:"MA",lat:42.5301,lng:-70.9098},
+  {name:"Tedesco Country Club",town:"Marblehead",state:"MA",lat:42.5123,lng:-70.9012},
+  {name:"Swampscott Country Club",town:"Swampscott",state:"MA",lat:42.4765,lng:-70.9123},
+  {name:"Hawthorn Country Club",town:"Clinton",state:"MA",lat:42.4198,lng:-71.6543},
+  {name:"Wachusett Country Club",town:"West Boylston",state:"MA",lat:42.3654,lng:-71.7876},
+  {name:"Holden Hills Country Club",town:"Holden",state:"MA",lat:42.3876,lng:-71.8234},
+  {name:"Green Hill Golf Course",town:"Worcester",state:"MA",lat:42.2765,lng:-71.8098},
+  {name:"Kettle Brook Golf Club",town:"Paxton",state:"MA",lat:42.3432,lng:-71.9098},
+  {name:"Pakachoag Golf Course",town:"Auburn",state:"MA",lat:42.2198,lng:-71.8543},
+  {name:"Leicester Country Club",town:"Leicester",state:"MA",lat:42.2432,lng:-71.9098},
+  {name:"Highfields Golf & Country Club",town:"Grafton",state:"MA",lat:42.2012,lng:-71.6876},
+  {name:"Cyprian Keyes Golf Club",town:"Boylston",state:"MA",lat:42.3543,lng:-71.7012},
+  {name:"Stow Acres Country Club",town:"Stow",state:"MA",lat:42.4321,lng:-71.5123},
+  {name:"Butternut Farm Golf Club",town:"Stow",state:"MA",lat:42.4098,lng:-71.5432},
+  {name:"Marlborough Country Club",town:"Marlborough",state:"MA",lat:42.3512,lng:-71.5543},
+  {name:"Juniper Hill Golf Course",town:"Northborough",state:"MA",lat:42.3234,lng:-71.6234},
+  {name:"Framingham Country Club",town:"Framingham",state:"MA",lat:42.3098,lng:-71.4765},
+  {name:"Pinecrest Golf Club",town:"Holliston",state:"MA",lat:42.2012,lng:-71.4543},
+  {name:"Hopkinton Country Club",town:"Hopkinton",state:"MA",lat:42.2234,lng:-71.5234},
+  {name:"Shaker Hills Country Club",town:"Harvard",state:"MA",lat:42.5012,lng:-71.5876},
+  {name:"Blissful Meadows Golf Club",town:"Uxbridge",state:"MA",lat:42.0765,lng:-71.6432},
+  {name:"Southwick Golf Club",town:"Southwick",state:"MA",lat:42.0543,lng:-72.7654},
+  {name:"Crestview Country Club",town:"Agawam",state:"MA",lat:42.0234,lng:-72.6432},
+  {name:"Veterans Golf Course",town:"Springfield",state:"MA",lat:42.0987,lng:-72.5876},
+  {name:"Franconia Golf Course",town:"Springfield",state:"MA",lat:42.1098,lng:-72.5543},
+  {name:"Springfield Country Club",town:"West Springfield",state:"MA",lat:42.1234,lng:-72.6234},
+  {name:"Tekoa Country Club",town:"Westfield",state:"MA",lat:42.1543,lng:-72.7543},
+  {name:"Woronoco Golf Course",town:"Westfield",state:"MA",lat:42.1432,lng:-72.7234},
+  {name:"Elmcrest Country Club",town:"East Longmeadow",state:"MA",lat:42.0654,lng:-72.5098},
+  {name:"Ledges Golf Club",town:"South Hadley",state:"MA",lat:42.2543,lng:-72.5765},
+  {name:"Northampton Country Club",town:"Leeds",state:"MA",lat:42.3487,lng:-72.6901},
+  {name:"Amherst Golf Club",town:"Amherst",state:"MA",lat:42.3765,lng:-72.5234},
+  {name:"Hickory Ridge Country Club",town:"Amherst",state:"MA",lat:42.3654,lng:-72.4876},
+  {name:"Cold Spring Country Club",town:"Belchertown",state:"MA",lat:42.2765,lng:-72.4098},
+  {name:"Cherry Hill Golf Course",town:"Amherst",state:"MA",lat:42.3901,lng:-72.5098},
+  {name:"Quabbin Reservoir Golf Course",town:"Hardwick",state:"MA",lat:42.3234,lng:-72.2098},
+  {name:"Ellinwood Country Club",town:"Athol",state:"MA",lat:42.5901,lng:-72.2234},
+  {name:"Petersham Country Club",town:"Petersham",state:"MA",lat:42.4987,lng:-72.1765},
+  {name:"Westminster Country Club",town:"Westminster",state:"MA",lat:42.5454,lng:-71.9012},
+  {name:"Winchendon Golf Club",town:"Winchendon",state:"MA",lat:42.6765,lng:-72.0543},
+  {name:"Gardner Municipal Golf Course",town:"Gardner",state:"MA",lat:42.5765,lng:-71.9876},
+  {name:"Shining Rock Golf Club",town:"Northbridge",state:"MA",lat:42.1543,lng:-71.6543},
+  {name:"Heritage Country Club",town:"Charlton",state:"MA",lat:42.1432,lng:-71.9765},
+  {name:"Dudley Hill Golf Club",town:"Dudley",state:"MA",lat:42.0543,lng:-71.9098},
+  {name:"Oxford Country Club",town:"Oxford",state:"MA",lat:42.1234,lng:-71.8765},
+  {name:"Needham Golf Club",town:"Needham",state:"MA",lat:42.2765,lng:-71.2543},
+  {name:"Ponkapoag Golf Course",town:"Canton",state:"MA",lat:42.1765,lng:-71.1012},
+  {name:"Braintree Municipal Golf",town:"Braintree",state:"MA",lat:42.2234,lng:-71.0098},
+  {name:"Presidents Golf Course",town:"Quincy",state:"MA",lat:42.2432,lng:-71.0234},
+  {name:"Furnace Brook Golf Club",town:"Wollaston",state:"MA",lat:42.2576,lng:-71.0154},
+  {name:"William J. Devine Golf Course",town:"Boston",state:"MA",lat:42.3098,lng:-71.0654},
+  {name:"George Wright Golf Course",town:"Hyde Park",state:"MA",lat:42.2654,lng:-71.1234},
+  {name:"Brookline Country Club",town:"Brookline",state:"MA",lat:42.3234,lng:-71.1543},
+  {name:"Putterham Meadows Golf Club",town:"Brookline",state:"MA",lat:42.3012,lng:-71.1432},
+  {name:"Chestnut Hill Country Club",town:"Newton",state:"MA",lat:42.3321,lng:-71.2012},
+  {name:"Newton Commonwealth Golf",town:"Newton",state:"MA",lat:42.3432,lng:-71.2234},
+  {name:"Lexington Golf Club",town:"Lexington",state:"MA",lat:42.4543,lng:-71.2765},
+  {name:"Woburn Country Club",town:"Woburn",state:"MA",lat:42.4876,lng:-71.1543},
+  {name:"Winchester Country Club",town:"Winchester",state:"MA",lat:42.4654,lng:-71.1432},
+  {name:"Unicorn Golf Course",town:"Stoneham",state:"MA",lat:42.4765,lng:-71.0987},
+  {name:"Meadow Brook Golf Club",town:"Peabody",state:"MA",lat:42.5234,lng:-70.9432},
+  {name:"Lynnfield Country Club",town:"Lynnfield",state:"MA",lat:42.5432,lng:-71.0234},
+  {name:"Reedy Meadow Golf Course",town:"Groton",state:"MA",lat:42.5987,lng:-71.5654},
+  {name:"Groton Country Club",town:"Groton",state:"MA",lat:42.6123,lng:-71.5876},
+  {name:"Townsend Ridge Country Club",town:"Townsend",state:"MA",lat:42.6543,lng:-71.7012},
+  {name:"Dunstable Rural Land Trust",town:"Dunstable",state:"MA",lat:42.6765,lng:-71.5234},
+  {name:"Chelmsford Country Club",town:"Chelmsford",state:"MA",lat:42.6012,lng:-71.3654},
+  {name:"Vesper Country Club",town:"Tyngsborough",state:"MA",lat:42.6987,lng:-71.4012},
+  {name:"Tyngsborough Country Club",town:"Tyngsborough",state:"MA",lat:42.6765,lng:-71.4234},
+  {name:"Merrimack Valley Golf Course",town:"Methuen",state:"MA",lat:42.7123,lng:-71.2098},
+  {name:"Haverhill Country Club",town:"Haverhill",state:"MA",lat:42.7543,lng:-71.1765},
+  {name:"Crystal Lake Golf Club",town:"Haverhill",state:"MA",lat:42.7654,lng:-71.0987},
+  {name:"Bradford Country Club",town:"Bradford",state:"MA",lat:42.7765,lng:-71.1234},
+  {name:"Andover Country Club",town:"Andover",state:"MA",lat:42.6543,lng:-71.1432},
+  {name:"Mt. Pleasant Golf Club",town:"Lowell",state:"MA",lat:42.6432,lng:-71.3198},
+  {name:"Ayer Shirley Golf",town:"Ayer",state:"MA",lat:42.5654,lng:-71.5876},
+  {name:"Acton Country Club",town:"Acton",state:"MA",lat:42.4765,lng:-71.4321},
+  {name:"International Golf Course",town:"Bolton",state:"MA",lat:42.4365,lng:-71.5987},
+  {name:"Falmouth Country Club",town:"Falmouth",state:"MA",lat:41.5543,lng:-70.5987},
+  {name:"Hyannis Golf Course",town:"Hyannis",state:"MA",lat:41.6543,lng:-70.2987},
+  {name:"Bass River Golf Course",town:"South Yarmouth",state:"MA",lat:41.6654,lng:-70.1876},
+  {name:"Captains Golf Course",town:"Brewster",state:"MA",lat:41.7432,lng:-70.0765},
+  {name:"Ocean Edge Golf Club",town:"Brewster",state:"MA",lat:41.7654,lng:-70.0432},
+  {name:"Cranberry Valley Golf Course",town:"Harwich",state:"MA",lat:41.6876,lng:-70.0654},
+  {name:"Chequessett Yacht & Country Club",town:"Wellfleet",state:"MA",lat:41.9098,lng:-70.0543},
+  {name:"Olde Barnstable Fairgrounds",town:"Barnstable",state:"MA",lat:41.6987,lng:-70.3654},
+  {name:"Harwich Port Golf Club",town:"Harwich Port",state:"MA",lat:41.6543,lng:-70.0876},
+  {name:"Chatham Seaside Links",town:"Chatham",state:"MA",lat:41.6765,lng:-69.9543},
+  {name:"Farm Neck Golf Club",town:"Oak Bluffs",state:"MA",lat:41.4765,lng:-70.5432},
+  {name:"Mink Meadows Golf Club",town:"Vineyard Haven",state:"MA",lat:41.4543,lng:-70.6123},
+  {name:"Nantucket Golf Club",town:"Nantucket",state:"MA",lat:41.2654,lng:-70.0543},
+  {name:"Sconset Golf Course",town:"Nantucket",state:"MA",lat:41.2543,lng:-69.9654},
+  {name:"Blue Rock Golf Course",town:"South Yarmouth",state:"MA",lat:41.6876,lng:-70.2012},
+  {name:"Sandwich Hollows Golf Club",town:"East Sandwich",state:"MA",lat:41.7234,lng:-70.4432},
+  {name:"Holly Ridge Golf Club",town:"Sandwich",state:"MA",lat:41.7012,lng:-70.4876},
+  {name:"Wianno Club",town:"Osterville",state:"MA",lat:41.6234,lng:-70.3765},
+  {name:"Dennis Highlands Golf Course",town:"Dennis",state:"MA",lat:41.7432,lng:-70.2098},
+  {name:"Dennis Pines Golf Course",town:"Dennis",state:"MA",lat:41.7234,lng:-70.2234},
+  {name:"Pembroke Country Club",town:"Pembroke",state:"MA",lat:41.9987,lng:-70.7876},
+  {name:"Duxbury Yacht Club Golf",town:"Duxbury",state:"MA",lat:42.0234,lng:-70.6765},
+  {name:"Marshfield Country Club",town:"Marshfield",state:"MA",lat:42.0765,lng:-70.7123},
+  {name:"South Shore Country Club",town:"Hingham",state:"MA",lat:42.2098,lng:-70.9123},
+  {name:"Cohasset Golf Club",town:"Cohasset",state:"MA",lat:42.2432,lng:-70.8432},
+  {name:"Scituate Country Club",town:"Scituate",state:"MA",lat:42.1876,lng:-70.7432},
+  {name:"Widow's Walk Golf Course",town:"Scituate",state:"MA",lat:42.1765,lng:-70.7654},
+  {name:"Norwood Country Club",town:"Norwood",state:"MA",lat:42.1654,lng:-71.2098},
+  {name:"Walpole Country Club",town:"Walpole",state:"MA",lat:42.1543,lng:-71.2543},
+  {name:"Sharon Country Club",town:"Sharon",state:"MA",lat:42.1098,lng:-71.1654},
+  {name:"Easton Country Club",town:"Easton",state:"MA",lat:42.0432,lng:-71.1234},
+  {name:"Stonebrook Golf Course",town:"Easton",state:"MA",lat:42.0321,lng:-71.1098},
+  {name:"Rehoboth Country Club",town:"Rehoboth",state:"MA",lat:41.8543,lng:-71.2543},
+  {name:"Swansea Country Club",town:"Swansea",state:"MA",lat:41.7876,lng:-71.2012},
+  {name:"Triggs Memorial Golf Course",town:"Providence",state:"MA",lat:41.8432,lng:-71.4543},
+  {name:"Attleboro Municipal Golf",town:"Attleboro",state:"MA",lat:41.9432,lng:-71.2876},
+  {name:"Sun Valley Golf Course",town:"Rehoboth",state:"MA",lat:41.8234,lng:-71.2234},
+  {name:"Brockton Country Club",town:"Brockton",state:"MA",lat:42.0876,lng:-71.0543},
+  {name:"D.W. Field Golf Course",town:"Brockton",state:"MA",lat:42.0765,lng:-71.0432},
+  {name:"Thorny Lea Golf Club",town:"Brockton",state:"MA",lat:42.0654,lng:-71.0321},
+  {name:"Whitman Country Club",town:"Whitman",state:"MA",lat:42.0876,lng:-70.9432},
+  {name:"Silver Lake Country Club",town:"Kingston",state:"MA",lat:41.9876,lng:-70.7543},
+  {name:"Plymouth Country Club",town:"Plymouth",state:"MA",lat:41.9432,lng:-70.6987},
+  {name:"Crosswinds Golf Club",town:"Plymouth",state:"MA",lat:41.9321,lng:-70.6543},
+  {name:"Pinehills Golf Club",town:"Plymouth",state:"MA",lat:41.9234,lng:-70.6234},
+  {name:"Lakeville Country Club",town:"Lakeville",state:"MA",lat:41.8543,lng:-70.9432},
+  {name:"Taunton Country Club",town:"Taunton",state:"MA",lat:41.9234,lng:-71.0987},
+  {name:"Fall River Country Club",town:"Fall River",state:"MA",lat:41.7098,lng:-71.1432},
+  {name:"Swansea Country Club",town:"Swansea",state:"MA",lat:41.7765,lng:-71.1876},
+  {name:"New Bedford Country Club",town:"New Bedford",state:"MA",lat:41.6543,lng:-70.9765},
+  {name:"Whaling City Golf Course",town:"New Bedford",state:"MA",lat:41.6432,lng:-70.9654},
+  {name:"Acushnet River Valley Golf",town:"Acushnet",state:"MA",lat:41.6876,lng:-70.9098},
+  {name:"Hawthorn Country Club",town:"Dartmouth",state:"MA",lat:41.6234,lng:-71.0098},
+  {name:"Allendale Country Club",town:"North Dartmouth",state:"MA",lat:41.6543,lng:-71.0432},
+
+  // VERMONT
+  {name:"Stowe Country Club",town:"Stowe",state:"VT",lat:44.4765,lng:-72.6876},
+  {name:"Sugarbush Golf Course",town:"Warren",state:"VT",lat:44.1234,lng:-72.8765},
+  {name:"Killington Golf Course",town:"Killington",state:"VT",lat:43.6543,lng:-72.7876},
+  {name:"Okemo Valley Golf Club",town:"Ludlow",state:"VT",lat:43.3876,lng:-72.6987},
+  {name:"Stratton Mountain Golf",town:"Stratton",state:"VT",lat:43.1098,lng:-72.9087},
+  {name:"Green Mountain National Golf",town:"Killington",state:"VT",lat:43.6765,lng:-72.8012},
+  {name:"Woodstock Country Club",town:"Woodstock",state:"VT",lat:43.6234,lng:-72.5176},
+  {name:"Quechee Club Golf",town:"Quechee",state:"VT",lat:43.6432,lng:-72.4087},
+  {name:"Lake St. Catherine Country Club",town:"Poultney",state:"VT",lat:43.5198,lng:-73.2234},
+  {name:"Basin Harbor Golf",town:"Vergennes",state:"VT",lat:44.1543,lng:-73.3765},
+  {name:"Equinox Golf Club",town:"Manchester",state:"VT",lat:43.1654,lng:-73.0654},
+  {name:"Manchester Country Club",town:"Manchester",state:"VT",lat:43.1765,lng:-73.0543},
+  {name:"Haystack Golf Club",town:"Wilmington",state:"VT",lat:42.8876,lng:-72.8765},
+  {name:"Mount Snow Golf Club",town:"West Dover",state:"VT",lat:42.9432,lng:-72.9098},
+  {name:"Brattleboro Country Club",town:"Brattleboro",state:"VT",lat:42.8654,lng:-72.5543},
+  {name:"Bellows Falls Country Club",town:"Bellows Falls",state:"VT",lat:43.1312,lng:-72.4456},
+  {name:"Proctor Pittsford Country Club",town:"Pittsford",state:"VT",lat:43.7098,lng:-73.0432},
+  {name:"Rutland Country Club",town:"Rutland",state:"VT",lat:43.6098,lng:-72.9765},
+  {name:"Champlain Country Club",town:"Swanton",state:"VT",lat:44.9234,lng:-73.1234},
+  {name:"Burlington Country Club",town:"Burlington",state:"VT",lat:44.4654,lng:-73.2098},
+  {name:"Williston Golf Club",town:"Williston",state:"VT",lat:44.4321,lng:-73.0876},
+  {name:"Montpelier Elks Country Club",town:"Montpelier",state:"VT",lat:44.2543,lng:-72.5543},
+  {name:"Barre Country Club",town:"Barre",state:"VT",lat:44.1876,lng:-72.5234},
+  {name:"St. Johnsbury Country Club",town:"St. Johnsbury",state:"VT",lat:44.4198,lng:-72.0087},
+  {name:"Lyndon Country Club",town:"Lyndonville",state:"VT",lat:44.5376,lng:-72.0012},
+  {name:"Newport Country Club",town:"Newport",state:"VT",lat:44.9376,lng:-72.2012},
+  {name:"Orleans Country Club",town:"Orleans",state:"VT",lat:44.8198,lng:-72.2098},
+  {name:"Copley Country Club",town:"Morrisville",state:"VT",lat:44.5543,lng:-72.6234},
+  {name:"Richford Country Club",town:"Richford",state:"VT",lat:45.0012,lng:-72.6654},
+  {name:"Middlebury College Golf",town:"Middlebury",state:"VT",lat:44.0154,lng:-73.1423},
+
+  // MAINE
+  {name:"Purpoodock Club",town:"Cape Elizabeth",state:"ME",lat:43.5654,lng:-70.2432},
+  {name:"Sable Oaks Golf Club",town:"South Portland",state:"ME",lat:43.6012,lng:-70.3098},
+  {name:"Riverside Golf Course",town:"Portland",state:"ME",lat:43.6876,lng:-70.3432},
+  {name:"Val Halla Golf Course",town:"Cumberland",state:"ME",lat:43.7854,lng:-70.2765},
+  {name:"Falmouth Country Club",town:"Falmouth",state:"ME",lat:43.7234,lng:-70.2543},
+  {name:"Nonesuch River Golf Club",town:"Scarborough",state:"ME",lat:43.5876,lng:-70.3654},
+  {name:"Dunegrass Golf Club",town:"Old Orchard Beach",state:"ME",lat:43.5234,lng:-70.3876},
+  {name:"Biddeford-Saco Country Club",town:"Saco",state:"ME",lat:43.5012,lng:-70.4543},
+  {name:"Biddeford Country Club",town:"Biddeford",state:"ME",lat:43.4765,lng:-70.4654},
+  {name:"Arundel Golf Club",town:"Arundel",state:"ME",lat:43.4543,lng:-70.5234},
+  {name:"Dutch Elm Golf Course",town:"Arundel",state:"ME",lat:43.4432,lng:-70.5098},
+  {name:"Kennebunk Beach Golf",town:"Kennebunk",state:"ME",lat:43.3765,lng:-70.5012},
+  {name:"Cape Neddick Country Club",town:"York",state:"ME",lat:43.1898,lng:-70.6543},
+  {name:"Ledges Golf Club",town:"York",state:"ME",lat:43.2098,lng:-70.6234},
+  {name:"York Golf and Tennis",town:"York",state:"ME",lat:43.1654,lng:-70.6432},
+  {name:"Kittery Golf Links",town:"Kittery",state:"ME",lat:43.0932,lng:-70.7098},
+  {name:"Sanford Country Club",town:"Sanford",state:"ME",lat:43.4432,lng:-70.7432},
+  {name:"Springbrook Golf Course",town:"Leeds",state:"ME",lat:44.2987,lng:-70.1234},
+  {name:"Wilson Lake Country Club",town:"Wilton",state:"ME",lat:44.5876,lng:-70.2432},
+  {name:"Kebo Valley Club",town:"Bar Harbor",state:"ME",lat:44.3876,lng:-68.2087},
+  {name:"Northeast Harbor Golf Club",town:"Northeast Harbor",state:"ME",lat:44.2987,lng:-68.2765},
+  {name:"Causeway Club",town:"Southwest Harbor",state:"ME",lat:44.2698,lng:-68.3312},
+  {name:"Castine Golf Club",town:"Castine",state:"ME",lat:44.3987,lng:-68.8012},
+  {name:"Lucerne Golf Course",town:"Dedham",state:"ME",lat:44.7098,lng:-68.6765},
+  {name:"Bangor Municipal Golf",town:"Bangor",state:"ME",lat:44.8012,lng:-68.7765},
+  {name:"Penobscot Valley Country Club",town:"Orono",state:"ME",lat:44.8765,lng:-68.6543},
+  {name:"Hampden Country Club",town:"Hampden",state:"ME",lat:44.7432,lng:-68.8098},
+  {name:"Hermon Meadow Golf Club",town:"Hermon",state:"ME",lat:44.8198,lng:-68.9123},
+  {name:"Bucksport Golf Club",town:"Bucksport",state:"ME",lat:44.5765,lng:-68.7876},
+  {name:"Bar Harbor Golf Course",town:"Trenton",state:"ME",lat:44.4543,lng:-68.3432},
+  {name:"Waterville Country Club",town:"Oakland",state:"ME",lat:44.5432,lng:-69.7543},
+  {name:"Kennebec Heights Country Club",town:"Farmingdale",state:"ME",lat:44.2432,lng:-69.7765},
+  {name:"Augusta Country Club",town:"Manchester",state:"ME",lat:44.3123,lng:-69.8765},
+  {name:"Rockland Golf Club",town:"Rockland",state:"ME",lat:44.1098,lng:-69.1234},
+  {name:"Samoset Resort Golf",town:"Rockport",state:"ME",lat:44.1654,lng:-69.0987},
+  {name:"Goose River Golf Club",town:"Rockport",state:"ME",lat:44.1876,lng:-69.1098},
+  {name:"Rockport Country Club",town:"Rockport",state:"ME",lat:44.1765,lng:-69.0876},
+  {name:"Point Sebago Golf Course",town:"Casco",state:"ME",lat:43.9876,lng:-70.5543},
+  {name:"Bridgton Highlands Country Club",town:"Bridgton",state:"ME",lat:44.0432,lng:-70.7098},
+  {name:"Naples Golf and Country Club",town:"Naples",state:"ME",lat:43.9654,lng:-70.6234},
+  {name:"Sebago Lake Golf Course",town:"Standish",state:"ME",lat:43.8432,lng:-70.5876},
+  {name:"South Portland Municipal Golf",town:"South Portland",state:"ME",lat:43.6234,lng:-70.2876},
+  {name:"Gorham Country Club",town:"Gorham",state:"ME",lat:43.6876,lng:-70.4543},
+  {name:"Buxton-Hollis Country Club",town:"Hollis Center",state:"ME",lat:43.5765,lng:-70.5876},
+  {name:"Salmon Falls Country Club",town:"Hollis",state:"ME",lat:43.5543,lng:-70.6234},
+  {name:"Sugarloaf Golf Club",town:"Carrabassett Valley",state:"ME",lat:45.0543,lng:-70.3098},
+  {name:"Sunday River Golf Club",town:"Newry",state:"ME",lat:44.4898,lng:-70.8543},
+  {name:"Poland Spring Country Club",town:"Poland Spring",state:"ME",lat:44.0654,lng:-70.3543},
+  {name:"Bethel Inn Resort Golf",town:"Bethel",state:"ME",lat:44.4012,lng:-70.7876},
+  {name:"Presque Isle Country Club",town:"Presque Isle",state:"ME",lat:46.6832,lng:-68.0125},
+  {name:"Fort Kent Golf Club",town:"Fort Kent",state:"ME",lat:47.2387,lng:-68.5942}
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
 const CLUBS=['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
 const SG_BASE={
   tee:{200:3.9,240:3.8,280:3.7,300:3.6,320:3.55,340:3.5,360:3.45,400:3.35,440:3.25,460:3.2},
@@ -352,358 +600,305 @@ const SG_BASE={
   chip:{10:2.3,20:2.4,30:2.5,40:2.6,50:2.7,60:2.8},
   putt:{3:1.08,5:1.12,8:1.18,10:1.2,15:1.3,20:1.4,30:1.55,40:1.7,50:1.85}
 };
-
-// ── STATE ──────────────────────────────────────────────────────────────────
-let map, gpsMarker, measureMarker, measureLine;
-let currentPos=null, altitude=0, weather=null;
-let selectedClub='Driver', selectedTee='white';
-let currentHole=1, handicap=18;
-let shots=[], holeShots=[], lastShotPos=null;
-let shotMarkers=[], shotLines=[];
-let pinsByHole={}, pinMarkers={};
-let teesByHole={}, teeMarkers={};
-let distRings=[], ringsOn=false;
-let measureMode=false, measurePos=null;
+let map,gpsMarker,measureMarker,measureLine;
+let currentPos=null,altitude=0,weather=null;
+let selectedClub='Driver',selectedTee='blue';
+let currentHole=1,handicap=18;
+let shots=[],holeShots=[],lastShotPos=null;
+let shotMarkers=[],shotLines=[];
+let pinsByHole={},pinMarkers={};
+let teesByHole={},teeMarkers={};
+let distRings=[],ringsOn=false;
+let measureMode=false;
 let activeCourse=null;
+let stateFilter='ALL';
+let library=JSON.parse(localStorage.getItem('caddie_lib')||'[]');
 
-// Course library stored in localStorage
-let courseLibrary = JSON.parse(localStorage.getItem('caddie_courses')||'[]');
+// ── SCREENS ────────────────────────────────────────────────────────────────
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goHome(){show('home-screen');renderLibrary();}
+function confirmHome(){if(shots.length&&!confirm('Leave round? Progress will be lost.'))return;goHome();}
 
-// ── HOME SCREEN ────────────────────────────────────────────────────────────
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function goHome(){showScreen('home-screen');renderSavedCourses();}
+// ── HOME ───────────────────────────────────────────────────────────────────
+function setFilter(s,btn){
+  stateFilter=s;
+  document.querySelectorAll('.sf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCourses();
+}
 
-function renderSavedCourses(){
-  const list=document.getElementById('saved-courses-list');
-  const none=document.getElementById('no-courses');
-  if(!courseLibrary.length){list.innerHTML='';none.style.display='block';return;}
+function filterCourses(){
+  const q=document.getElementById('search-box').value.trim().toLowerCase();
+  const list=document.getElementById('course-list');
+  const none=document.getElementById('no-results');
+  let filtered=COURSES.filter(c=>{
+    const matchState=stateFilter==='ALL'||c.state===stateFilter;
+    const matchQ=!q||c.name.toLowerCase().includes(q)||c.town.toLowerCase().includes(q);
+    return matchState&&matchQ;
+  });
+  if(q.length<2&&!stateFilter!=='ALL'){filtered=filtered.slice(0,20);}
+  if(!filtered.length){list.innerHTML='';none.style.display='block';return;}
   none.style.display='none';
-  list.innerHTML=courseLibrary.map((c,i)=>`
-    <div class="course-card" onclick="openCourse(${i})">
-      <div class="cc-left">
-        <div class="cc-name">${c.name}</div>
-        <div class="cc-meta">${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}</div>
-        <div class="cc-pin-count">${Object.keys(c.pins||{}).length} pins saved · ${Object.keys(c.tees||{}).length} tees saved</div>
+  const savedNames=new Set(library.map(c=>c.name));
+  list.innerHTML=filtered.slice(0,30).map(c=>`
+    <div class="course-item" onclick="selectCourse('${escStr(c.name)}',${c.lat},${c.lng},'${c.state}','${escStr(c.town)}')">
+      <div class="ci-left">
+        <div class="ci-name">${c.name}</div>
+        <div class="ci-town">${c.town}</div>
       </div>
-      <div class="cc-right">
-        <button class="btn-delete-course" onclick="event.stopPropagation();deleteCourse(${i})">🗑</button>
-        <span class="cc-arrow">›</span>
+      <div class="ci-right">
+        <span class="ci-state">${c.state}</span>
+        ${savedNames.has(c.name)?'<span class="ci-saved">★</span>':''}
+        <span class="ci-arrow">›</span>
       </div>
     </div>`).join('');
 }
-
-function deleteCourse(i){
-  if(!confirm('Delete '+courseLibrary[i].name+'?'))return;
-  courseLibrary.splice(i,1);
-  localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
-  renderSavedCourses();
-  showToast('Course deleted');
-}
-
-async function doHomeSearch(){
-  const q=document.getElementById('home-search').value.trim();
-  if(!q){showToast('Enter a course name');return;}
-  showToast('Searching...');
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+' golf course')}&format=json&limit=5`,{headers:{'Accept-Language':'en'}});
-    const data=await r.json();
-    const el=document.getElementById('search-results-home');
-    if(!data.length){el.style.display='block';el.innerHTML='<div style="font-family:DM Mono,monospace;font-size:12px;color:rgba(255,255,255,0.3);padding:12px 0">No results found. Try a different name.</div>';return;}
-    el.style.display='block';
-    el.innerHTML=data.map(d=>`<div class="sr-item" onclick="selectSearchResult(${d.lat},${d.lon},'${escStr(d.display_name.split(',')[0])}')">
-      <div class="sr-name">${d.display_name.split(',')[0]}</div>
-      <div class="sr-loc">${d.display_name.split(',').slice(1,3).join(',').trim()}</div>
-    </div>`).join('');
-  }catch(e){showToast('Search failed — check connection');}
-}
-
-document.getElementById('home-search').addEventListener('keydown',e=>{if(e.key==='Enter')doHomeSearch();});
 
 function escStr(s){return s.replace(/'/g,"\\'");}
 
-function selectSearchResult(lat,lon,name){
-  // Check if already saved
-  const existing=courseLibrary.find(c=>c.name===name);
-  if(existing){openCourse(courseLibrary.indexOf(existing));return;}
-  // Add to library
-  const course={name,lat:parseFloat(lat),lng:parseFloat(lon),pins:{},tees:{},addedAt:Date.now()};
-  courseLibrary.unshift(course);
-  localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
-  openCourse(0);
-}
-
-function openCourse(idx){
-  activeCourse=courseLibrary[idx];
+function selectCourse(name,lat,lng,state,town){
+  const existing=library.find(c=>c.name===name);
+  if(existing){
+    activeCourse=existing;
+  } else {
+    activeCourse={name,lat,lng,state,town,pins:{},tees:{},addedAt:Date.now()};
+    library.unshift(activeCourse);
+    localStorage.setItem('caddie_lib',JSON.stringify(library));
+  }
   pinsByHole={...activeCourse.pins};
   teesByHole={...activeCourse.tees};
-  document.getElementById('setup-course-name').textContent=activeCourse.name;
-  document.getElementById('search-results-home').style.display='none';
+  document.getElementById('setup-ttl').textContent=name;
+  document.getElementById('setup-sub-loc').textContent=town+', '+state;
   buildHoleGrid();
-  showScreen('setup-screen');
+  show('setup-screen');
 }
 
-// ── SETUP SCREEN ──────────────────────────────────────────────────────────
-function selectTee(color,btn){
-  selectedTee=color;
-  document.querySelectorAll('.tee-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+function renderLibrary(){
+  const el=document.getElementById('saved-list');
+  if(!library.length){el.innerHTML='<div style="font-family:DM Mono,monospace;font-size:11px;color:rgba(255,255,255,0.2);padding:8px 0;letter-spacing:1px">No saved courses yet</div>';return;}
+  el.innerHTML=library.map((c,i)=>`
+    <div class="saved-item" onclick="selectCourse('${escStr(c.name)}',${c.lat},${c.lng},'${c.state}','${escStr(c.town||'')}')">
+      <div>
+        <div class="si-name">${c.name}</div>
+        <div class="si-meta">${c.town||''} ${c.state||''}</div>
+        <div class="si-pins">${Object.keys(c.pins||{}).length} pins · ${Object.keys(c.tees||{}).length} tees saved</div>
+      </div>
+      <button class="si-del" onclick="event.stopPropagation();delCourse(${i})">🗑</button>
+    </div>`).join('');
 }
+
+function delCourse(i){
+  library.splice(i,1);
+  localStorage.setItem('caddie_lib',JSON.stringify(library));
+  renderLibrary();
+}
+function clearSaved(){
+  if(!library.length)return;
+  if(!confirm('Clear all saved courses?'))return;
+  library=[];localStorage.setItem('caddie_lib','[]');renderLibrary();
+}
+
+// ── SETUP ──────────────────────────────────────────────────────────────────
+function setTee(c,btn){selectedTee=c;document.querySelectorAll('.tee-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 
 function buildHoleGrid(){
-  const grid=document.getElementById('hole-grid');
-  grid.innerHTML='';
+  const g=document.getElementById('hole-grid');g.innerHTML='';
   for(let i=1;i<=18;i++){
-    const hasPins=!!pinsByHole[i];
-    const hasTees=!!teesByHole[i];
-    const cls=hasPins&&hasTees?'both':hasPins?'pinned':hasTees?'tee-marked':'';
-    const dot=hasPins&&hasTees?'⬛+📍':hasPins?'📍':hasTees?'📐':'';
+    const hp=!!pinsByHole[i],ht=!!teesByHole[i];
+    const cls=hp&&ht?'has-both':hp?'has-pin':ht?'has-tee':'';
+    const dot=hp&&ht?'📍+📐':hp?'📍':ht?'📐':'·';
     const cell=document.createElement('div');
-    cell.className='hole-cell '+cls;
-    cell.id='hole-cell-'+i;
-    cell.innerHTML=`<span class="hole-cell-num">${i}</span><span class="hole-cell-dot">${dot}</span>`;
-    grid.appendChild(cell);
+    cell.className='hcell '+cls;cell.id='hcell-'+i;
+    cell.innerHTML=`<span class="hcell-n">${i}</span><span class="hcell-d">${dot}</span>`;
+    g.appendChild(cell);
   }
 }
 
 function startRound(){
   if(!activeCourse){showToast('Select a course first');return;}
-  showScreen('play-screen');
+  show('play-screen');
   currentHole=1;shots=[];holeShots=[];lastShotPos=null;
   shotMarkers=[];shotLines=[];pinMarkers={};teeMarkers={};
   distRings=[];ringsOn=false;measureMode=false;
-
-  document.getElementById('course-name-chip').textContent=activeCourse.name.substring(0,16);
+  document.getElementById('play-course-chip').textContent=activeCourse.name.substring(0,14);
   initMap(activeCourse.lat,activeCourse.lng);
-  buildClubScroll();
-  buildHoleStrip();
-  startGPS();
-  loadCourseOverlay();
+  buildClubs();buildHoleStrip();startGPS();loadOverlay();
 }
 
-// ── MAP INIT ──────────────────────────────────────────────────────────────
+// ── MAP ────────────────────────────────────────────────────────────────────
 function initMap(lat,lng){
   if(map){map.remove();map=null;}
   map=L.map('map',{zoomControl:false,attributionControl:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(map);
   map.setView([lat,lng],17);
-
-  // GPS dot
   gpsMarker=L.circleMarker([lat,lng],{radius:10,fillColor:'#4a90e2',fillOpacity:1,color:'white',weight:2,zIndexOffset:1000}).addTo(map);
-
-  // Measure marker (draggable)
-  measureMarker=L.marker([lat,lng],{
-    draggable:true,
-    icon:L.divIcon({className:'',html:'<div style="width:20px;height:20px;background:#4a90e2;border:2px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.6)"></div>',iconSize:[20,20],iconAnchor:[10,10]})
-  });
-  measureMarker.on('drag',updateMeasure);
-
-  // Draw saved pins and tees
-  Object.entries(pinsByHole).forEach(([h,pos])=>drawPin(parseInt(h),pos,false));
-  Object.entries(teesByHole).forEach(([h,pos])=>drawTee(parseInt(h),pos,false));
+  measureMarker=L.marker([lat,lng],{draggable:true,icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#4a90e2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.7)"></div>',iconSize:[22,22],iconAnchor:[11,11]})});
+  measureMarker.on('drag',doMeasure);
+  Object.entries(pinsByHole).forEach(([h,p])=>drawPin(parseInt(h),p));
+  Object.entries(teesByHole).forEach(([h,p])=>drawTeeM(parseInt(h),p));
 }
 
-// ── GPS ───────────────────────────────────────────────────────────────────
+// ── GPS ────────────────────────────────────────────────────────────────────
 function startGPS(){
   if(!navigator.geolocation){setGPS('error','GPS not supported');return;}
-  let centered=false;
+  let c=false;
   navigator.geolocation.watchPosition(pos=>{
     currentPos=[pos.coords.latitude,pos.coords.longitude];
     altitude=pos.coords.altitude?pos.coords.altitude*3.28084:0;
     setGPS('active',`±${Math.round(pos.coords.accuracy)}m`);
     if(gpsMarker)gpsMarker.setLatLng(currentPos);
-    if(!centered){
-      map.setView(currentPos,18);centered=true;
-      fetchWeather(pos.coords.latitude,pos.coords.longitude);
-    }
-    updateDistToPin();
-    updateCatDisplay();
-    if(measureMode&&measureMarker&&!map.hasLayer(measureMarker)){
-      measureMarker.setLatLng(currentPos);
-      measureMarker.addTo(map);
-    }
+    if(!c){map.setView(currentPos,18);c=true;fetchWeather(pos.coords.latitude,pos.coords.longitude);}
+    updateDTP();updateCat();
   },()=>setGPS('error','Allow location access'),{enableHighAccuracy:true,maximumAge:3000});
 }
-function setGPS(s,t){document.getElementById('gps-dot').className=s;document.getElementById('gps-text').textContent=t;}
+function setGPS(s,t){document.getElementById('gdot').className=s;document.getElementById('gtxt').textContent=t;}
 
-// ── WEATHER ───────────────────────────────────────────────────────────────
+// ── WEATHER ────────────────────────────────────────────────────────────────
 async function fetchWeather(lat,lng){
   try{
     const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit`);
     const d=await r.json();weather=d.current;
-    document.getElementById('wx-temp').textContent=Math.round(weather.temperature_2m)+'°F';
-    document.getElementById('wx-wind').textContent=Math.round(weather.wind_speed_10m)+'mph';
-    document.getElementById('wx-dir').textContent=degToCompass(weather.wind_direction_10m);
-    document.getElementById('wx-hum').textContent=weather.relative_humidity_2m+'%';
-    document.getElementById('wx-alt').textContent=Math.round(altitude)+'ft';
+    document.getElementById('wx-t').textContent=Math.round(weather.temperature_2m)+'°F';
+    document.getElementById('wx-w').textContent=Math.round(weather.wind_speed_10m)+'mph';
+    document.getElementById('wx-d').textContent=degToC(weather.wind_direction_10m);
+    document.getElementById('wx-h').textContent=weather.relative_humidity_2m+'%';
+    document.getElementById('wx-a').textContent=Math.round(altitude)+'ft';
   }catch(e){}
 }
-function degToCompass(d){return['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];}
+function degToC(d){return['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];}
 function playsLike(y){
-  if(!y)return y;
-  let a=y;
+  if(!y)return y;let a=y;
   a-=(altitude/1000)*y*0.01;
   if(weather){a+=((75-weather.temperature_2m)/10)*y*0.01;a+=weather.wind_speed_10m*0.35;}
   return Math.round(a);
 }
 
-// ── COURSE OVERLAY ────────────────────────────────────────────────────────
-async function loadCourseOverlay(){
+// ── OVERLAY ────────────────────────────────────────────────────────────────
+async function loadOverlay(){
   if(!activeCourse)return;
-  const {lat,lng}=activeCourse;
+  const{lat,lng}=activeCourse;
   try{
     const q=`[out:json][timeout:25];(way["golf"="fairway"](around:2000,${lat},${lng});way["golf"="green"](around:2000,${lat},${lng});way["golf"="tee"](around:2000,${lat},${lng});way["golf"="bunker"](around:2000,${lat},${lng});way["golf"="water_hazard"](around:2000,${lat},${lng}););out body;>;out skel qt;`;
     const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q});
     const data=await r.json();
-    const nodes={};
-    data.elements.filter(e=>e.type==='node').forEach(n=>{nodes[n.id]={lat:n.lat,lng:n.lon};});
-    let greensFound=0;
+    const nodes={};data.elements.filter(e=>e.type==='node').forEach(n=>{nodes[n.id]={lat:n.lat,lng:n.lon};});
+    let gc=0;
     data.elements.filter(e=>e.type==='way'&&e.tags).forEach(w=>{
       const coords=(w.nodes||[]).map(id=>nodes[id]).filter(Boolean).map(n=>[n.lat,n.lng]);
       if(!coords.length)return;
       const g=w.tags.golf;
       if(g==='fairway')L.polygon(coords,{color:'#3aaf5c',weight:1,opacity:0.5,fillColor:'#3aaf5c',fillOpacity:0.12}).addTo(map);
-      else if(g==='green'){
-        greensFound++;
-        L.polygon(coords,{color:'#6de88a',weight:1.5,opacity:0.7,fillColor:'#5dde7a',fillOpacity:0.22}).addTo(map);
-        const c=centroid(coords);
-        const h=w.tags.ref?parseInt(w.tags.ref):greensFound;
-        if(h>=1&&h<=18&&!pinsByHole[h])autoSetPin(h,c);
-      }
+      else if(g==='green'){gc++;L.polygon(coords,{color:'#6de88a',weight:1.5,opacity:0.7,fillColor:'#5dde7a',fillOpacity:0.22}).addTo(map);const c=ctr(coords);const h=w.tags.ref?parseInt(w.tags.ref):gc;if(h>=1&&h<=18&&!pinsByHole[h])autoPin(h,c);}
       else if(g==='tee')L.polygon(coords,{color:'#4a90e2',weight:1,opacity:0.5,fillColor:'#4a90e2',fillOpacity:0.18}).addTo(map);
       else if(g==='bunker')L.polygon(coords,{color:'#c8b560',weight:1,opacity:0.5,fillColor:'#d4c46a',fillOpacity:0.2}).addTo(map);
       else if(g==='water_hazard')L.polygon(coords,{color:'#4a90e2',weight:1,opacity:0.4,fillColor:'#4a90e2',fillOpacity:0.25}).addTo(map);
     });
-    if(greensFound>0)showToast(`Course loaded · ${greensFound} greens`);
+    if(gc>0)showToast(`Course loaded · ${gc} greens found`);
     buildHoleStrip();
   }catch(e){showToast('Course overlay unavailable');}
 }
+function ctr(coords){return[coords.reduce((s,c)=>s+c[0],0)/coords.length,coords.reduce((s,c)=>s+c[1],0)/coords.length];}
 
-function centroid(coords){
-  return[coords.reduce((s,c)=>s+c[0],0)/coords.length,coords.reduce((s,c)=>s+c[1],0)/coords.length];
-}
+// ── PINS & TEES ────────────────────────────────────────────────────────────
+function autoPin(h,pos){pinsByHole[h]=pos;drawPin(h,pos);buildHoleStrip();}
 
-// ── PINS & TEES ───────────────────────────────────────────────────────────
-function autoSetPin(h,pos){
-  pinsByHole[h]=pos;
-  drawPin(h,pos,false);
-  buildHoleStrip();
-}
-
-function drawPin(h,pos,animate){
+function drawPin(h,pos){
   if(pinMarkers[h])map.removeLayer(pinMarkers[h]);
-  const icon=L.divIcon({className:'',html:`<div style="background:var(--gold,#c9a84c);color:#0d1209;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.7)">${h}</div>`,iconSize:[22,22],iconAnchor:[11,11]});
+  const icon=L.divIcon({className:'',html:`<div style="background:#c9a84c;color:#0a140c;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.7)">${h}</div>`,iconSize:[22,22],iconAnchor:[11,11]});
   pinMarkers[h]=L.marker(pos,{icon,zIndexOffset:500}).addTo(map);
   pinMarkers[h].bindTooltip(`H${h} pin`,{direction:'top'});
 }
 
-function drawTee(h,pos,animate){
+function drawTeeM(h,pos){
   if(teeMarkers[h])map.removeLayer(teeMarkers[h]);
-  const colors={black:'#222',blue:'#4a90e2',white:'#f5f5f5',red:'#e05555'};
-  const col=colors[selectedTee]||'#f5f5f5';
-  const icon=L.divIcon({className:'',html:`<div style="background:${col};border:2px solid rgba(0,0,0,0.5);border-radius:3px;width:16px;height:16px;box-shadow:0 2px 6px rgba(0,0,0,0.7)"></div>`,iconSize:[16,16],iconAnchor:[8,8]});
+  const cols={black:'#222',blue:'#4a90e2',white:'#f5f5f5',red:'#e05555'};
+  const icon=L.divIcon({className:'',html:`<div style="background:${cols[selectedTee]||'#f5f5f5'};border:2px solid rgba(0,0,0,0.5);border-radius:3px;width:16px;height:16px;box-shadow:0 2px 6px rgba(0,0,0,0.7)"></div>`,iconSize:[16,16],iconAnchor:[8,8]});
   teeMarkers[h]=L.marker(pos,{icon,zIndexOffset:400}).addTo(map);
-  teeMarkers[h].bindTooltip(`H${h} tee (${selectedTee})`,{direction:'top'});
+  teeMarkers[h].bindTooltip(`H${h} tee`,{direction:'top'});
 }
 
-function setPinAtGPS(){
+function setPinGPS(){
   if(!currentPos){showToast('Waiting for GPS...');return;}
   const h=currentHole;
   pinsByHole[h]=[...currentPos];
-  drawPin(h,currentPos,true);
-  // Save to course library
-  if(activeCourse){
-    activeCourse.pins=pinsByHole;
-    activeCourse.tees=teesByHole;
-    localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
-  }
-  document.getElementById('btn-pin-play').classList.add('set');
-  buildHoleStrip();
-  updateDistToPin();
+  drawPin(h,currentPos);
+  save();
+  document.getElementById('btn-pin-p').classList.add('set');
+  buildHoleStrip();updateDTP();
   showToast(`Pin set — Hole ${h}`);
 }
 
-function setTeeAtGPS(){
-  if(!currentPos){showToast('Waiting for GPS...');return;}
-  const h=currentHole;
-  teesByHole[h]=[...currentPos];
-  drawTee(h,currentPos,true);
-  if(activeCourse){
-    activeCourse.tees=teesByHole;
-    localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
-  }
-  showToast(`Tee marked — Hole ${h}`);
+function save(){
+  if(!activeCourse)return;
+  activeCourse.pins=pinsByHole;activeCourse.tees=teesByHole;
+  localStorage.setItem('caddie_lib',JSON.stringify(library));
 }
 
-// ── HOLE STRIP ────────────────────────────────────────────────────────────
+function saveCourse(){save();showToast('Course saved');}
+
+// ── HOLE STRIP ─────────────────────────────────────────────────────────────
 function buildHoleStrip(){
-  const strip=document.getElementById('hole-strip');
-  strip.innerHTML='';
+  const s=document.getElementById('hole-strip');s.innerHTML='';
   for(let i=1;i<=18;i++){
+    const done=shots.some(s=>s.hole===i),hp=!!pinsByHole[i];
     const p=document.createElement('button');
-    const done=shots.some(s=>s.hole===i);
-    const hasPins=!!pinsByHole[i];
-    p.className='hpill'+(i===currentHole?' cur':done?' done':hasPins?' pinned':'');
-    p.id='hpill-'+i;
-    p.textContent=`${i}${hasPins?'●':''}`;
-    p.onclick=(()=>{const h=i;return()=>jumpHole(h);})();
-    strip.appendChild(p);
+    p.className='hpill'+(i===currentHole?' cur':done?' done':hp?' has-p':'');
+    p.id='hpill-'+i;p.textContent=`${i}${hp?'●':''}`;
+    p.onclick=(()=>{const h=i;return()=>jumpH(h);})();
+    s.appendChild(p);
   }
 }
 
-function jumpHole(h){
+function jumpH(h){
   currentHole=h;
-  document.getElementById('cur-hole-play').textContent=h;
+  document.getElementById('cur-h').textContent=h;
   document.querySelectorAll('.hpill').forEach(p=>p.classList.remove('cur'));
   const pill=document.getElementById('hpill-'+h);
   if(pill){pill.classList.add('cur');pill.scrollIntoView({inline:'center',behavior:'smooth'});}
-  document.getElementById('btn-pin-play').classList.toggle('set',!!pinsByHole[h]);
+  document.getElementById('btn-pin-p').classList.toggle('set',!!pinsByHole[h]);
   if(pinsByHole[h])map.setView(pinsByHole[h],18);
   else if(teesByHole[h])map.setView(teesByHole[h],18);
-  updateDistToPin();
+  updateDTP();updateCat();
   showToast(`Hole ${h}`);
 }
 
-// ── DIST TO PIN ───────────────────────────────────────────────────────────
-function updateDistToPin(){
+// ── DIST TO PIN ────────────────────────────────────────────────────────────
+function updateDTP(){
   const pin=pinsByHole[currentHole];
   if(!pin||!currentPos){document.getElementById('dist-panel').style.display='none';return;}
-  const d=Math.round(haversineYards(currentPos,pin));
+  const d=Math.round(hvy(currentPos,pin));
   const pl=playsLike(d);
-  document.getElementById('dtp-val').textContent=d;
-  document.getElementById('dtp-plays').textContent=pl+'y';
+  document.getElementById('dtp').textContent=d;
+  document.getElementById('dtp-pl').textContent=pl+'y';
   document.getElementById('dist-panel').style.display='block';
-  document.getElementById('wx-plays').textContent=pl+'y';
-  document.getElementById('plays-wx').style.display='flex';
+  document.getElementById('wx-plv').textContent=pl+'y';
+  document.getElementById('wx-pl').style.display='flex';
 }
 
-// ── MEASURE TOOL ──────────────────────────────────────────────────────────
+// ── MEASURE ────────────────────────────────────────────────────────────────
 function toggleMeasure(){
   measureMode=!measureMode;
-  const btn=document.getElementById('btn-measure');
-  const panel=document.getElementById('measure-panel');
+  const btn=document.getElementById('btn-meas');
+  const panel=document.getElementById('meas-panel');
   if(measureMode){
-    btn.classList.add('active');
-    panel.style.display='block';
+    btn.classList.add('on');panel.style.display='block';
     if(currentPos){
-      measureMarker.setLatLng(currentPos);
-      measureMarker.addTo(map);
+      measureMarker.setLatLng(currentPos);measureMarker.addTo(map);
       measureLine=L.polyline([currentPos,currentPos],{color:'#4a90e2',weight:2,dashArray:'6 4',opacity:0.8}).addTo(map);
-      showToast('Drag the blue marker to measure');
+      showToast('Drag blue dot to measure distance');
     }
   } else {
-    btn.classList.remove('active');
-    panel.style.display='none';
+    btn.classList.remove('on');panel.style.display='none';
     if(map.hasLayer(measureMarker))map.removeLayer(measureMarker);
     if(measureLine){map.removeLayer(measureLine);measureLine=null;}
   }
 }
-
-function updateMeasure(){
+function doMeasure(){
   if(!currentPos||!measureMarker)return;
-  measurePos=measureMarker.getLatLng();
-  const d=Math.round(haversineYards(currentPos,[measurePos.lat,measurePos.lng]));
-  document.getElementById('measure-val').textContent=d;
-  if(measureLine)measureLine.setLatLngs([currentPos,[measurePos.lat,measurePos.lng]]);
+  const mp=measureMarker.getLatLng();
+  const d=Math.round(hvy(currentPos,[mp.lat,mp.lng]));
+  document.getElementById('meas-val').textContent=d;
+  if(measureLine)measureLine.setLatLngs([currentPos,[mp.lat,mp.lng]]);
 }
 
 // ── RINGS ──────────────────────────────────────────────────────────────────
@@ -714,49 +909,39 @@ function toggleRings(){
     [50,100,150,200].forEach((y,i)=>{
       const cols=['#9b59b6','#3aaf5c','#c9a84c','#4a90e2'];
       const ring=L.circle(currentPos,{radius:y*0.9144,color:cols[i],weight:1.5,opacity:0.8,fillColor:cols[i],fillOpacity:0.04}).addTo(map);
-      ring.bindTooltip(`${y}y`,{permanent:true,direction:'top'});
-      distRings.push(ring);
+      ring.bindTooltip(`${y}y`,{permanent:true,direction:'top'});distRings.push(ring);
     });
     ringsOn=true;showToast('Distance rings on');
   }
 }
 
-// ── SHOT TRACKING ─────────────────────────────────────────────────────────
-function categorize(club,dist){
-  if(holeShots.length===0)return'tee';
-  if(club==='Putter')return'putt';
-  if(dist!==null&&dist<40)return'chip';
-  if(['SW','LW','GW'].includes(club)&&dist<60)return'chip';
+// ── SHOT CAT ───────────────────────────────────────────────────────────────
+function cat(club,dist){
+  if(holeShots.length===0)return'tee';if(club==='Putter')return'putt';
+  if(dist!==null&&dist<40)return'chip';if(['SW','LW','GW'].includes(club)&&dist<60)return'chip';
   return'approach';
 }
-function updateCatDisplay(){
-  if(!lastShotPos||!currentPos){document.getElementById('cat-label').textContent=holeShots.length===0?'TEE':'—';return;}
-  const d=Math.round(haversineYards(lastShotPos,currentPos));
-  document.getElementById('cat-label').textContent=categorize(selectedClub,d).toUpperCase();
+function updateCat(){
+  if(!lastShotPos||!currentPos){document.getElementById('cat-lbl').textContent=holeShots.length===0?'TEE':'—';return;}
+  document.getElementById('cat-lbl').textContent=cat(selectedClub,Math.round(hvy(lastShotPos,currentPos))).toUpperCase();
 }
+const CC={tee:'#4a90e2',approach:'#3aaf5c',chip:'#c9a84c',putt:'#9b59b6'};
 
-const CAT_COLOR={tee:'#4a90e2',approach:'#3aaf5c',chip:'#c9a84c',putt:'#9b59b6'};
-
+// ── TRACK ──────────────────────────────────────────────────────────────────
 function trackShot(){
   if(!currentPos){showToast('Waiting for GPS...');return;}
-  const sn=holeShots.length+1;
-  let dy=0;
-  if(lastShotPos){
-    dy=Math.round(haversineYards(lastShotPos,currentPos));
-    shotLines.push(L.polyline([lastShotPos,currentPos],{color:'#3aaf5c',weight:3,opacity:0.85}).addTo(map));
-  }
-  const dist2=lastShotPos?Math.round(haversineYards(lastShotPos,currentPos)):null;
-  const cat=categorize(selectedClub,dist2);
-  const pin=pinsByHole[currentHole];
-  const dtp=pin?Math.round(haversineYards(currentPos,pin)):null;
-  const icon=L.divIcon({className:'',html:`<div style="background:${CAT_COLOR[cat]||'#c9a84c'};color:#0d1209;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.6)">${sn}</div>`,iconSize:[28,28],iconAnchor:[14,14]});
+  const sn=holeShots.length+1;let dy=0;
+  if(lastShotPos){dy=Math.round(hvy(lastShotPos,currentPos));shotLines.push(L.polyline([lastShotPos,currentPos],{color:'#3aaf5c',weight:3,opacity:0.85}).addTo(map));}
+  const d2=lastShotPos?Math.round(hvy(lastShotPos,currentPos)):null;
+  const c=cat(selectedClub,d2);
+  const pin=pinsByHole[currentHole];const dtp=pin?Math.round(hvy(currentPos,pin)):null;
+  const icon=L.divIcon({className:'',html:`<div style="background:${CC[c]||'#c9a84c'};color:#0a140c;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.6)">${sn}</div>`,iconSize:[28,28],iconAnchor:[14,14]});
   const marker=L.marker(currentPos,{icon}).addTo(map);
-  marker.bindPopup(`<b>Shot ${sn}</b><br>${selectedClub} · ${cat}<br>${dy>0?dy+'y':''}`);
+  marker.bindPopup(`<b>Shot ${sn}</b><br>${selectedClub} · ${c}<br>${dy>0?dy+'y':''}`);
   shotMarkers.push(marker);
-  const shot={hole:currentHole,shotNum:sn,club:selectedClub,lat:currentPos[0],lng:currentPos[1],distYards:dy,category:cat,distToPin:dtp,playsLike:playsLike(dy)};
+  const shot={hole:currentHole,shotNum:sn,club:selectedClub,lat:currentPos[0],lng:currentPos[1],distYards:dy,category:c,distToPin:dtp,playsLike:playsLike(dy)};
   holeShots.push(shot);shots.push(shot);lastShotPos=[...currentPos];
-  updateSGDisplay();
-  showToast(`${cat.toUpperCase()} · ${selectedClub}${dy>0?' · '+dy+'y':''}`);
+  updateSG();showToast(`${c.toUpperCase()} · ${selectedClub}${dy>0?' · '+dy+'y':''}`);
   if(ringsOn){distRings.forEach(r=>map.removeLayer(r));distRings=[];ringsOn=false;toggleRings();}
 }
 
@@ -766,147 +951,80 @@ function undoShot(){
   const m=shotMarkers.pop();if(m)map.removeLayer(m);
   const l=shotLines.pop();if(l)map.removeLayer(l);
   lastShotPos=holeShots.length?[holeShots[holeShots.length-1].lat,holeShots[holeShots.length-1].lng]:null;
-  updateSGDisplay();showToast('Shot removed');
+  updateSG();showToast('Shot removed');
 }
 
 function nextHole(){
   if(!holeShots.length){showToast('Track a shot first');return;}
-  holeShots=[];lastShotPos=null;
-  currentHole++;
-  document.getElementById('cur-hole-play').textContent=currentHole;
-  document.getElementById('btn-pin-play').classList.remove('set');
+  holeShots=[];lastShotPos=null;currentHole++;
+  document.getElementById('cur-h').textContent=currentHole;
+  document.getElementById('btn-pin-p').classList.remove('set');
   buildHoleStrip();
   const pill=document.getElementById('hpill-'+currentHole);
   if(pill)pill.scrollIntoView({inline:'center',behavior:'smooth'});
   if(pinsByHole[currentHole])map.setView(pinsByHole[currentHole],18);
-  else if(teesByHole[currentHole])map.setView(teesByHole[currentHole],18);
-  updateDistToPin();updateCatDisplay();
-  showToast(`Hole ${currentHole}`);
+  updateDTP();updateCat();showToast(`Hole ${currentHole}`);
 }
 
-// ── SG ────────────────────────────────────────────────────────────────────
-function getSGBase(cat,d){
-  const t=SG_BASE[cat]||SG_BASE.approach;
-  const keys=Object.keys(t).map(Number).sort((a,b)=>a-b);
-  if(d<=keys[0])return t[keys[0]];
-  if(d>=keys[keys.length-1])return t[keys[keys.length-1]];
-  for(let i=0;i<keys.length-1;i++){
-    if(d>=keys[i]&&d<=keys[i+1]){
-      const p=(d-keys[i])/(keys[i+1]-keys[i]);
-      return t[keys[i]]+p*(t[keys[i+1]]-t[keys[i]]);
-    }
-  }
-  return 2.5;
+// ── SG ─────────────────────────────────────────────────────────────────────
+function getSGB(c,d){
+  const t=SG_BASE[c]||SG_BASE.approach;const keys=Object.keys(t).map(Number).sort((a,b)=>a-b);
+  if(d<=keys[0])return t[keys[0]];if(d>=keys[keys.length-1])return t[keys[keys.length-1]];
+  for(let i=0;i<keys.length-1;i++){if(d>=keys[i]&&d<=keys[i+1]){const p=(d-keys[i])/(keys[i+1]-keys[i]);return t[keys[i]]+p*(t[keys[i+1]]-t[keys[i]]);}}return 2.5;
 }
-function calcSG(s,next){
-  const b=getSGBase(s.category,s.distToPin||150);
-  if(!next)return 0;
-  const a=getSGBase(next.category,next.distToPin||10);
-  return parseFloat((b-(1+a)).toFixed(2));
-}
-function updateSGDisplay(){
+function calcSG(s,n){const b=getSGB(s.category,s.distToPin||150);if(!n)return 0;const a=getSGB(n.category,n.distToPin||10);return parseFloat((b-(1+a)).toFixed(2));}
+function updateSG(){
   let sg=0;for(let i=0;i<shots.length-1;i++)sg+=calcSG(shots[i],shots[i+1]);
-  const el=document.getElementById('cur-sg');
-  el.textContent=(sg>=0?'+':'')+sg.toFixed(1);
-  el.style.color=sg>=0?'#3aaf5c':'#e05555';
+  const el=document.getElementById('cur-sg');el.textContent=(sg>=0?'+':'')+sg.toFixed(1);el.style.color=sg>=0?'#3aaf5c':'#e05555';
 }
 
-// ── SAVE COURSE ───────────────────────────────────────────────────────────
-function saveCurrentCourse(){
-  if(!activeCourse){showToast('No active course');return;}
-  activeCourse.pins=pinsByHole;
-  activeCourse.tees=teesByHole;
-  localStorage.setItem('caddie_courses',JSON.stringify(courseLibrary));
-  showToast('Course saved with current pins');
-}
+// ── OVERLAYS ───────────────────────────────────────────────────────────────
+function openOv(id){if(id==='sc-ov')buildSC();if(id==='stats-ov')buildStats();document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
 
-// ── OVERLAYS ──────────────────────────────────────────────────────────────
-function openOverlay(id){
-  if(id==='sc-overlay')buildScorecard();
-  if(id==='stats-overlay')buildStats();
-  document.getElementById(id).classList.add('open');
-}
-function closeOverlay(id){document.getElementById(id).classList.remove('open');}
-
-function buildScorecard(){
+function buildSC(){
   const body=document.getElementById('sc-body');
   if(!shots.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>';return;}
   const bh={};shots.forEach(s=>{if(!bh[s.hole])bh[s.hole]=[];bh[s.hole].push(s);});
   body.innerHTML=Object.entries(bh).map(([h,hs])=>{
-    const td=hs.reduce((a,s)=>a+s.distYards,0);
-    const putts=hs.filter(s=>s.category==='putt').length;
-    return`<div class="hole-card">
-      <div class="hc-header"><div class="hc-num">HOLE ${h}</div><div class="hc-meta">${hs.length} shots · ${putts}p · ${td}y</div></div>
-      ${hs.map((s,i)=>{const sg=i<hs.length-1?calcSG(s,hs[i+1]):0;return`<div class="srow"><span class="sbadge ${s.category}">${s.category}</span><span>${s.club}</span><span class="sdist">${s.distYards>0?s.distYards+'y':'—'}</span><span class="sgv ${sg>=0?'pos':'neg'}">${sg!==0?(sg>0?'+':'')+sg.toFixed(2):''}</span></div>`;}).join('')}
-    </div>`;
-  }).join('')+'<button id="btn-export-sc" onclick="exportRound()">EXPORT CSV</button>';
+    const td=hs.reduce((a,s)=>a+s.distYards,0),putts=hs.filter(s=>s.category==='putt').length;
+    return`<div class="hcard"><div class="hc-hdr"><div class="hc-n">HOLE ${h}</div><div class="hc-m">${hs.length} shots · ${putts}p · ${td}y</div></div>
+    ${hs.map((s,i)=>{const sg=i<hs.length-1?calcSG(s,hs[i+1]):0;return`<div class="srow"><span class="sbadge ${s.category}">${s.category}</span><span>${s.club}</span><span class="sdist">${s.distYards>0?s.distYards+'y':'—'}</span><span class="sgv ${sg>=0?'pos':'neg'}">${sg!==0?(sg>0?'+':'')+sg.toFixed(2):''}</span></div>`;}).join('')}</div>`;
+  }).join('')+'<button id="btn-exp" onclick="exportRound()">EXPORT CSV</button>';
 }
 
 function buildStats(){
   const body=document.getElementById('stats-body');
   if(!shots.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>';return;}
-  const tees=shots.filter(s=>s.category==='tee');
-  const apps=shots.filter(s=>s.category==='approach');
-  const chips=shots.filter(s=>s.category==='chip');
-  const putts=shots.filter(s=>s.category==='putt');
+  const tees=shots.filter(s=>s.category==='tee'),apps=shots.filter(s=>s.category==='approach'),chips=shots.filter(s=>s.category==='chip'),putts=shots.filter(s=>s.category==='putt');
   let sgT=0,sgA=0,sgC=0,sgP=0,sgTot=0;
-  for(let i=0;i<shots.length-1;i++){
-    const sg=calcSG(shots[i],shots[i+1]);sgTot+=sg;
-    if(shots[i].category==='tee')sgT+=sg;
-    else if(shots[i].category==='approach')sgA+=sg;
-    else if(shots[i].category==='chip')sgC+=sg;
-    else if(shots[i].category==='putt')sgP+=sg;
-  }
+  for(let i=0;i<shots.length-1;i++){const sg=calcSG(shots[i],shots[i+1]);sgTot+=sg;if(shots[i].category==='tee')sgT+=sg;else if(shots[i].category==='approach')sgA+=sg;else if(shots[i].category==='chip')sgC+=sg;else if(shots[i].category==='putt')sgP+=sg;}
   const avgDr=tees.length?Math.round(tees.reduce((a,s)=>a+s.distYards,0)/tees.length):0;
   const holes=Math.max(currentHole-1,1);
-  const bar=(l,v)=>{const p=Math.min(Math.abs(v)/1.5*100,100);return`<div class="sg-row"><div class="sg-lbl">${l}</div><div class="sg-track"><div class="sg-fill ${v>=0?'pos':'neg'}" style="width:${p}%"></div></div><div class="sg-num ${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}</div></div>`;};
-  body.innerHTML=`
-    <div class="stat-grid">
-      <div class="stat-card"><div class="sv">${shots.length}</div><div class="sl">Total Shots</div></div>
-      <div class="stat-card"><div class="sv">${(putts.length/holes).toFixed(1)}</div><div class="sl">Putts/Hole</div></div>
-      <div class="stat-card"><div class="sv">${avgDr>0?avgDr+'y':'—'}</div><div class="sl">Avg Drive</div></div>
-      <div class="stat-card"><div class="sv" style="color:${sgTot>=0?'var(--fairway)':'var(--red)'}">${sgTot>=0?'+':''}${sgTot.toFixed(1)}</div><div class="sl">Total SG</div></div>
-    </div>
-    <div class="sg-wrap"><div class="sg-title">STROKES GAINED</div>${bar('Off Tee',sgT)}${bar('Approach',sgA)}${bar('Chipping',sgC)}${bar('Putting',sgP)}</div>`;
+  const bar=(l,v)=>{const p=Math.min(Math.abs(v)/1.5*100,100);return`<div class="sgrow"><div class="sglbl">${l}</div><div class="sgtrack"><div class="sgfill ${v>=0?'pos':'neg'}" style="width:${p}%"></div></div><div class="sgnum ${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}</div></div>`;};
+  body.innerHTML=`<div class="stat-grid"><div class="stat-card"><div class="sv">${shots.length}</div><div class="sl">Total Shots</div></div><div class="stat-card"><div class="sv">${(putts.length/holes).toFixed(1)}</div><div class="sl">Putts/Hole</div></div><div class="stat-card"><div class="sv">${avgDr>0?avgDr+'y':'—'}</div><div class="sl">Avg Drive</div></div><div class="stat-card"><div class="sv" style="color:${sgTot>=0?'var(--fairway)':'var(--red)'}">${sgTot>=0?'+':''}${sgTot.toFixed(1)}</div><div class="sl">Total SG</div></div></div><div class="sg-wrap"><div class="sg-ttl">STROKES GAINED</div>${bar('Off Tee',sgT)}${bar('Approach',sgA)}${bar('Chipping',sgC)}${bar('Putting',sgP)}</div>`;
 }
 
 function exportRound(){
   if(!shots.length){showToast('No shots');return;}
   let csv=`Caddie\n${activeCourse?activeCourse.name:'Round'}\n${new Date().toLocaleDateString()}\n\nHole,Shot,Cat,Club,Yards,PlaysLike,DistToPin,Lat,Lng\n`;
   shots.forEach(s=>{csv+=`${s.hole},${s.shotNum},${s.category},${s.club},${s.distYards},${s.playsLike||''},${s.distToPin||''},${s.lat.toFixed(6)},${s.lng.toFixed(6)}\n`;});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`caddie_${(activeCourse?activeCourse.name:'round').replace(/\s+/g,'_')}.csv`;
-  a.click();showToast('Exported');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`caddie_${(activeCourse?activeCourse.name:'round').replace(/\s+/g,'_')}.csv`;a.click();showToast('Exported');
 }
 
-// ── CLUBS ─────────────────────────────────────────────────────────────────
-function buildClubScroll(){
-  const scroll=document.getElementById('club-scroll');
-  scroll.innerHTML='';
-  CLUBS.forEach(c=>{
-    const btn=document.createElement('button');
-    btn.className='cbt'+(c===selectedClub?' active':'');
-    btn.textContent=c;
-    btn.onclick=()=>{selectedClub=c;document.querySelectorAll('.cbt').forEach(b=>b.classList.toggle('active',b.textContent===c));updateCatDisplay();};
-    scroll.appendChild(btn);
-  });
+// ── CLUBS ──────────────────────────────────────────────────────────────────
+function buildClubs(){
+  const s=document.getElementById('club-scr');s.innerHTML='';
+  CLUBS.forEach(c=>{const btn=document.createElement('button');btn.className='cbt'+(c===selectedClub?' active':'');btn.textContent=c;btn.onclick=()=>{selectedClub=c;document.querySelectorAll('.cbt').forEach(b=>b.classList.toggle('active',b.textContent===c));updateCat();};s.appendChild(btn);});
 }
 
-// ── UTILS ─────────────────────────────────────────────────────────────────
-function haversineYards(a,b){
-  const R=6371000,dL=(b[0]-a[0])*Math.PI/180,dG=(b[1]-a[1])*Math.PI/180;
-  const x=Math.sin(dL/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dG/2)**2;
-  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*1.09361;
-}
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function hvy(a,b){const R=6371000,dL=(b[0]-a[0])*Math.PI/180,dG=(b[1]-a[1])*Math.PI/180;const x=Math.sin(dL/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*1.09361;}
 let toastT;
-function showToast(msg){
-  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2400);
-}
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2400);}
 
-// ── INIT ──────────────────────────────────────────────────────────────────
-renderSavedCourses();
+// INIT
+filterCourses();renderLibrary();
 </script>
 </body>
 </html>
