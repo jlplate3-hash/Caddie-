@@ -1024,7 +1024,7 @@ let toastT;
 function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2400);}
 
 // INIT
-filterCourses();renderLibrary();
+document.addEventListener("DOMContentLoaded",function(){filterCourses();renderLibrary();});
 </script>
 </body>
 </html>
