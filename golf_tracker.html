@@ -5,199 +5,272 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Caddie</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --gold: #c9a84c; --green: #3aaf5c; --dark: #0a140c;
-  --panel: rgba(10,20,12,0.96); --border: rgba(255,255,255,0.1);
-  --red: #e05555; --blue: #4a90e2; --white: #f0ede6;
-  --radius: 12px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a84c;--green:#3aaf5c;--dark:#0a0f0b;
+  --card:#141a15;--border:rgba(255,255,255,0.08);
+  --red:#e05555;--blue:#4a90e2;--white:#f0ede6;
+  --radius:14px;--panel:rgba(10,15,11,0.97);
 }
-html, body { height: 100%; background: var(--dark); color: var(--white); font-family: 'DM Sans', sans-serif; overflow: hidden; }
+html,body{height:100%;background:var(--dark);color:var(--white);font-family:'DM Sans',sans-serif;overflow:hidden}
 
-/* PAGE SYSTEM */
-.page { position: fixed; inset: 0; display: none; flex-direction: column; background: var(--dark); overflow: hidden; }
-.page.active { display: flex; }
+/* ── PAGE SYSTEM ── */
+.page{position:fixed;inset:0;display:none;flex-direction:column;background:var(--dark);overflow:hidden;z-index:10}
+.page.active{display:flex}
 
-/* ── HOME PAGE ── */
-#home-page { overflow-y: auto; }
-#home-hdr { padding: 50px 20px 12px; }
-#home-logo { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 6px; color: var(--gold); }
-#home-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 3px; margin-top: 2px; }
-#home-content { padding: 0 16px 60px; }
-.label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin: 16px 0 8px; }
+/* ── BOTTOM NAV ── */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(10,15,11,0.98);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;padding:10px 4px 8px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);cursor:pointer;border:none;background:none;letter-spacing:1px;transition:color 0.15s}
+.nav-btn.on{color:var(--gold)}
+.nav-ic{font-size:18px;display:block;margin-bottom:2px}
 
-/* Search */
-#search-input { width: 100%; padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: var(--white); font-size: 16px; outline: none; margin-bottom: 8px; }
-#search-input::placeholder { color: rgba(255,255,255,0.2); }
-#search-input:focus { border-color: rgba(201,168,76,0.5); }
+/* ── ACTIVITY PAGE ── */
+#activity-page{overflow-y:auto;padding-bottom:80px}
+#act-header{padding:52px 20px 16px;display:flex;justify-content:space-between;align-items:flex-end}
+#act-title{font-size:22px;font-weight:600}
+#act-sub{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px}
+#act-search{margin:0 16px 12px;padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--white);font-size:15px;outline:none;width:calc(100% - 32px)}
+#act-search::placeholder{color:rgba(255,255,255,0.2)}
+#act-body{padding:0 16px}
+#no-rounds{text-align:center;padding:60px 20px;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.2);line-height:1.8}
+.round-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;cursor:pointer}
+.rc-top{padding:14px 16px 10px;display:flex;justify-content:space-between;align-items:flex-start}
+.rc-course{font-size:16px;font-weight:600}
+.rc-meta{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px}
+.rc-score-wrap{text-align:right}
+.rc-score{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--white);line-height:1}
+.rc-diff{font-family:'DM Mono',monospace;font-size:12px;padding:2px 8px;border-radius:8px;display:inline-block;margin-top:2px}
+.rc-diff.over{background:rgba(224,85,85,0.15);color:#e05555}
+.rc-diff.under{background:rgba(58,175,92,0.15);color:#3aaf5c}
+.rc-diff.even{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)}
+.rc-holes{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px}
+.rc-actions{display:flex;border-top:1px solid var(--border)}
+.rc-act{flex:1;padding:11px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);cursor:pointer;letter-spacing:1px;border:none;background:none;border-right:1px solid var(--border)}
+.rc-act:last-child{border-right:none}
+.rc-act:active{background:rgba(255,255,255,0.05)}
+.rc-act-ic{display:block;font-size:14px;margin-bottom:2px}
 
-/* State tabs */
-#state-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-.stab { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; }
-.stab.on { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 600; }
+/* ── PLAYER PAGE ── */
+#player-page{overflow-y:auto;padding-bottom:80px}
+#player-header{padding:52px 20px 20px;background:linear-gradient(to bottom,rgba(26,80,36,0.3),transparent)}
+#player-name{font-size:22px;font-weight:600}
+#player-hcp{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+#player-body{padding:0 16px}
+.p-section{margin-bottom:20px}
+.p-sec-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px}
+.p-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.p-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.p-stat-v{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold)}
+.p-stat-l{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sg-block{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.sg-ttl{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:14px;letter-spacing:1px}
+.sg-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sg-lbl{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.5);width:80px;flex-shrink:0}
+.sg-track{flex:1;height:8px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden}
+.sg-fill{height:100%;border-radius:4px}
+.sg-fill.pos{background:var(--green)}.sg-fill.neg{background:var(--red)}
+.sg-n{font-family:'DM Mono',monospace;font-size:12px;width:46px;text-align:right;flex-shrink:0}
+.sg-n.pos{color:var(--green)}.sg-n.neg{color:var(--red)}
+.hcp-edit{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.hcp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hcp-lbl{font-size:14px}
+#hcp-disp{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--gold)}
+#hcp-slider{width:100%;accent-color:var(--gold)}
 
-/* Course list */
-.citem { padding: 13px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: rgba(255,255,255,0.04); margin-bottom: 7px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.1s; }
-.citem:active { background: rgba(255,255,255,0.1); }
-.citem-name { font-size: 14px; font-weight: 500; }
-.citem-town { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
-.citem-right { display: flex; align-items: center; gap: 8px; }
-.cstate { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); }
-.cstar { color: var(--gold); font-size: 14px; }
-.cchev { color: rgba(255,255,255,0.2); }
-
-/* Saved */
-.sitem { padding: 13px 14px; border-radius: var(--radius); border: 1px solid rgba(58,175,92,0.2); background: rgba(58,175,92,0.04); margin-bottom: 7px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-.sitem:active { background: rgba(58,175,92,0.1); }
-.sitem-info {}
-.sitem-name { font-size: 14px; font-weight: 500; }
-.sitem-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 2px; }
-.sitem-pins { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--green); }
-.sdel { background: none; border: none; color: rgba(255,255,255,0.2); font-size: 16px; cursor: pointer; padding: 6px; }
-#no-results { text-align: center; padding: 24px; font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.2); display: none; }
+/* ── START ROUND PAGE ── */
+#start-page{overflow-y:auto;padding-bottom:80px}
+#start-header{padding:52px 20px 20px}
+#start-title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--gold)}
+#start-sub{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:2px;margin-top:2px}
+#start-body{padding:0 16px}
+.sec-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin:16px 0 8px}
+#course-search{width:100%;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--white);font-size:16px;outline:none;margin-bottom:8px}
+#course-search::placeholder{color:rgba(255,255,255,0.2)}
+#course-search:focus{border-color:rgba(201,168,76,0.4)}
+#state-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.stab{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.35);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer}
+.stab.on{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+#course-list{}
+.citem{padding:13px 14px;border-radius:var(--radius);border:1px solid var(--border);background:rgba(255,255,255,0.04);margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.citem:active{background:rgba(255,255,255,0.09)}
+.ci-name{font-size:14px;font-weight:500}
+.ci-town{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px}
+.ci-r{display:flex;align-items:center;gap:8px}
+.cstate{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3)}
+.saved-star{color:var(--gold)}
+#no-courses{text-align:center;padding:20px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.2);display:none}
+.saved-item{padding:13px 14px;border-radius:var(--radius);border:1px solid rgba(58,175,92,0.2);background:rgba(58,175,92,0.04);margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.saved-item:active{background:rgba(58,175,92,0.1)}
+.si-name{font-size:14px;font-weight:500}
+.si-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px}
+.si-pins{font-family:'DM Mono',monospace;font-size:10px;color:var(--green)}
+.si-del{background:none;border:none;color:rgba(255,255,255,0.2);font-size:16px;cursor:pointer;padding:6px}
 
 /* ── PLAY PAGE ── */
-#play-page { position: fixed; inset: 0; }
-#map { position: absolute; inset: 0; z-index: 1; }
+#play-page{overflow:hidden;padding-bottom:0}
+#map{position:absolute;inset:0;z-index:1}
+#play-top{position:absolute;top:0;left:0;right:0;z-index:10;padding:44px 14px 10px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(10,15,11,0.97) 55%,transparent)}
+#play-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#play-chips{display:flex;gap:5px}
+.chip{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;backdrop-filter:blur(8px)}
+.chip b{color:var(--gold)}
+#btn-exit{background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:4px 12px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);cursor:pointer}
+#wx-bar{position:absolute;top:88px;left:0;right:0;z-index:10;display:flex;gap:12px;padding:5px 14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.45);overflow-x:auto;scrollbar-width:none}
+#wx-bar::-webkit-scrollbar{display:none}
+.wx{white-space:nowrap}.wx b{color:var(--white)}
+#hole-strip{position:absolute;top:117px;left:0;right:0;z-index:10;display:flex;gap:5px;padding:5px 12px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none}
+#hole-strip::-webkit-scrollbar{display:none}
+.hpill{flex-shrink:0;padding:5px 10px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer}
+.hpill.cur{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+.hpill.done{border-color:rgba(58,175,92,0.4);color:rgba(58,175,92,0.8)}
+.hpill.has-p{border-color:rgba(58,175,92,0.3)}
+#dist-box{position:absolute;top:155px;right:12px;z-index:10;background:rgba(0,0,0,0.82);border:1px solid rgba(201,168,76,0.35);border-radius:var(--radius);padding:10px 14px;text-align:center;backdrop-filter:blur(10px);display:none;min-width:86px}
+#dist-num{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--gold);line-height:1}
+.dlbl{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px}
+#dist-plays{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-top:5px}
+#meas-box{position:absolute;top:155px;left:12px;z-index:10;background:rgba(0,0,0,0.82);border:1px solid rgba(74,144,226,0.35);border-radius:var(--radius);padding:10px 14px;text-align:center;backdrop-filter:blur(10px);display:none;min-width:86px}
+#meas-num{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--blue);line-height:1}
+.mhint{font-family:'DM Mono',monospace;font-size:9px;color:rgba(74,144,226,0.5);margin-top:4px;line-height:1.4}
+#play-btm{position:absolute;bottom:0;left:0;right:0;z-index:10;background:rgba(10,15,11,0.97);border-top:1px solid rgba(201,168,76,0.1);border-radius:20px 20px 0 0;padding:12px 14px 28px}
+#ph{width:30px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin:0 auto 12px}
+#club-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.25);margin-bottom:6px}
+#clubs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:11px;scrollbar-width:none}
+#clubs::-webkit-scrollbar{display:none}
+.cbt{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--white);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer}
+.cbt.on{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+#actions{display:flex;gap:6px;margin-bottom:9px}
+#btn-track{flex:1;padding:15px;border-radius:var(--radius);border:none;background:var(--green);color:white;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer}
+#btn-track:active{opacity:0.85}
+.abt{padding:15px 11px;border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;text-align:center;line-height:1.4;min-width:44px}
+#btn-undo{padding:15px 13px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--white);font-size:17px;cursor:pointer}
+#btn-pin{border:1px solid rgba(201,168,76,0.2);background:rgba(201,168,76,0.05);color:var(--gold)}
+#btn-pin.on{background:rgba(201,168,76,0.2);border-color:var(--gold)}
+#btn-meas{border:1px solid rgba(74,144,226,0.2);background:rgba(74,144,226,0.05);color:var(--blue)}
+#btn-meas.on{background:rgba(74,144,226,0.2);border-color:var(--blue)}
+#btn-next{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.45);font-size:17px;padding:15px 12px;cursor:pointer;border-radius:var(--radius)}
+#info-row{display:flex;justify-content:space-between;margin-bottom:8px}
+#gps-row{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3)}
+#gdot{width:7px;height:7px;border-radius:50%;background:#444}
+#gdot.ok{background:var(--green);animation:blink 2s infinite}
+#gdot.err{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+#cat-row{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3)}
+#cat-row b{color:var(--gold)}
+#play-tabs{display:flex;border-top:1px solid rgba(255,255,255,0.05);margin:0 -14px -28px}
+.ptab{flex:1;padding:8px 2px 3px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.28);cursor:pointer;border:none;background:none;letter-spacing:1px}
+.ptic{font-size:14px;display:block;margin-bottom:1px}
 
-/* TOP BAR */
-#play-top { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 44px 14px 10px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(to bottom, rgba(10,20,12,0.97) 60%, transparent); }
-#play-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--gold); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#play-chips { display: flex; gap: 6px; }
-.chip { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 10px; font-family: 'DM Mono', monospace; font-size: 11px; backdrop-filter: blur(8px); }
-.chip b { color: var(--gold); }
-#btn-exit { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 12px; font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.5); cursor: pointer; backdrop-filter: blur(8px); }
+/* ── OVERLAYS ── */
+.ov{position:fixed;inset:0;z-index:200;background:rgba(10,15,11,0.98);display:none;flex-direction:column}
+.ov.open{display:flex}
+.ov-top{display:flex;justify-content:space-between;align-items:center;padding:50px 16px 13px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ov-ttl{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--gold)}
+.ov-x{background:none;border:none;color:rgba(255,255,255,0.4);font-size:24px;cursor:pointer}
+.ov-body{flex:1;overflow-y:auto;padding:16px}
 
-/* WEATHER */
-#wx-bar { position: absolute; top: 88px; left: 0; right: 0; z-index: 10; display: flex; gap: 12px; padding: 5px 14px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.45); overflow-x: auto; scrollbar-width: none; }
-#wx-bar::-webkit-scrollbar { display: none; }
-.wx { white-space: nowrap; }
-.wx b { color: var(--white); }
+/* SCORECARD OV */
+.hcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.hc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.hc-n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:2px}
+.hc-m{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.3);text-align:right}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;gap:6px}
+.srow:last-child{border-bottom:none}
+.sbadge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 6px;border-radius:10px;flex-shrink:0}
+.sbadge.tee{background:rgba(74,144,226,0.15);color:#4a90e2}
+.sbadge.approach{background:rgba(58,175,92,0.15);color:#3aaf5c}
+.sbadge.chip{background:rgba(201,168,76,0.15);color:#c9a84c}
+.sbadge.putt{background:rgba(155,89,182,0.15);color:#9b59b6}
+.sdist{font-family:'DM Mono',monospace;color:var(--green);font-size:12px}
+.sgv{font-family:'DM Mono',monospace;font-size:12px}
+.sgv.pos{color:var(--green)}.sgv.neg{color:var(--red)}
 
-/* HOLE STRIP */
-#hole-strip { position: absolute; top: 117px; left: 0; right: 0; z-index: 10; display: flex; gap: 5px; padding: 5px 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); overflow-x: auto; scrollbar-width: none; }
-#hole-strip::-webkit-scrollbar { display: none; }
-.hpill { flex-shrink: 0; padding: 5px 10px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; }
-.hpill.cur { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 700; }
-.hpill.done { border-color: rgba(58,175,92,0.4); color: rgba(58,175,92,0.8); }
-.hpill.has-pin { border-color: rgba(58,175,92,0.3); }
+/* ROUND REVIEW OV */
+#review-map{height:260px;border-radius:var(--radius);overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
+.review-hole-tabs{display:flex;gap:5px;overflow-x:auto;margin-bottom:14px;scrollbar-width:none}
+.review-hole-tabs::-webkit-scrollbar{display:none}
+.rhtab{flex-shrink:0;padding:5px 10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer}
+.rhtab.on{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+.review-sc-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:14px}
+.rsc-cell{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 2px;text-align:center}
+.rsc-h{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3)}
+.rsc-s{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);line-height:1}
+.rsc-s.over{color:var(--red)}.rsc-s.under{color:var(--green)}.rsc-s.even{color:var(--white)}
+#btn-export-rv{width:100%;padding:14px;border-radius:var(--radius);border:1px solid rgba(201,168,76,0.25);background:transparent;color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:8px}
 
-/* DISTANCE PANEL */
-#dist-box { position: absolute; top: 155px; right: 12px; z-index: 10; background: rgba(0,0,0,0.8); border: 1px solid rgba(201,168,76,0.35); border-radius: var(--radius); padding: 10px 14px; text-align: center; backdrop-filter: blur(10px); display: none; min-width: 86px; }
-#dist-num { font-family: 'Bebas Neue', sans-serif; font-size: 46px; color: var(--gold); line-height: 1; }
-.dist-lbl { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.25); letter-spacing: 1px; }
-#dist-plays { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); margin-top: 5px; }
-
-/* MEASURE PANEL */
-#meas-box { position: absolute; top: 155px; left: 12px; z-index: 10; background: rgba(0,0,0,0.8); border: 1px solid rgba(74,144,226,0.35); border-radius: var(--radius); padding: 10px 14px; text-align: center; backdrop-filter: blur(10px); display: none; min-width: 86px; }
-#meas-num { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--blue); line-height: 1; }
-.meas-hint { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(74,144,226,0.5); margin-top: 4px; line-height: 1.4; }
-
-/* BOTTOM PANEL */
-#play-btm { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; background: rgba(10,20,12,0.97); border-top: 1px solid rgba(201,168,76,0.12); border-radius: 20px 20px 0 0; padding: 12px 14px 28px; }
-#handle { width: 30px; height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; margin: 0 auto 12px; }
-#club-lbl { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.25); margin-bottom: 6px; }
-#clubs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 11px; scrollbar-width: none; }
-#clubs::-webkit-scrollbar { display: none; }
-.cbt { flex-shrink: 0; padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--white); font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; }
-.cbt.on { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 700; }
-
-#actions { display: flex; gap: 6px; margin-bottom: 9px; }
-#btn-track { flex: 1; padding: 15px; border-radius: var(--radius); border: none; background: var(--green); color: white; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; cursor: pointer; }
-#btn-track:active { opacity: 0.85; }
-.abt { padding: 15px 11px; border-radius: var(--radius); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; cursor: pointer; text-align: center; line-height: 1.4; min-width: 44px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--white); }
-#btn-undo { padding: 15px 13px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--white); font-size: 17px; cursor: pointer; }
-#btn-pin { border-color: rgba(201,168,76,0.25); background: rgba(201,168,76,0.05); color: var(--gold); }
-#btn-pin.on { background: rgba(201,168,76,0.2); border-color: var(--gold); }
-#btn-meas { border-color: rgba(74,144,226,0.25); background: rgba(74,144,226,0.05); color: var(--blue); }
-#btn-meas.on { background: rgba(74,144,226,0.2); border-color: var(--blue); }
-#btn-next { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.45); font-size: 17px; padding: 15px 12px; cursor: pointer; border-radius: var(--radius); }
-
-#info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-#gps-row { display: flex; align-items: center; gap: 5px; font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); }
-#gdot { width: 7px; height: 7px; border-radius: 50%; background: #444; }
-#gdot.ok { background: var(--green); animation: blink 2s infinite; }
-#gdot.err { background: var(--red); }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-#cat-row { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); }
-#cat-row b { color: var(--gold); }
-
-/* TAB BAR */
-#tabs { display: flex; border-top: 1px solid rgba(255,255,255,0.05); margin: 0 -14px -28px; }
-.tab { flex: 1; padding: 9px 2px 3px; text-align: center; font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.28); cursor: pointer; border: none; background: none; letter-spacing: 1px; }
-.tab-ic { font-size: 14px; display: block; margin-bottom: 1px; }
-
-/* OVERLAYS */
-.ov { position: fixed; inset: 0; z-index: 200; background: rgba(10,20,12,0.98); display: none; flex-direction: column; }
-.ov.open { display: flex; }
-.ov-top { display: flex; justify-content: space-between; align-items: center; padding: 50px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
-.ov-ttl { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--gold); }
-.ov-x { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; }
-.ov-body { flex: 1; overflow-y: auto; padding: 16px; }
-.hcard { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
-.hcard-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
-.hcard-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--gold); letter-spacing: 2px; }
-.hcard-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); text-align: right; }
-.srow { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; gap: 6px; }
-.srow:last-child { border-bottom: none; }
-.sbadge { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
-.sbadge.tee { background: rgba(74,144,226,0.15); color: #4a90e2; }
-.sbadge.approach { background: rgba(58,175,92,0.15); color: #3aaf5c; }
-.sbadge.chip { background: rgba(201,168,76,0.15); color: #c9a84c; }
-.sbadge.putt { background: rgba(155,89,182,0.15); color: #9b59b6; }
-.sdist { font-family: 'DM Mono', monospace; color: var(--green); font-size: 12px; }
-.sgv { font-family: 'DM Mono', monospace; font-size: 12px; }
-.sgv.pos { color: var(--green); } .sgv.neg { color: var(--red); }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.stat-c { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 14px; }
-.stat-v { font-family: 'Bebas Neue', sans-serif; font-size: 34px; color: var(--gold); }
-.stat-l { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
-.sg-block { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
-.sg-ttl { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.35); margin-bottom: 12px; letter-spacing: 1px; }
-.sg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.sg-lbl { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.5); width: 72px; flex-shrink: 0; }
-.sg-track { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
-.sg-fill { height: 100%; border-radius: 3px; }
-.sg-fill.pos { background: var(--green); } .sg-fill.neg { background: var(--red); }
-.sg-n { font-family: 'DM Mono', monospace; font-size: 11px; width: 44px; text-align: right; flex-shrink: 0; }
-.sg-n.pos { color: var(--green); } .sg-n.neg { color: var(--red); }
-#btn-export { width: 100%; padding: 14px; border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.25); background: transparent; color: var(--gold); font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; cursor: pointer; margin-top: 8px; }
-
-/* TOAST */
-#toast { position: fixed; top: 110px; left: 50%; transform: translateX(-50%) translateY(-16px); background: rgba(26,80,36,0.95); border: 1px solid var(--green); color: white; padding: 8px 18px; border-radius: 30px; font-family: 'DM Mono', monospace; font-size: 12px; opacity: 0; transition: all 0.25s; z-index: 9999; white-space: nowrap; pointer-events: none; }
-#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.leaflet-container { background: #111a13 !important; }
+#toast{position:fixed;top:110px;left:50%;transform:translateX(-50%) translateY(-16px);background:rgba(20,60,28,0.97);border:1px solid var(--green);color:white;padding:8px 18px;border-radius:30px;font-family:'DM Mono',monospace;font-size:12px;opacity:0;transition:all 0.25s;z-index:9999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.leaflet-container{background:#0f180f!important}
 </style>
 </head>
 <body>
 
-<!-- HOME -->
-<div class="page active" id="home-page">
-  <div id="home-hdr">
-    <div id="home-logo">CADDIE</div>
-    <div id="home-sub">NEW ENGLAND GPS SHOT TRACKER</div>
+<!-- ── ACTIVITY PAGE ── -->
+<div class="page active" id="activity-page">
+  <div id="act-header">
+    <div>
+      <div id="act-title">My Activity</div>
+      <div id="act-sub">CADDIE SHOT TRACKER</div>
+    </div>
   </div>
-  <div id="home-content">
-    <div class="label">Find Course</div>
-    <input id="search-input" type="text" placeholder="Type course name or town..." oninput="filterList()" autocomplete="off">
+  <input id="act-search" type="text" placeholder="Search courses..." oninput="filterRounds()">
+  <div id="act-body">
+    <div id="no-rounds">No rounds tracked yet.<br>Tap <b>Start Round</b> below to begin.</div>
+    <div id="rounds-list"></div>
+  </div>
+</div>
+
+<!-- ── PLAYER PAGE ── -->
+<div class="page" id="player-page">
+  <div id="player-header">
+    <div id="player-name">My Stats</div>
+    <div id="player-hcp">Handicap: <span id="phcp-val">18</span></div>
+  </div>
+  <div id="player-body">
+    <div class="p-section">
+      <div class="p-sec-title">Handicap</div>
+      <div class="hcp-edit">
+        <div class="hcp-row"><span class="hcp-lbl">Handicap Index</span><span id="hcp-disp">18</span></div>
+        <input type="range" id="hcp-slider" min="0" max="54" value="18" oninput="setHcp(this.value)">
+      </div>
+    </div>
+    <div class="p-section">
+      <div class="p-sec-title">Career Stats</div>
+      <div class="p-stat-grid" id="career-stats"></div>
+    </div>
+    <div class="p-section">
+      <div class="p-sec-title">Strokes Gained (All Rounds)</div>
+      <div class="sg-block" id="career-sg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── START ROUND PAGE ── -->
+<div class="page" id="start-page">
+  <div id="start-header">
+    <div id="start-title">START ROUND</div>
+    <div id="start-sub">SELECT A COURSE</div>
+  </div>
+  <div id="start-body">
+    <div class="sec-lbl">Search Course</div>
+    <input id="course-search" type="text" placeholder="Course name or town..." oninput="filterCourses()" autocomplete="off">
     <div id="state-tabs">
-      <button class="stab on" onclick="setTab('ALL',this)">All</button>
-      <button class="stab" onclick="setTab('NH',this)">NH</button>
-      <button class="stab" onclick="setTab('MA',this)">MA</button>
-      <button class="stab" onclick="setTab('VT',this)">VT</button>
-      <button class="stab" onclick="setTab('ME',this)">ME</button>
+      <button class="stab on" onclick="setSTab('ALL',this)">All</button>
+      <button class="stab" onclick="setSTab('NH',this)">NH</button>
+      <button class="stab" onclick="setSTab('MA',this)">MA</button>
+      <button class="stab" onclick="setSTab('VT',this)">VT</button>
+      <button class="stab" onclick="setSTab('ME',this)">ME</button>
     </div>
     <div id="course-list"></div>
-    <div id="no-results">No courses found</div>
-    <div class="label">Saved Courses</div>
+    <div id="no-courses">No courses found</div>
+    <div class="sec-lbl">Recent Courses</div>
     <div id="saved-list"></div>
   </div>
 </div>
 
-<!-- PLAY -->
+<!-- ── PLAY PAGE ── -->
 <div class="page" id="play-page">
   <div id="map"></div>
   <div id="play-top">
@@ -206,7 +279,7 @@ html, body { height: 100%; background: var(--dark); color: var(--white); font-fa
       <div class="chip">H<b id="h-num">1</b></div>
       <div class="chip">SG <b id="sg-num">+0.0</b></div>
     </div>
-    <button id="btn-exit" onclick="exitRound()">⌂ HOME</button>
+    <button id="btn-exit" onclick="endRound()">FINISH</button>
   </div>
   <div id="wx-bar">
     <span class="wx">🌡 <b id="wx-t">--</b></span>
@@ -217,18 +290,18 @@ html, body { height: 100%; background: var(--dark); color: var(--white); font-fa
   </div>
   <div id="hole-strip"></div>
   <div id="dist-box">
-    <div class="dist-lbl">TO PIN</div>
+    <div class="dlbl">TO PIN</div>
     <div id="dist-num">---</div>
-    <div class="dist-lbl">YDS</div>
-    <div id="dist-plays">---y plays like</div>
+    <div class="dlbl">YDS</div>
+    <div id="dist-plays">---y</div>
   </div>
   <div id="meas-box">
     <div id="meas-num">---</div>
-    <div class="dist-lbl">YARDS</div>
-    <div class="meas-hint">Drag blue dot<br>to measure</div>
+    <div class="dlbl">YARDS</div>
+    <div class="mhint">Drag blue dot<br>to measure</div>
   </div>
   <div id="play-btm">
-    <div id="handle"></div>
+    <div id="ph"></div>
     <div id="club-lbl">SELECT CLUB</div>
     <div id="clubs"></div>
     <div id="actions">
@@ -242,32 +315,55 @@ html, body { height: 100%; background: var(--dark); color: var(--white); font-fa
       <div id="gps-row"><div id="gdot"></div><span id="gtxt">Acquiring GPS...</span></div>
       <div id="cat-row">TYPE: <b id="cat-txt">TEE</b></div>
     </div>
-    <div id="tabs">
-      <button class="tab" onclick="openOv('sc-ov')"><span class="tab-ic">📋</span>CARD</button>
-      <button class="tab" onclick="openOv('stats-ov')"><span class="tab-ic">📊</span>STATS</button>
-      <button class="tab" onclick="toggleRings()"><span class="tab-ic">🎯</span>RINGS</button>
-      <button class="tab" onclick="saveCourse()"><span class="tab-ic">💾</span>SAVE</button>
+    <div id="play-tabs">
+      <button class="ptab" onclick="openOv('sc-ov')"><span class="ptic">📋</span>CARD</button>
+      <button class="ptab" onclick="openOv('stats-ov')"><span class="ptic">📊</span>STATS</button>
+      <button class="ptab" onclick="toggleRings()"><span class="ptic">🎯</span>RINGS</button>
+      <button class="ptab" onclick="saveCourse()"><span class="ptic">💾</span>SAVE</button>
     </div>
   </div>
 </div>
 
-<!-- SCORECARD -->
+<!-- BOTTOM NAV -->
+<div id="bottom-nav">
+  <button class="nav-btn on" id="nav-activity" onclick="goPage('activity-page','nav-activity')">
+    <span class="nav-ic">📍</span>ACTIVITY
+  </button>
+  <button class="nav-btn" id="nav-player" onclick="goPage('player-page','nav-player')">
+    <span class="nav-ic">👤</span>PLAYER
+  </button>
+  <button class="nav-btn" id="nav-start" onclick="goPage('start-page','nav-start')">
+    <span class="nav-ic">▶</span>START ROUND
+  </button>
+</div>
+
+<!-- SCORECARD OV -->
 <div class="ov" id="sc-ov">
   <div class="ov-top"><div class="ov-ttl">SCORECARD</div><button class="ov-x" onclick="closeOv('sc-ov')">✕</button></div>
   <div class="ov-body" id="sc-body"></div>
 </div>
-<!-- STATS -->
+<!-- STATS OV -->
 <div class="ov" id="stats-ov">
   <div class="ov-top"><div class="ov-ttl">ANALYTICS</div><button class="ov-x" onclick="closeOv('stats-ov')">✕</button></div>
   <div class="ov-body" id="stats-body"></div>
+</div>
+<!-- ROUND REVIEW OV -->
+<div class="ov" id="review-ov">
+  <div class="ov-top">
+    <div>
+      <div class="ov-ttl" id="rv-title">ROUND REVIEW</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px" id="rv-sub"></div>
+    </div>
+    <button class="ov-x" onclick="closeOv('review-ov')">✕</button>
+  </div>
+  <div class="ov-body" id="rv-body"></div>
 </div>
 
 <div id="toast"></div>
 
 <script>
 // ── COURSE DATABASE ────────────────────────────────────────────────────────
-const DB = [
-  // NH
+const DB=[
   {n:"Pease Golf Course",t:"Portsmouth",s:"NH",la:43.0784,lo:-70.8234},
   {n:"Breakfast Hill Golf Club",t:"Greenland",s:"NH",la:43.0432,lo:-70.8176},
   {n:"Sagamore-Hampton Golf Club",t:"North Hampton",s:"NH",la:42.9876,lo:-70.8312},
@@ -298,676 +394,424 @@ const DB = [
   {n:"Crotched Mountain Golf Club",t:"Francestown",s:"NH",la:43.0432,lo:-71.8654},
   {n:"Mountain View Grand Golf",t:"Whitefield",s:"NH",la:44.3654,lo:-71.6098},
   {n:"Waumbekk Golf Club",t:"Jefferson",s:"NH",la:44.4098,lo:-71.4765},
-  // MA
   {n:"Granite Links Golf Club",t:"Quincy",s:"MA",la:42.2198,lo:-71.0098},
   {n:"Trull Brook Golf Course",t:"Tewksbury",s:"MA",la:42.6098,lo:-71.2543},
-  {n:"Pine Valley Golf Club",t:"Middleton",s:"MA",la:42.5876,lo:-71.0098},
-  {n:"Meadow at Peabody",t:"Peabody",s:"MA",la:42.5432,lo:-70.9654},
-  {n:"Middleton Golf Course",t:"Middleton",s:"MA",la:42.5901,lo:-71.0234},
-  {n:"Ipswich Country Club",t:"Ipswich",s:"MA",la:42.6765,lo:-70.8432},
-  {n:"Beverly Golf and Tennis",t:"Beverly",s:"MA",la:42.5654,lo:-70.8765},
-  {n:"Kernwood Country Club",t:"Salem",s:"MA",la:42.5301,lo:-70.9098},
-  {n:"Tedesco Country Club",t:"Marblehead",s:"MA",la:42.5123,lo:-70.9012},
+  {n:"Pine Valley Golf Links",t:"Pelham",s:"NH",la:42.7543,lo:-71.3234},
   {n:"Stow Acres Country Club",t:"Stow",s:"MA",la:42.4321,lo:-71.5123},
   {n:"Shaker Hills Country Club",t:"Harvard",s:"MA",la:42.5012,lo:-71.5876},
   {n:"Wachusett Country Club",t:"West Boylston",s:"MA",la:42.3654,lo:-71.7876},
-  {n:"Green Hill Golf Course",t:"Worcester",s:"MA",la:42.2765,lo:-71.8098},
-  {n:"Cyprian Keyes Golf Club",t:"Boylston",s:"MA",la:42.3543,lo:-71.7012},
-  {n:"Juniper Hill Golf Course",t:"Northborough",s:"MA",la:42.3234,lo:-71.6234},
-  {n:"Framingham Country Club",t:"Framingham",s:"MA",la:42.3098,lo:-71.4765},
-  {n:"Pinecrest Golf Club",t:"Holliston",s:"MA",la:42.2012,lo:-71.4543},
   {n:"Needham Golf Club",t:"Needham",s:"MA",la:42.2765,lo:-71.2543},
   {n:"Ponkapoag Golf Course",t:"Canton",s:"MA",la:42.1765,lo:-71.1012},
-  {n:"Braintree Municipal Golf",t:"Braintree",s:"MA",la:42.2234,lo:-71.0098},
-  {n:"Presidents Golf Course",t:"Quincy",s:"MA",la:42.2432,lo:-71.0234},
-  {n:"William J. Devine Golf",t:"Boston",s:"MA",la:42.3098,lo:-71.0654},
-  {n:"George Wright Golf Course",t:"Hyde Park",s:"MA",la:42.2654,lo:-71.1234},
-  {n:"Newton Commonwealth Golf",t:"Newton",s:"MA",la:42.3432,lo:-71.2234},
-  {n:"Lexington Golf Club",t:"Lexington",s:"MA",la:42.4543,lo:-71.2765},
   {n:"Woburn Country Club",t:"Woburn",s:"MA",la:42.4876,lo:-71.1543},
   {n:"Winchester Country Club",t:"Winchester",s:"MA",la:42.4654,lo:-71.1432},
-  {n:"Lynnfield Country Club",t:"Lynnfield",s:"MA",la:42.5432,lo:-71.0234},
-  {n:"Groton Country Club",t:"Groton",s:"MA",la:42.6123,lo:-71.5876},
-  {n:"Chelmsford Country Club",t:"Chelmsford",s:"MA",la:42.6012,lo:-71.3654},
-  {n:"Vesper Country Club",t:"Tyngsborough",s:"MA",la:42.6987,lo:-71.4012},
-  {n:"Haverhill Country Club",t:"Haverhill",s:"MA",la:42.7543,lo:-71.1765},
   {n:"Andover Country Club",t:"Andover",s:"MA",la:42.6543,lo:-71.1432},
-  {n:"Merrimack Valley Golf",t:"Methuen",s:"MA",la:42.7123,lo:-71.2098},
   {n:"Pinehills Golf Club",t:"Plymouth",s:"MA",la:41.9234,lo:-70.6234},
-  {n:"Plymouth Country Club",t:"Plymouth",s:"MA",la:41.9432,lo:-70.6987},
-  {n:"Crosswinds Golf Club",t:"Plymouth",s:"MA",la:41.9321,lo:-70.6543},
   {n:"Captains Golf Course",t:"Brewster",s:"MA",la:41.7432,lo:-70.0765},
-  {n:"Ocean Edge Golf Club",t:"Brewster",s:"MA",la:41.7654,lo:-70.0432},
-  {n:"Cranberry Valley Golf",t:"Harwich",s:"MA",la:41.6876,lo:-70.0654},
-  {n:"Bass River Golf Course",t:"South Yarmouth",s:"MA",la:41.6654,lo:-70.1876},
-  {n:"Hyannis Golf Course",t:"Hyannis",s:"MA",la:41.6543,lo:-70.2987},
-  {n:"Dennis Pines Golf Course",t:"Dennis",s:"MA",la:41.7234,lo:-70.2234},
-  {n:"Dennis Highlands Golf",t:"Dennis",s:"MA",la:41.7432,lo:-70.2098},
-  {n:"Falmouth Country Club",t:"Falmouth",s:"MA",la:41.5543,lo:-70.5987},
-  {n:"Farm Neck Golf Club",t:"Oak Bluffs",s:"MA",la:41.4765,lo:-70.5432},
-  {n:"Pembroke Country Club",t:"Pembroke",s:"MA",la:41.9987,lo:-70.7876},
-  {n:"South Shore Country Club",t:"Hingham",s:"MA",la:42.2098,lo:-70.9123},
-  {n:"Cohasset Golf Club",t:"Cohasset",s:"MA",la:42.2432,lo:-70.8432},
-  {n:"Widow's Walk Golf",t:"Scituate",s:"MA",la:42.1765,lo:-70.7654},
-  {n:"Norwood Country Club",t:"Norwood",s:"MA",la:42.1654,lo:-71.2098},
-  {n:"Sharon Country Club",t:"Sharon",s:"MA",la:42.1098,lo:-71.1654},
-  {n:"Easton Country Club",t:"Easton",s:"MA",la:42.0432,lo:-71.1234},
-  {n:"Attleboro Municipal Golf",t:"Attleboro",s:"MA",la:41.9432,lo:-71.2876},
-  {n:"Thorny Lea Golf Club",t:"Brockton",s:"MA",la:42.0654,lo:-71.0321},
-  {n:"Silver Lake Country Club",t:"Kingston",s:"MA",la:41.9876,lo:-70.7543},
-  {n:"Lakeville Country Club",t:"Lakeville",s:"MA",la:41.8543,lo:-70.9432},
-  {n:"Taunton Country Club",t:"Taunton",s:"MA",la:41.9234,lo:-71.0987},
-  {n:"New Bedford Country Club",t:"New Bedford",s:"MA",la:41.6543,lo:-70.9765},
-  {n:"Acushnet River Valley Golf",t:"Acushnet",s:"MA",la:41.6876,lo:-70.9098},
-  {n:"Northampton Country Club",t:"Leeds",s:"MA",la:42.3487,lo:-72.6901},
-  {n:"Amherst Golf Club",t:"Amherst",s:"MA",la:42.3765,lo:-72.5234},
-  {n:"Hickory Ridge Country Club",t:"Amherst",s:"MA",la:42.3654,lo:-72.4876},
-  {n:"Ledges Golf Club",t:"South Hadley",s:"MA",la:42.2543,lo:-72.5765},
-  {n:"Crestview Country Club",t:"Agawam",s:"MA",la:42.0234,lo:-72.6432},
-  {n:"Springfield Country Club",t:"West Springfield",s:"MA",la:42.1234,lo:-72.6234},
-  {n:"Tekoa Country Club",t:"Westfield",s:"MA",la:42.1543,lo:-72.7543},
-  {n:"Blissful Meadows Golf",t:"Uxbridge",s:"MA",la:42.0765,lo:-71.6432},
-  {n:"Shining Rock Golf Club",t:"Northbridge",s:"MA",la:42.1543,lo:-71.6543},
-  {n:"Heritage Country Club",t:"Charlton",s:"MA",la:42.1432,lo:-71.9765},
-  // VT
   {n:"Stowe Country Club",t:"Stowe",s:"VT",la:44.4765,lo:-72.6876},
-  {n:"Sugarbush Golf Course",t:"Warren",s:"VT",la:44.1234,lo:-72.8765},
   {n:"Killington Golf Course",t:"Killington",s:"VT",la:43.6543,lo:-72.7876},
   {n:"Okemo Valley Golf Club",t:"Ludlow",s:"VT",la:43.3876,lo:-72.6987},
-  {n:"Stratton Mountain Golf",t:"Stratton",s:"VT",la:43.1098,lo:-72.9087},
-  {n:"Green Mountain National Golf",t:"Killington",s:"VT",la:43.6765,lo:-72.8012},
   {n:"Woodstock Country Club",t:"Woodstock",s:"VT",la:43.6234,lo:-72.5176},
   {n:"Equinox Golf Club",t:"Manchester",s:"VT",la:43.1654,lo:-73.0654},
-  {n:"Mount Snow Golf Club",t:"West Dover",s:"VT",la:42.9432,lo:-72.9098},
-  {n:"Brattleboro Country Club",t:"Brattleboro",s:"VT",la:42.8654,lo:-72.5543},
-  {n:"Rutland Country Club",t:"Rutland",s:"VT",la:43.6098,lo:-72.9765},
-  {n:"Burlington Country Club",t:"Burlington",s:"VT",la:44.4654,lo:-73.2098},
-  {n:"Barre Country Club",t:"Barre",s:"VT",la:44.1876,lo:-72.5234},
-  {n:"Montpelier Elks CC",t:"Montpelier",s:"VT",la:44.2543,lo:-72.5543},
-  {n:"Basin Harbor Golf",t:"Vergennes",s:"VT",la:44.1543,lo:-73.3765},
-  {n:"Middlebury College Golf",t:"Middlebury",s:"VT",la:44.0154,lo:-73.1423},
-  {n:"Copley Country Club",t:"Morrisville",s:"VT",la:44.5543,lo:-72.6234},
-  {n:"Newport Country Club",t:"Newport",s:"VT",la:44.9376,lo:-72.2012},
-  {n:"Haystack Golf Club",t:"Wilmington",s:"VT",la:42.8876,lo:-72.8765},
-  {n:"Proctor Pittsford CC",t:"Pittsford",s:"VT",la:43.7098,lo:-73.0432},
-  {n:"Sugarloaf Golf Club",t:"Carrabassett Valley",s:"VT",la:45.0543,lo:-70.3098},
-  // ME
   {n:"Purpoodock Club",t:"Cape Elizabeth",s:"ME",la:43.5654,lo:-70.2432},
   {n:"Sable Oaks Golf Club",t:"South Portland",s:"ME",la:43.6012,lo:-70.3098},
-  {n:"Riverside Golf Course",t:"Portland",s:"ME",la:43.6876,lo:-70.3432},
-  {n:"Val Halla Golf Course",t:"Cumberland",s:"ME",la:43.7854,lo:-70.2765},
-  {n:"Falmouth Country Club",t:"Falmouth",s:"ME",la:43.7234,lo:-70.2543},
-  {n:"Nonesuch River Golf Club",t:"Scarborough",s:"ME",la:43.5876,lo:-70.3654},
-  {n:"Dunegrass Golf Club",t:"Old Orchard Beach",s:"ME",la:43.5234,lo:-70.3876},
-  {n:"Biddeford-Saco CC",t:"Saco",s:"ME",la:43.5012,lo:-70.4543},
-  {n:"Dutch Elm Golf Course",t:"Arundel",s:"ME",la:43.4432,lo:-70.5098},
-  {n:"Kennebunk Beach Golf",t:"Kennebunk",s:"ME",la:43.3765,lo:-70.5012},
-  {n:"Cape Neddick Country Club",t:"York",s:"ME",la:43.1898,lo:-70.6543},
-  {n:"Ledges Golf Club",t:"York",s:"ME",la:43.2098,lo:-70.6234},
-  {n:"York Golf and Tennis",t:"York",s:"ME",la:43.1654,lo:-70.6432},
   {n:"Kebo Valley Club",t:"Bar Harbor",s:"ME",la:44.3876,lo:-68.2087},
   {n:"Samoset Resort Golf",t:"Rockport",s:"ME",la:44.1654,lo:-69.0987},
-  {n:"Bangor Municipal Golf",t:"Bangor",s:"ME",la:44.8012,lo:-68.7765},
-  {n:"Penobscot Valley CC",t:"Orono",s:"ME",la:44.8765,lo:-68.6543},
-  {n:"Waterville Country Club",t:"Oakland",s:"ME",la:44.5432,lo:-69.7543},
-  {n:"Augusta Country Club",t:"Manchester",s:"ME",la:44.3123,lo:-69.8765},
-  {n:"Rockland Golf Club",t:"Rockland",s:"ME",la:44.1098,lo:-69.1234},
-  {n:"Point Sebago Golf Course",t:"Casco",s:"ME",la:43.9876,lo:-70.5543},
-  {n:"Bridgton Highlands CC",t:"Bridgton",s:"ME",la:44.0432,lo:-70.7098},
   {n:"Sunday River Golf Club",t:"Newry",s:"ME",la:44.4898,lo:-70.8543},
-  {n:"Poland Spring Country Club",t:"Poland Spring",s:"ME",la:44.0654,lo:-70.3543},
-  {n:"Bethel Inn Resort Golf",t:"Bethel",s:"ME",la:44.4012,lo:-70.7876},
-  {n:"Gorham Country Club",t:"Gorham",s:"ME",la:43.6876,lo:-70.4543},
 ];
 
-const CLUBS = ['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
-const SG_BASE = {
-  tee:{200:3.9,240:3.8,280:3.7,300:3.6,340:3.5,400:3.35,460:3.2},
-  approach:{50:2.7,75:2.6,100:2.55,125:2.5,150:2.45,175:2.42,200:2.4,250:2.46},
-  chip:{10:2.3,20:2.4,30:2.5,40:2.6,50:2.7,60:2.8},
-  putt:{3:1.08,5:1.12,10:1.2,15:1.3,20:1.4,30:1.55,50:1.85}
-};
+const CLUBS=['Driver','3W','5W','4i','5i','6i','7i','8i','9i','PW','GW','SW','LW','Putter'];
+const SG_BASE={tee:{200:3.9,240:3.8,280:3.7,300:3.6,340:3.5,400:3.35,460:3.2},approach:{50:2.7,75:2.6,100:2.55,125:2.5,150:2.45,175:2.42,200:2.4,250:2.46},chip:{10:2.3,20:2.4,30:2.5,40:2.6,50:2.7,60:2.8},putt:{3:1.08,5:1.12,10:1.2,15:1.3,20:1.4,30:1.55,50:1.85}};
 
-// State
-let stateFilter = 'ALL';
-let lib = JSON.parse(localStorage.getItem('caddie_lib') || '[]');
-let activeCourse = null;
-let map = null, gpsMarker = null, measMarker = null, measLine = null;
-let currentPos = null, altitude = 0, weather = null;
-let club = 'Driver', teeColor = 'white', hole = 1, handicap = 18;
-let shots = [], hShots = [], lastPos = null;
-let sMarkers = [], sLines = [], pinM = {}, teeM = {};
-let pins = {}, tees = {}, rings = [], ringsOn = false, measMode = false;
+// Persistent data
+let lib = JSON.parse(localStorage.getItem('caddie_lib')||'[]');
+let allRounds = JSON.parse(localStorage.getItem('caddie_rounds')||'[]');
+let handicap = parseInt(localStorage.getItem('caddie_hcp')||'18');
 
-// ── HOME ──────────────────────────────────────────────────────────────────
-function setTab(s, btn) {
-  stateFilter = s;
-  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  filterList();
-}
+// Active round state
+let map=null,gpsMarker=null,measMarker=null,measLine=null;
+let currentPos=null,altitude=0,weather=null;
+let club='Driver',hole=1;
+let shots=[],hShots=[],lastPos=null;
+let sMarkers=[],sLines=[],pinM={},teeM={};
+let pins={},tees={},rings=[],ringsOn=false,measMode=false;
+let activeCourse=null,roundStart=null;
+let stateFilter='ALL';
+let reviewRound=null,reviewMap=null;
 
-function filterList() {
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
-  const el = document.getElementById('course-list');
-  const none = document.getElementById('no-results');
-  const savedNames = new Set(lib.map(c => c.n));
-  let results = DB.filter(c => {
-    const ms = stateFilter === 'ALL' || c.s === stateFilter;
-    const mq = !q || c.n.toLowerCase().includes(q) || c.t.toLowerCase().includes(q);
-    return ms && mq;
-  }).slice(0, 25);
-  if (!results.length) { el.innerHTML = ''; none.style.display = 'block'; return; }
-  none.style.display = 'none';
-  el.innerHTML = results.map(c => `
-    <div class="citem" onclick="pickCourse('${c.n.replace(/'/g,"\\'")}',${c.la},${c.lo},'${c.s}','${c.t.replace(/'/g,"\\'")}')">
-      <div>
-        <div class="citem-name">${c.n}</div>
-        <div class="citem-town">${c.t}</div>
-      </div>
-      <div class="citem-right">
-        <span class="cstate">${c.s}</span>
-        ${savedNames.has(c.n) ? '<span class="cstar">★</span>' : ''}
-        <span class="cchev">›</span>
-      </div>
-    </div>`).join('');
-}
-
-function renderSaved() {
-  const el = document.getElementById('saved-list');
-  if (!lib.length) { el.innerHTML = '<div style="font-family:DM Mono,monospace;font-size:11px;color:rgba(255,255,255,0.2);padding:8px 0">No saved courses</div>'; return; }
-  el.innerHTML = lib.map((c, i) => `
-    <div class="sitem" onclick="pickCourse('${c.n.replace(/'/g,"\\'")}',${c.la},${c.lo},'${c.s||''}','${(c.t||'').replace(/'/g,"\\'")}')">
-      <div class="sitem-info">
-        <div class="sitem-name">${c.n}</div>
-        <div class="sitem-meta">${c.t || ''} ${c.s || ''}</div>
-        <div class="sitem-pins">${Object.keys(c.pins||{}).length} pins · ${Object.keys(c.tees||{}).length} tees</div>
-      </div>
-      <button class="sdel" onclick="event.stopPropagation();delSaved(${i})">🗑</button>
-    </div>`).join('');
-}
-
-function delSaved(i) { lib.splice(i, 1); localStorage.setItem('caddie_lib', JSON.stringify(lib)); renderSaved(); }
-
-function pickCourse(name, la, lo, st, town) {
-  const existing = lib.find(c => c.n === name);
-  if (existing) {
-    activeCourse = existing;
-  } else {
-    activeCourse = { n: name, la, lo, s: st, t: town, pins: {}, tees: {} };
-    lib.unshift(activeCourse);
-    localStorage.setItem('caddie_lib', JSON.stringify(lib));
+// ── NAV ────────────────────────────────────────────────────────────────────
+function goPage(pageId, navId) {
+  // Don't nav away from play page via bottom nav
+  if(document.getElementById('play-page').classList.contains('active') && pageId !== 'play-page') {
+    showToast('Finish or save round first');return;
   }
-  pins = Object.assign({}, activeCourse.pins || {});
-  tees = Object.assign({}, activeCourse.tees || {});
-  launchRound(la, lo, name);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  if(navId) document.getElementById(navId).classList.add('on');
+  if(pageId==='activity-page') renderRounds();
+  if(pageId==='player-page') renderPlayer();
+  if(pageId==='start-page'){filterCourses();renderSaved();}
 }
 
-// ── LAUNCH ────────────────────────────────────────────────────────────────
-function launchRound(la, lo, name) {
-  // Reset state
-  hole = 1; shots = []; hShots = []; lastPos = null;
-  sMarkers = []; sLines = []; pinM = {}; teeM = {};
-  rings = []; ringsOn = false; measMode = false;
+// ── ACTIVITY ───────────────────────────────────────────────────────────────
+function renderRounds(filter) {
+  const el=document.getElementById('rounds-list');
+  const none=document.getElementById('no-rounds');
+  let rounds=[...allRounds].reverse();
+  if(filter){rounds=rounds.filter(r=>r.course.toLowerCase().includes(filter.toLowerCase()));}
+  if(!rounds.length){el.innerHTML='';none.style.display='block';return;}
+  none.style.display='none';
+  el.innerHTML=rounds.map((r,i)=>{
+    const idx=allRounds.length-1-i;
+    const totalShots=r.shots?r.shots.length:0;
+    const holes=r.holesPlayed||9;
+    const date=new Date(r.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const sg=r.sg||0;
+    const diff=sg>=0?'+'+sg.toFixed(1):sg.toFixed(1);
+    const diffClass=sg>0?'over':sg<0?'under':'even';
+    return`<div class="round-card">
+      <div class="rc-top" onclick="openReview(${idx})">
+        <div>
+          <div class="rc-course">${r.course}</div>
+          <div class="rc-meta">${date} / ${r.teeColor||'White'} Tees</div>
+          <div class="rc-holes">${holes} Holes · ${totalShots} shots tracked</div>
+        </div>
+        <div class="rc-score-wrap">
+          <div class="rc-score">${totalShots}</div>
+          <div class="rc-diff ${diffClass}">SG ${diff}</div>
+        </div>
+      </div>
+      <div class="rc-actions">
+        <button class="rc-act" onclick="openReview(${idx})"><span class="rc-act-ic">🗺</span>SHOTS</button>
+        <button class="rc-act" onclick="openRoundStats(${idx})"><span class="rc-act-ic">📊</span>STATS</button>
+        <button class="rc-act" onclick="openRoundCard(${idx})"><span class="rc-act-ic">📋</span>SCORECARD</button>
+        <button class="rc-act" onclick="deleteRound(${idx})"><span class="rc-act-ic">🗑</span>DELETE</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  // Show play page FIRST
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('play-page').classList.add('active');
-  document.getElementById('play-name').textContent = name.substring(0, 18);
-  document.getElementById('h-num').textContent = '1';
+function filterRounds(){renderRounds(document.getElementById('act-search').value.trim());}
 
-  // Build UI
-  buildClubs();
-  buildHoleStrip();
+function deleteRound(idx){
+  if(!confirm('Delete this round?'))return;
+  allRounds.splice(idx,1);
+  localStorage.setItem('caddie_rounds',JSON.stringify(allRounds));
+  renderRounds();showToast('Round deleted');
+}
 
-  // Init map AFTER page is visible using requestAnimationFrame
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      initMap(la, lo);
-    });
+// ── ROUND REVIEW ───────────────────────────────────────────────────────────
+function openReview(idx) {
+  reviewRound=allRounds[idx];
+  document.getElementById('rv-title').textContent=reviewRound.course.toUpperCase();
+  document.getElementById('rv-sub').textContent=new Date(reviewRound.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  buildReviewBody();
+  openOv('review-ov');
+}
+
+function buildReviewBody() {
+  const body=document.getElementById('rv-body');
+  if(!reviewRound||!reviewRound.shots||!reviewRound.shots.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shot data</p>';return;}
+  const byHole={};
+  reviewRound.shots.forEach(s=>{if(!byHole[s.hole])byHole[s.hole]=[];byHole[s.hole].push(s);});
+  const holes=Object.keys(byHole).sort((a,b)=>parseInt(a)-parseInt(b));
+
+  // Scorecard grid
+  let scHtml='<div class="review-sc-grid">';
+  holes.forEach(h=>{
+    const hs=byHole[h];const n=hs.length;
+    scHtml+=`<div class="rsc-cell"><div class="rsc-h">H${h}</div><div class="rsc-s">${n}</div></div>`;
   });
+  scHtml+='</div>';
+
+  // Shot list per hole
+  let shotHtml=holes.map(h=>{
+    const hs=byHole[h];const td=hs.reduce((a,s)=>a+s.distYards,0);
+    return`<div class="hcard"><div class="hc-top"><div class="hc-n">HOLE ${h}</div><div class="hc-m">${hs.length} shots · ${td}y</div></div>
+    ${hs.map((s,i)=>{
+      const sg=i<hs.length-1?calcSG(s,hs[i+1]):0;
+      return`<div class="srow"><span class="sbadge ${s.category}">${s.category}</span><span>${s.club}</span><span class="sdist">${s.distYards>0?s.distYards+'y':'—'}</span><span class="sgv ${sg>=0?'pos':'neg'}">${sg!==0?(sg>0?'+':'')+sg.toFixed(2):''}</span></div>`;
+    }).join('')}</div>`;
+  }).join('');
+
+  body.innerHTML=`<div id="review-map"></div>${scHtml}${shotHtml}<button id="btn-export-rv" onclick="exportReview()">EXPORT CSV</button>`;
+
+  // Draw replay map
+  setTimeout(function(){
+    if(reviewMap){reviewMap.remove();reviewMap=null;}
+    const firstShot=reviewRound.shots[0];
+    if(!firstShot)return;
+    reviewMap=L.map('review-map',{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(reviewMap);
+    reviewMap.setView([firstShot.lat,firstShot.lng],17);
+    // Draw all shots
+    let prev=null;
+    reviewRound.shots.forEach(function(s,i){
+      if(prev&&s.hole===prev.hole){
+        L.polyline([[prev.lat,prev.lng],[s.lat,s.lng]],{color:'#3aaf5c',weight:2,opacity:0.8}).addTo(reviewMap);
+      }
+      const catCols={tee:'#4a90e2',approach:'#3aaf5c',chip:'#c9a84c',putt:'#9b59b6'};
+      const icon=L.divIcon({className:'',html:'<div style="background:'+(catCols[s.category]||'#c9a84c')+';color:#0a0f0b;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:9px;font-weight:bold;border:1px solid rgba(0,0,0,0.5)">'+(i+1)+'</div>',iconSize:[20,20],iconAnchor:[10,10]});
+      L.marker([s.lat,s.lng],{icon}).addTo(reviewMap);
+      prev=s;
+    });
+    reviewMap.invalidateSize();
+  },100);
+}
+
+function openRoundCard(idx){
+  reviewRound=allRounds[idx];
+  openReview(idx);
+}
+function openRoundStats(idx){
+  reviewRound=allRounds[idx];
+  if(!reviewRound.shots)return;
+  // Temporarily set shots to show stats
+  const tmp=shots;shots=reviewRound.shots;buildStats();shots=tmp;
+  openOv('stats-ov');
+}
+
+function exportReview(){
+  if(!reviewRound||!reviewRound.shots)return;
+  let csv='Caddie\n'+reviewRound.course+'\n'+new Date(reviewRound.date).toLocaleDateString()+'\n\nHole,Shot,Cat,Club,Yards,Lat,Lng\n';
+  reviewRound.shots.forEach(s=>{csv+=s.hole+','+s.shotNum+','+s.category+','+s.club+','+s.distYards+','+s.lat.toFixed(6)+','+s.lng.toFixed(6)+'\n';});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='caddie_round.csv';a.click();
+}
+
+// ── PLAYER PAGE ────────────────────────────────────────────────────────────
+function setHcp(v){
+  handicap=parseInt(v);
+  document.getElementById('hcp-disp').textContent=v;
+  document.getElementById('phcp-val').textContent=v;
+  localStorage.setItem('caddie_hcp',v);
+}
+
+function renderPlayer(){
+  document.getElementById('hcp-slider').value=handicap;
+  document.getElementById('hcp-disp').textContent=handicap;
+  document.getElementById('phcp-val').textContent=handicap;
+  // Career stats
+  const allShots=allRounds.flatMap(r=>r.shots||[]);
+  const rounds=allRounds.length;
+  const avgShots=rounds?Math.round(allShots.length/rounds):0;
+  const drives=allShots.filter(s=>s.category==='tee');
+  const avgDr=drives.length?Math.round(drives.reduce((a,s)=>a+s.distYards,0)/drives.length):0;
+  const putts=allShots.filter(s=>s.category==='putt');
+  document.getElementById('career-stats').innerHTML=
+    `<div class="p-stat"><div class="p-stat-v">${rounds}</div><div class="p-stat-l">Rounds</div></div>
+    <div class="p-stat"><div class="p-stat-v">${allShots.length}</div><div class="p-stat-l">Total Shots</div></div>
+    <div class="p-stat"><div class="p-stat-v">${avgDr>0?avgDr+'y':'—'}</div><div class="p-stat-l">Avg Drive</div></div>
+    <div class="p-stat"><div class="p-stat-v">${avgShots||'—'}</div><div class="p-stat-l">Avg Shots</div></div>`;
+  // Career SG
+  let sgT=0,sgA=0,sgC=0,sgP=0,sgTot=0;
+  for(let i=0;i<allShots.length-1;i++){
+    const sg=calcSG(allShots[i],allShots[i+1]);sgTot+=sg;
+    if(allShots[i].category==='tee')sgT+=sg;
+    else if(allShots[i].category==='approach')sgA+=sg;
+    else if(allShots[i].category==='chip')sgC+=sg;
+    else if(allShots[i].category==='putt')sgP+=sg;
+  }
+  function bar(l,v){const p=Math.min(Math.abs(v)/Math.max(Math.abs(sgTot),1)*100,100);return`<div class="sg-row"><div class="sg-lbl">${l}</div><div class="sg-track"><div class="sg-fill ${v>=0?'pos':'neg'}" style="width:${p}%"></div></div><div class="sg-n ${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}</div></div>`;}
+  document.getElementById('career-sg').innerHTML=`<div class="sg-ttl">STROKES GAINED ALL ROUNDS</div>${bar('Off Tee',sgT)}${bar('Approach',sgA)}${bar('Chipping',sgC)}${bar('Putting',sgP)}`;
+}
+
+// ── START PAGE ─────────────────────────────────────────────────────────────
+function setSTab(s,btn){stateFilter=s;document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');filterCourses();}
+
+function filterCourses(){
+  const q=document.getElementById('course-search').value.trim().toLowerCase();
+  const el=document.getElementById('course-list');
+  const none=document.getElementById('no-courses');
+  const savedNames=new Set(lib.map(c=>c.n));
+  let res=DB.filter(c=>{
+    const ms=stateFilter==='ALL'||c.s===stateFilter;
+    const mq=!q||c.n.toLowerCase().includes(q)||c.t.toLowerCase().includes(q);
+    return ms&&mq;
+  }).slice(0,25);
+  if(!res.length){el.innerHTML='';none.style.display='block';return;}
+  none.style.display='none';
+  el.innerHTML=res.map(c=>`<div class="citem" onclick="pickCourse('${esc(c.n)}',${c.la},${c.lo},'${c.s}','${esc(c.t)}')"><div><div class="ci-name">${c.n}</div><div class="ci-town">${c.t}</div></div><div class="ci-r"><span class="cstate">${c.s}</span>${savedNames.has(c.n)?'<span class="saved-star">★</span>':''}<span style="color:rgba(255,255,255,0.2)">›</span></div></div>`).join('');
+}
+
+function renderSaved(){
+  const el=document.getElementById('saved-list');
+  if(!lib.length){el.innerHTML='<div style="font-family:DM Mono,monospace;font-size:11px;color:rgba(255,255,255,0.2);padding:8px 0">No recent courses</div>';return;}
+  el.innerHTML=lib.slice(0,5).map((c,i)=>`<div class="saved-item" onclick="pickCourse('${esc(c.n)}',${c.la},${c.lo},'${c.s||''}','${esc(c.t||'')}')"><div><div class="si-name">${c.n}</div><div class="si-meta">${c.t||''} ${c.s||''}</div><div class="si-pins">${Object.keys(c.pins||{}).length} pins saved</div></div><button class="si-del" onclick="event.stopPropagation();delLib(${i})">🗑</button></div>`).join('');
+}
+
+function delLib(i){lib.splice(i,1);localStorage.setItem('caddie_lib',JSON.stringify(lib));renderSaved();}
+function esc(s){return s.replace(/'/g,"\\'");}
+
+function pickCourse(name,la,lo,st,town){
+  const existing=lib.find(c=>c.n===name);
+  if(existing){activeCourse=existing;}
+  else{activeCourse={n:name,la,lo,s:st,t:town,pins:{},tees:{}};lib.unshift(activeCourse);localStorage.setItem('caddie_lib',JSON.stringify(lib));}
+  pins=Object.assign({},activeCourse.pins||{});
+  tees=Object.assign({},activeCourse.tees||{});
+  launchRound(la,lo,name);
+}
+
+// ── LAUNCH ─────────────────────────────────────────────────────────────────
+function launchRound(la,lo,name){
+  hole=1;shots=[];hShots=[];lastPos=null;
+  sMarkers=[];sLines=[];pinM={};teeM={};
+  rings=[];ringsOn=false;measMode=false;
+  roundStart=new Date();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('play-page').classList.add('active');
+  document.getElementById('bottom-nav').style.display='none';
+  document.getElementById('play-name').textContent=name.substring(0,16);
+  document.getElementById('h-num').textContent='1';
+  document.getElementById('sg-num').textContent='+0.0';
+  buildClubs();buildHoleStrip();
+  requestAnimationFrame(function(){requestAnimationFrame(function(){initMap(la,lo);});});
+}
+
+function endRound(){
+  if(shots.length===0&&!confirm('No shots tracked. Exit round?'))return;
+  if(shots.length>0){
+    // Save round
+    let sg=0;for(let i=0;i<shots.length-1;i++)sg+=calcSG(shots[i],shots[i+1]);
+    const round={course:activeCourse?activeCourse.n:'Unknown',date:roundStart.toISOString(),shots:[...shots],holesPlayed:hole,sg:parseFloat(sg.toFixed(2)),teeColor:'White'};
+    allRounds.push(round);
+    localStorage.setItem('caddie_rounds',JSON.stringify(allRounds));
+    saveCourse();
+    showToast('Round saved');
+  }
+  if(map){map.remove();map=null;}
+  document.getElementById('bottom-nav').style.display='flex';
+  goPage('activity-page','nav-activity');
 }
 
 // ── MAP ────────────────────────────────────────────────────────────────────
-function initMap(la, lo) {
-  if (map) { map.remove(); map = null; }
-
-  map = L.map('map', { zoomControl: false, attributionControl: false });
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20 }).addTo(map);
-  map.setView([la, lo], 17);
-
-  // GPS dot
-  gpsMarker = L.circleMarker([la, lo], {
-    radius: 10, fillColor: '#4a90e2', fillOpacity: 1,
-    color: 'white', weight: 2, zIndexOffset: 1000
-  }).addTo(map);
-
-  // Measure marker
-  measMarker = L.marker([la, lo], {
-    draggable: true,
-    icon: L.divIcon({
-      className: '',
-      html: '<div style="width:22px;height:22px;background:#4a90e2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.7)"></div>',
-      iconSize: [22, 22], iconAnchor: [11, 11]
-    })
-  });
-  measMarker.on('drag', onMeasDrag);
-
-  // Force Leaflet to recalculate size
-  map.invalidateSize();
-
-  // Draw saved pins and tees
-  Object.keys(pins).forEach(h => drawPin(parseInt(h), pins[h]));
-  Object.keys(tees).forEach(h => drawTee(parseInt(h), tees[h]));
-
-  // Start GPS
-  startGPS();
-
-  // Load course overlay
-  loadOverlay(la, lo);
+function initMap(la,lo){
+  if(map){map.remove();map=null;}
+  map=L.map('map',{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(map);
+  map.setView([la,lo],17);
+  gpsMarker=L.circleMarker([la,lo],{radius:10,fillColor:'#4a90e2',fillOpacity:1,color:'white',weight:2,zIndexOffset:1000}).addTo(map);
+  measMarker=L.marker([la,lo],{draggable:true,icon:L.divIcon({className:'',html:'<div style="width:22px;height:22px;background:#4a90e2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.7)"></div>',iconSize:[22,22],iconAnchor:[11,11]})});
+  measMarker.on('drag',onMeasDrag);
+  setTimeout(function(){map.invalidateSize();},200);
+  Object.keys(pins).forEach(h=>drawPin(parseInt(h),pins[h]));
+  Object.keys(tees).forEach(h=>drawTee(parseInt(h),tees[h]));
+  startGPS();loadOverlay(la,lo);
 }
 
-// ── GPS ────────────────────────────────────────────────────────────────────
-function startGPS() {
-  if (!navigator.geolocation) { setGPS('err', 'GPS not supported'); return; }
-  let centered = false;
-  navigator.geolocation.watchPosition(function(pos) {
-    currentPos = [pos.coords.latitude, pos.coords.longitude];
-    altitude = pos.coords.altitude ? pos.coords.altitude * 3.28084 : 0;
-    setGPS('ok', '±' + Math.round(pos.coords.accuracy) + 'm');
-    if (gpsMarker) gpsMarker.setLatLng(currentPos);
-    if (!centered) {
-      map.setView(currentPos, 18);
-      centered = true;
-      fetchWeather(pos.coords.latitude, pos.coords.longitude);
-    }
-    updateDist();
-    updateCat();
-  }, function() {
-    setGPS('err', 'Allow location access');
-  }, { enableHighAccuracy: true, maximumAge: 3000 });
+function startGPS(){
+  if(!navigator.geolocation){setGPS('err','GPS not supported');return;}
+  let centered=false;
+  navigator.geolocation.watchPosition(function(pos){
+    currentPos=[pos.coords.latitude,pos.coords.longitude];
+    altitude=pos.coords.altitude?pos.coords.altitude*3.28084:0;
+    setGPS('ok','±'+Math.round(pos.coords.accuracy)+'m');
+    if(gpsMarker)gpsMarker.setLatLng(currentPos);
+    if(!centered){map.setView(currentPos,18);centered=true;fetchWeather(pos.coords.latitude,pos.coords.longitude);}
+    updateDist();updateCat();
+  },function(){setGPS('err','Allow location access');},{enableHighAccuracy:true,maximumAge:3000});
 }
+function setGPS(s,t){document.getElementById('gdot').className=s;document.getElementById('gtxt').textContent=t;}
 
-function setGPS(s, t) {
-  document.getElementById('gdot').className = s;
-  document.getElementById('gtxt').textContent = t;
+async function fetchWeather(lat,lng){
+  try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit`);const d=await r.json();weather=d.current;document.getElementById('wx-t').textContent=Math.round(weather.temperature_2m)+'°F';document.getElementById('wx-w').textContent=Math.round(weather.wind_speed_10m)+'mph';document.getElementById('wx-d').textContent=['N','NE','E','SE','S','SW','W','NW'][Math.round(weather.wind_direction_10m/45)%8];document.getElementById('wx-h').textContent=weather.relative_humidity_2m+'%';}catch(e){}
 }
+function playsLike(y){if(!y)return y;let a=y;a-=(altitude/1000)*y*0.01;if(weather){a+=((75-weather.temperature_2m)/10)*y*0.01;a+=weather.wind_speed_10m*0.35;}return Math.round(a);}
 
-// ── WEATHER ────────────────────────────────────────────────────────────────
-async function fetchWeather(lat, lng) {
-  try {
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&temperature_unit=fahrenheit`);
-    const d = await r.json();
-    weather = d.current;
-    document.getElementById('wx-t').textContent = Math.round(weather.temperature_2m) + '°F';
-    document.getElementById('wx-w').textContent = Math.round(weather.wind_speed_10m) + 'mph';
-    document.getElementById('wx-d').textContent = ['N','NE','E','SE','S','SW','W','NW'][Math.round(weather.wind_direction_10m / 45) % 8];
-    document.getElementById('wx-h').textContent = weather.relative_humidity_2m + '%';
-  } catch(e) {}
-}
-
-function playsLike(y) {
-  if (!y) return y;
-  let a = y;
-  a -= (altitude / 1000) * y * 0.01;
-  if (weather) {
-    a += ((75 - weather.temperature_2m) / 10) * y * 0.01;
-    a += weather.wind_speed_10m * 0.35;
-  }
-  return Math.round(a);
-}
-
-// ── OVERLAY ────────────────────────────────────────────────────────────────
-async function loadOverlay(la, lo) {
-  try {
-    const q = `[out:json][timeout:20];(way["golf"="fairway"](around:2000,${la},${lo});way["golf"="green"](around:2000,${la},${lo});way["golf"="tee"](around:2000,${la},${lo});way["golf"="bunker"](around:2000,${la},${lo});way["golf"="water_hazard"](around:2000,${la},${lo}););out body;>;out skel qt;`;
-    const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q });
-    const data = await r.json();
-    const nodes = {};
-    data.elements.filter(e => e.type === 'node').forEach(n => { nodes[n.id] = [n.lat, n.lon]; });
-    let gc = 0;
-    data.elements.filter(e => e.type === 'way' && e.tags).forEach(w => {
-      const coords = (w.nodes || []).map(id => nodes[id]).filter(Boolean);
-      if (!coords.length) return;
-      const g = w.tags.golf;
-      if (g === 'fairway') L.polygon(coords, { color: '#3aaf5c', weight: 1, opacity: 0.5, fillColor: '#3aaf5c', fillOpacity: 0.12 }).addTo(map);
-      else if (g === 'green') {
-        gc++;
-        L.polygon(coords, { color: '#6de88a', weight: 1.5, opacity: 0.7, fillColor: '#5dde7a', fillOpacity: 0.22 }).addTo(map);
-        const ctr = [coords.reduce((s,c)=>s+c[0],0)/coords.length, coords.reduce((s,c)=>s+c[1],0)/coords.length];
-        const hNum = w.tags.ref ? parseInt(w.tags.ref) : gc;
-        if (hNum >= 1 && hNum <= 18 && !pins[hNum]) { pins[hNum] = ctr; drawPin(hNum, ctr); buildHoleStrip(); }
-      }
-      else if (g === 'tee') L.polygon(coords, { color: '#4a90e2', weight: 1, opacity: 0.5, fillColor: '#4a90e2', fillOpacity: 0.18 }).addTo(map);
-      else if (g === 'bunker') L.polygon(coords, { color: '#c8b560', weight: 1, opacity: 0.5, fillColor: '#d4c46a', fillOpacity: 0.2 }).addTo(map);
-      else if (g === 'water_hazard') L.polygon(coords, { color: '#4a90e2', weight: 1, opacity: 0.4, fillColor: '#4a90e2', fillOpacity: 0.25 }).addTo(map);
+async function loadOverlay(la,lo){
+  try{
+    const q=`[out:json][timeout:20];(way["golf"="fairway"](around:2000,${la},${lo});way["golf"="green"](around:2000,${la},${lo});way["golf"="tee"](around:2000,${la},${lo});way["golf"="bunker"](around:2000,${la},${lo});way["golf"="water_hazard"](around:2000,${la},${lo}););out body;>;out skel qt;`;
+    const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q});
+    const data=await r.json();
+    const nodes={};data.elements.filter(e=>e.type==='node').forEach(n=>{nodes[n.id]=[n.lat,n.lon];});
+    let gc=0;
+    data.elements.filter(e=>e.type==='way'&&e.tags).forEach(w=>{
+      const coords=(w.nodes||[]).map(id=>nodes[id]).filter(Boolean);if(!coords.length)return;
+      const g=w.tags.golf;
+      if(g==='fairway')L.polygon(coords,{color:'#3aaf5c',weight:1,opacity:0.5,fillColor:'#3aaf5c',fillOpacity:0.12}).addTo(map);
+      else if(g==='green'){gc++;L.polygon(coords,{color:'#6de88a',weight:1.5,opacity:0.7,fillColor:'#5dde7a',fillOpacity:0.22}).addTo(map);const ctr=[coords.reduce((s,c)=>s+c[0],0)/coords.length,coords.reduce((s,c)=>s+c[1],0)/coords.length];const hNum=w.tags.ref?parseInt(w.tags.ref):gc;if(hNum>=1&&hNum<=18&&!pins[hNum]){pins[hNum]=ctr;drawPin(hNum,ctr);buildHoleStrip();}}
+      else if(g==='tee')L.polygon(coords,{color:'#4a90e2',weight:1,opacity:0.5,fillColor:'#4a90e2',fillOpacity:0.18}).addTo(map);
+      else if(g==='bunker')L.polygon(coords,{color:'#c8b560',weight:1,opacity:0.5,fillColor:'#d4c46a',fillOpacity:0.2}).addTo(map);
+      else if(g==='water_hazard')L.polygon(coords,{color:'#4a90e2',weight:1,opacity:0.4,fillColor:'#4a90e2',fillOpacity:0.25}).addTo(map);
     });
-    if (gc > 0) showToast('Course loaded · ' + gc + ' greens');
-    else showToast('Map loaded · Set pins manually');
-  } catch(e) {
-    showToast('Map ready · GPS tracking active');
-  }
+    if(gc>0)showToast('Course loaded · '+gc+' greens');else showToast('Map ready · Set pins manually');
+  }catch(e){showToast('Map ready');}
 }
 
-// ── PINS ──────────────────────────────────────────────────────────────────
-function drawPin(h, pos) {
-  if (pinM[h]) map.removeLayer(pinM[h]);
-  const icon = L.divIcon({
-    className: '',
-    html: '<div style="background:#c9a84c;color:#0a140c;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.7)">' + h + '</div>',
-    iconSize: [22, 22], iconAnchor: [11, 11]
-  });
-  pinM[h] = L.marker(pos, { icon, zIndexOffset: 500 }).addTo(map);
+function drawPin(h,pos){if(pinM[h])map.removeLayer(pinM[h]);const icon=L.divIcon({className:'',html:'<div style="background:#c9a84c;color:#0a0f0b;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 6px rgba(0,0,0,0.7)">'+h+'</div>',iconSize:[22,22],iconAnchor:[11,11]});pinM[h]=L.marker(pos,{icon,zIndexOffset:500}).addTo(map);}
+function drawTee(h,pos){if(teeM[h])map.removeLayer(teeM[h]);const icon=L.divIcon({className:'',html:'<div style="background:#f5f5f5;border:2px solid rgba(0,0,0,0.5);border-radius:3px;width:14px;height:14px;box-shadow:0 2px 6px rgba(0,0,0,0.7)"></div>',iconSize:[14,14],iconAnchor:[7,7]});teeM[h]=L.marker(pos,{icon,zIndexOffset:400}).addTo(map);}
+
+function setPin(){if(!currentPos){showToast('Waiting for GPS...');return;}pins[hole]=[...currentPos];drawPin(hole,currentPos);saveCourse();document.getElementById('btn-pin').classList.add('on');buildHoleStrip();updateDist();showToast('Pin set — Hole '+hole);}
+
+function updateDist(){const pin=pins[hole];if(!pin||!currentPos){document.getElementById('dist-box').style.display='none';return;}const d=Math.round(hvy(currentPos,pin));if(d>1000){document.getElementById('dist-box').style.display='none';return;}const pl=playsLike(d);document.getElementById('dist-num').textContent=d;document.getElementById('dist-plays').textContent=pl+'y plays like';document.getElementById('dist-box').style.display='block';document.getElementById('wx-plv').textContent=pl+'y';document.getElementById('wx-pl').style.display='';}
+
+function buildHoleStrip(){const el=document.getElementById('hole-strip');el.innerHTML='';for(let i=1;i<=18;i++){const done=shots.some(s=>s.hole===i),hp=!!pins[i];const p=document.createElement('button');p.className='hpill'+(i===hole?' cur':done?' done':hp?' has-p':'');p.id='hpill-'+i;p.textContent=i+(hp?'●':'');p.onclick=(function(h){return function(){jumpHole(h);};})(i);el.appendChild(p);}}
+
+function jumpHole(h){hole=h;document.getElementById('h-num').textContent=h;document.querySelectorAll('.hpill').forEach(p=>p.classList.remove('cur'));const pill=document.getElementById('hpill-'+h);if(pill){pill.classList.add('cur');pill.scrollIntoView({inline:'center',behavior:'smooth'});}document.getElementById('btn-pin').classList.toggle('on',!!pins[h]);if(pins[h])map.setView(pins[h],18);updateDist();updateCat();showToast('Hole '+h);}
+
+function toggleMeasure(){measMode=!measMode;const btn=document.getElementById('btn-meas');const box=document.getElementById('meas-box');if(measMode){btn.classList.add('on');box.style.display='block';if(currentPos){measMarker.setLatLng(currentPos);measMarker.addTo(map);measLine=L.polyline([currentPos,currentPos],{color:'#4a90e2',weight:2,dashArray:'6 4',opacity:0.8}).addTo(map);}showToast('Drag blue dot to measure');}else{btn.classList.remove('on');box.style.display='none';if(map.hasLayer(measMarker))map.removeLayer(measMarker);if(measLine){map.removeLayer(measLine);measLine=null;}}}
+function onMeasDrag(){if(!currentPos)return;const mp=measMarker.getLatLng();const d=Math.round(hvy(currentPos,[mp.lat,mp.lng]));document.getElementById('meas-num').textContent=d;if(measLine)measLine.setLatLngs([currentPos,[mp.lat,mp.lng]]);}
+
+function toggleRings(){if(!currentPos){showToast('Waiting for GPS...');return;}if(ringsOn){rings.forEach(r=>map.removeLayer(r));rings=[];ringsOn=false;showToast('Rings off');}else{[50,100,150,200].forEach(function(y,i){const cols=['#9b59b6','#3aaf5c','#c9a84c','#4a90e2'];const ring=L.circle(currentPos,{radius:y*0.9144,color:cols[i],weight:1.5,opacity:0.8,fillColor:cols[i],fillOpacity:0.04}).addTo(map);ring.bindTooltip(y+'y',{permanent:true,direction:'top'});rings.push(ring);});ringsOn=true;showToast('Distance rings on');}}
+
+function getCat(cl,dist){if(hShots.length===0)return'tee';if(cl==='Putter')return'putt';if(dist!==null&&dist<40)return'chip';if(['SW','LW','GW'].includes(cl)&&dist<60)return'chip';return'approach';}
+function updateCat(){if(!lastPos||!currentPos){document.getElementById('cat-txt').textContent=hShots.length===0?'TEE':'—';return;}document.getElementById('cat-txt').textContent=getCat(club,Math.round(hvy(lastPos,currentPos))).toUpperCase();}
+
+const CC={tee:'#4a90e2',approach:'#3aaf5c',chip:'#c9a84c',putt:'#9b59b6'};
+function trackShot(){
+  if(!currentPos){showToast('Waiting for GPS...');return;}
+  const sn=hShots.length+1;let dy=0;
+  if(lastPos){dy=Math.round(hvy(lastPos,currentPos));sLines.push(L.polyline([lastPos,currentPos],{color:'#3aaf5c',weight:3,opacity:0.85}).addTo(map));}
+  const d2=lastPos?Math.round(hvy(lastPos,currentPos)):null;
+  const cat=getCat(club,d2);const pin=pins[hole];const dtp=pin?Math.round(hvy(currentPos,pin)):null;
+  const icon=L.divIcon({className:'',html:'<div style="background:'+(CC[cat]||'#c9a84c')+';color:#0a0f0b;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.6)">'+sn+'</div>',iconSize:[28,28],iconAnchor:[14,14]});
+  const marker=L.marker(currentPos,{icon}).addTo(map);marker.bindPopup('Shot '+sn+': '+club+' · '+cat+(dy>0?' · '+dy+'y':''));sMarkers.push(marker);
+  const shot={hole,shotNum:sn,club,lat:currentPos[0],lng:currentPos[1],distYards:dy,category:cat,distToPin:dtp,playsLike:playsLike(dy)};
+  hShots.push(shot);shots.push(shot);lastPos=[...currentPos];updateSG();
+  showToast(cat.toUpperCase()+' · '+club+(dy>0?' · '+dy+'y':''));
+}
+function undoShot(){if(!hShots.length){showToast('No shots to undo');return;}hShots.pop();shots.pop();const m=sMarkers.pop();if(m)map.removeLayer(m);const l=sLines.pop();if(l)map.removeLayer(l);lastPos=hShots.length?[hShots[hShots.length-1].lat,hShots[hShots.length-1].lng]:null;updateSG();showToast('Shot removed');}
+function nextHole(){if(!hShots.length){showToast('Track a shot first');return;}hShots=[];lastPos=null;hole++;document.getElementById('h-num').textContent=hole;document.getElementById('btn-pin').classList.remove('on');buildHoleStrip();const pill=document.getElementById('hpill-'+hole);if(pill)pill.scrollIntoView({inline:'center',behavior:'smooth'});if(pins[hole])map.setView(pins[hole],18);updateDist();updateCat();showToast('Hole '+hole);}
+
+function getSGB(cat,d){const t=SG_BASE[cat]||SG_BASE.approach;const keys=Object.keys(t).map(Number).sort((a,b)=>a-b);if(d<=keys[0])return t[keys[0]];if(d>=keys[keys.length-1])return t[keys[keys.length-1]];for(let i=0;i<keys.length-1;i++){if(d>=keys[i]&&d<=keys[i+1]){const p=(d-keys[i])/(keys[i+1]-keys[i]);return t[keys[i]]+p*(t[keys[i+1]]-t[keys[i]]);}}return 2.5;}
+function calcSG(s,n){const b=getSGB(s.category,s.distToPin||150);if(!n)return 0;const a=getSGB(n.category,n.distToPin||10);return parseFloat((b-(1+a)).toFixed(2));}
+function updateSG(){let sg=0;for(let i=0;i<shots.length-1;i++)sg+=calcSG(shots[i],shots[i+1]);const el=document.getElementById('sg-num');el.textContent=(sg>=0?'+':'')+sg.toFixed(1);el.style.color=sg>=0?'#3aaf5c':'#e05555';}
+
+function openOv(id){if(id==='sc-ov')buildSC();if(id==='stats-ov')buildStats();document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');if(id==='review-ov'&&reviewMap){reviewMap.remove();reviewMap=null;}}
+
+function buildSC(){
+  const src=reviewRound&&!document.getElementById('play-page').classList.contains('active')?reviewRound.shots:shots;
+  const body=document.getElementById('sc-body');
+  if(!src||!src.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>';return;}
+  const bh={};src.forEach(s=>{if(!bh[s.hole])bh[s.hole]=[];bh[s.hole].push(s);});
+  body.innerHTML=Object.entries(bh).map(function([h,hs]){const td=hs.reduce((a,s)=>a+s.distYards,0),putts=hs.filter(s=>s.category==='putt').length;return'<div class="hcard"><div class="hc-top"><div class="hc-n">HOLE '+h+'</div><div class="hc-m">'+hs.length+' shots · '+putts+'p · '+td+'y</div></div>'+hs.map(function(s,i){const sg=i<hs.length-1?calcSG(s,hs[i+1]):0;return'<div class="srow"><span class="sbadge '+s.category+'">'+s.category+'</span><span>'+s.club+'</span><span class="sdist">'+(s.distYards>0?s.distYards+'y':'—')+'</span><span class="sgv '+(sg>=0?'pos':'neg')+'">'+(sg!==0?(sg>0?'+':'')+sg.toFixed(2):'')+'</span></div>';}).join('')+'</div>';}).join('')+'<button id="btn-export-sc" onclick="exportSC()" style="width:100%;padding:14px;border-radius:14px;border:1px solid rgba(201,168,76,0.25);background:transparent;color:#c9a84c;font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:8px">EXPORT CSV</button>';
 }
 
-function drawTee(h, pos) {
-  if (teeM[h]) map.removeLayer(teeM[h]);
-  const cols = { black: '#222', blue: '#4a90e2', white: '#f5f5f5', red: '#e05555' };
-  const icon = L.divIcon({
-    className: '',
-    html: '<div style="background:' + (cols[teeColor] || '#f5f5f5') + ';border:2px solid rgba(0,0,0,0.5);border-radius:3px;width:16px;height:16px;box-shadow:0 2px 6px rgba(0,0,0,0.7)"></div>',
-    iconSize: [16, 16], iconAnchor: [8, 8]
-  });
-  teeM[h] = L.marker(pos, { icon, zIndexOffset: 400 }).addTo(map);
+function buildStats(){
+  const src=shots;const body=document.getElementById('stats-body');
+  if(!src.length){body.innerHTML='<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>';return;}
+  const tees2=src.filter(s=>s.category==='tee'),putts=src.filter(s=>s.category==='putt');let sgT=0,sgA=0,sgC=0,sgP=0,sgTot=0;
+  for(let i=0;i<src.length-1;i++){const sg=calcSG(src[i],src[i+1]);sgTot+=sg;if(src[i].category==='tee')sgT+=sg;else if(src[i].category==='approach')sgA+=sg;else if(src[i].category==='chip')sgC+=sg;else if(src[i].category==='putt')sgP+=sg;}
+  const avgDr=tees2.length?Math.round(tees2.reduce((a,s)=>a+s.distYards,0)/tees2.length):0;
+  const h2=Math.max(hole-1,1);
+  function bar(l,v){const p=Math.min(Math.abs(v)/1.5*100,100);return'<div class="sg-row"><div class="sg-lbl">'+l+'</div><div class="sg-track"><div class="sg-fill '+(v>=0?'pos':'neg')+'" style="width:'+p+'%"></div></div><div class="sg-n '+(v>=0?'pos':'neg')+'">'+(v>=0?'+':'')+v.toFixed(2)+'</div></div>';}
+  body.innerHTML='<div class="p-stat-grid" style="margin-bottom:16px"><div class="p-stat"><div class="p-stat-v">'+src.length+'</div><div class="p-stat-l">Shots</div></div><div class="p-stat"><div class="p-stat-v">'+(putts.length/h2).toFixed(1)+'</div><div class="p-stat-l">Putts/Hole</div></div><div class="p-stat"><div class="p-stat-v">'+(avgDr>0?avgDr+'y':'—')+'</div><div class="p-stat-l">Avg Drive</div></div><div class="p-stat"><div class="p-stat-v" style="color:'+(sgTot>=0?'#3aaf5c':'#e05555')+'">'+(sgTot>=0?'+':'')+sgTot.toFixed(1)+'</div><div class="p-stat-l">Total SG</div></div></div><div class="sg-block"><div class="sg-ttl">STROKES GAINED</div>'+bar('Off Tee',sgT)+bar('Approach',sgA)+bar('Chipping',sgC)+bar('Putting',sgP)+'</div>';
 }
 
-function setPin() {
-  if (!currentPos) { showToast('Waiting for GPS...'); return; }
-  pins[hole] = [...currentPos];
-  drawPin(hole, currentPos);
-  saveLib();
-  document.getElementById('btn-pin').classList.add('on');
-  buildHoleStrip();
-  updateDist();
-  showToast('Pin set — Hole ' + hole);
-}
+function exportSC(){if(!shots.length)return;let csv='Caddie\n'+(activeCourse?activeCourse.n:'Round')+'\n'+new Date().toLocaleDateString()+'\n\nHole,Shot,Cat,Club,Yards,Lat,Lng\n';shots.forEach(s=>{csv+=s.hole+','+s.shotNum+','+s.category+','+s.club+','+s.distYards+','+s.lat.toFixed(6)+','+s.lng.toFixed(6)+'\n';});const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='caddie_round.csv';a.click();}
 
-// ── HOLE STRIP ────────────────────────────────────────────────────────────
-function buildHoleStrip() {
-  const el = document.getElementById('hole-strip');
-  el.innerHTML = '';
-  for (let i = 1; i <= 18; i++) {
-    const done = shots.some(s => s.hole === i);
-    const hp = !!pins[i];
-    const p = document.createElement('button');
-    p.className = 'hpill' + (i === hole ? ' cur' : done ? ' done' : hp ? ' has-pin' : '');
-    p.id = 'hpill-' + i;
-    p.textContent = i + (hp ? '●' : '');
-    p.onclick = (function(h) { return function() { jumpHole(h); }; })(i);
-    el.appendChild(p);
-  }
-}
+function buildClubs(){const el=document.getElementById('clubs');el.innerHTML='';CLUBS.forEach(function(c){const btn=document.createElement('button');btn.className='cbt'+(c===club?' on':'');btn.textContent=c;btn.onclick=function(){club=c;document.querySelectorAll('.cbt').forEach(b=>b.classList.toggle('on',b.textContent===c));updateCat();};el.appendChild(btn);});}
 
-function jumpHole(h) {
-  hole = h;
-  document.getElementById('h-num').textContent = h;
-  document.querySelectorAll('.hpill').forEach(p => p.classList.remove('cur'));
-  const pill = document.getElementById('hpill-' + h);
-  if (pill) { pill.classList.add('cur'); pill.scrollIntoView({ inline: 'center', behavior: 'smooth' }); }
-  document.getElementById('btn-pin').classList.toggle('on', !!pins[h]);
-  if (pins[h]) map.setView(pins[h], 18);
-  else if (tees[h]) map.setView(tees[h], 18);
-  updateDist();
-  showToast('Hole ' + h);
-}
+function saveCourse(){if(!activeCourse)return;activeCourse.pins=pins;activeCourse.tees=tees;localStorage.setItem('caddie_lib',JSON.stringify(lib));showToast('Course saved');}
 
-// ── DIST TO PIN ────────────────────────────────────────────────────────────
-function updateDist() {
-  const pin = pins[hole];
-  if (!pin || !currentPos) { document.getElementById('dist-box').style.display = 'none'; return; }
-  const d = Math.round(hvy(currentPos, pin));
-  const pl = playsLike(d);
-  document.getElementById('dist-num').textContent = d;
-  document.getElementById('dist-plays').textContent = pl + 'y plays like';
-  document.getElementById('dist-box').style.display = 'block';
-  document.getElementById('wx-plv').textContent = pl + 'y';
-  document.getElementById('wx-pl').style.display = '';
-}
+function hvy(a,b){const R=6371000,dL=(b[0]-a[0])*Math.PI/180,dG=(b[1]-a[1])*Math.PI/180;const x=Math.sin(dL/2)**2+Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))*1.09361;}
+let toastT;function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show');},2400);}
 
-// ── MEASURE ────────────────────────────────────────────────────────────────
-function toggleMeasure() {
-  measMode = !measMode;
-  const btn = document.getElementById('btn-meas');
-  const box = document.getElementById('meas-box');
-  if (measMode) {
-    btn.classList.add('on'); box.style.display = 'block';
-    if (currentPos) {
-      measMarker.setLatLng(currentPos);
-      measMarker.addTo(map);
-      measLine = L.polyline([currentPos, currentPos], { color: '#4a90e2', weight: 2, dashArray: '6 4', opacity: 0.8 }).addTo(map);
-    }
-    showToast('Drag blue dot to measure');
-  } else {
-    btn.classList.remove('on'); box.style.display = 'none';
-    if (map.hasLayer(measMarker)) map.removeLayer(measMarker);
-    if (measLine) { map.removeLayer(measLine); measLine = null; }
-  }
-}
-
-function onMeasDrag() {
-  if (!currentPos) return;
-  const mp = measMarker.getLatLng();
-  const d = Math.round(hvy(currentPos, [mp.lat, mp.lng]));
-  document.getElementById('meas-num').textContent = d;
-  if (measLine) measLine.setLatLngs([currentPos, [mp.lat, mp.lng]]);
-}
-
-// ── RINGS ─────────────────────────────────────────────────────────────────
-function toggleRings() {
-  if (!currentPos) { showToast('Waiting for GPS...'); return; }
-  if (ringsOn) {
-    rings.forEach(r => map.removeLayer(r)); rings = []; ringsOn = false; showToast('Rings off');
-  } else {
-    [50, 100, 150, 200].forEach(function(y, i) {
-      const cols = ['#9b59b6', '#3aaf5c', '#c9a84c', '#4a90e2'];
-      const ring = L.circle(currentPos, { radius: y * 0.9144, color: cols[i], weight: 1.5, opacity: 0.8, fillColor: cols[i], fillOpacity: 0.04 }).addTo(map);
-      ring.bindTooltip(y + 'y', { permanent: true, direction: 'top' });
-      rings.push(ring);
-    });
-    ringsOn = true; showToast('Distance rings on');
-  }
-}
-
-// ── SHOT CAT ──────────────────────────────────────────────────────────────
-function getCat(cl, dist) {
-  if (hShots.length === 0) return 'tee';
-  if (cl === 'Putter') return 'putt';
-  if (dist !== null && dist < 40) return 'chip';
-  if (['SW','LW','GW'].includes(cl) && dist < 60) return 'chip';
-  return 'approach';
-}
-
-function updateCat() {
-  if (!lastPos || !currentPos) { document.getElementById('cat-txt').textContent = hShots.length === 0 ? 'TEE' : '—'; return; }
-  document.getElementById('cat-txt').textContent = getCat(club, Math.round(hvy(lastPos, currentPos))).toUpperCase();
-}
-
-// ── TRACK ─────────────────────────────────────────────────────────────────
-const CAT_COL = { tee: '#4a90e2', approach: '#3aaf5c', chip: '#c9a84c', putt: '#9b59b6' };
-
-function trackShot() {
-  if (!currentPos) { showToast('Waiting for GPS...'); return; }
-  const sn = hShots.length + 1;
-  let dy = 0;
-  if (lastPos) {
-    dy = Math.round(hvy(lastPos, currentPos));
-    sLines.push(L.polyline([lastPos, currentPos], { color: '#3aaf5c', weight: 3, opacity: 0.85 }).addTo(map));
-  }
-  const d2 = lastPos ? Math.round(hvy(lastPos, currentPos)) : null;
-  const cat = getCat(club, d2);
-  const pin = pins[hole];
-  const dtp = pin ? Math.round(hvy(currentPos, pin)) : null;
-  const col = CAT_COL[cat] || '#c9a84c';
-  const icon = L.divIcon({
-    className: '',
-    html: '<div style="background:' + col + ';color:#0a140c;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:12px;font-weight:bold;border:2px solid rgba(0,0,0,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.6)">' + sn + '</div>',
-    iconSize: [28, 28], iconAnchor: [14, 14]
-  });
-  const marker = L.marker(currentPos, { icon }).addTo(map);
-  marker.bindPopup('Shot ' + sn + ': ' + club + ' · ' + cat + (dy > 0 ? ' · ' + dy + 'y' : ''));
-  sMarkers.push(marker);
-  const shot = { hole, shotNum: sn, club, lat: currentPos[0], lng: currentPos[1], distYards: dy, category: cat, distToPin: dtp, playsLike: playsLike(dy) };
-  hShots.push(shot); shots.push(shot); lastPos = [...currentPos];
-  updateSG();
-  showToast(cat.toUpperCase() + ' · ' + club + (dy > 0 ? ' · ' + dy + 'y' : ''));
-}
-
-function undoShot() {
-  if (!hShots.length) { showToast('No shots to undo'); return; }
-  hShots.pop(); shots.pop();
-  const m = sMarkers.pop(); if (m) map.removeLayer(m);
-  const l = sLines.pop(); if (l) map.removeLayer(l);
-  lastPos = hShots.length ? [hShots[hShots.length-1].lat, hShots[hShots.length-1].lng] : null;
-  updateSG(); showToast('Shot removed');
-}
-
-function nextHole() {
-  if (!hShots.length) { showToast('Track a shot first'); return; }
-  hShots = []; lastPos = null; hole++;
-  document.getElementById('h-num').textContent = hole;
-  document.getElementById('btn-pin').classList.remove('on');
-  buildHoleStrip();
-  const pill = document.getElementById('hpill-' + hole);
-  if (pill) pill.scrollIntoView({ inline: 'center', behavior: 'smooth' });
-  if (pins[hole]) map.setView(pins[hole], 18);
-  updateDist(); updateCat();
-  showToast('Hole ' + hole);
-}
-
-function exitRound() {
-  if (shots.length && !confirm('Leave round?')) return;
-  saveLib();
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('home-page').classList.add('active');
-  filterList(); renderSaved();
-}
-
-// ── SG ────────────────────────────────────────────────────────────────────
-function getSGB(cat, d) {
-  const t = SG_BASE[cat] || SG_BASE.approach;
-  const keys = Object.keys(t).map(Number).sort((a,b) => a-b);
-  if (d <= keys[0]) return t[keys[0]];
-  if (d >= keys[keys.length-1]) return t[keys[keys.length-1]];
-  for (let i = 0; i < keys.length-1; i++) {
-    if (d >= keys[i] && d <= keys[i+1]) {
-      const p = (d - keys[i]) / (keys[i+1] - keys[i]);
-      return t[keys[i]] + p * (t[keys[i+1]] - t[keys[i]]);
-    }
-  }
-  return 2.5;
-}
-
-function calcSG(s, next) {
-  const b = getSGB(s.category, s.distToPin || 150);
-  if (!next) return 0;
-  const a = getSGB(next.category, next.distToPin || 10);
-  return parseFloat((b - (1 + a)).toFixed(2));
-}
-
-function updateSG() {
-  let sg = 0;
-  for (let i = 0; i < shots.length-1; i++) sg += calcSG(shots[i], shots[i+1]);
-  const el = document.getElementById('sg-num');
-  el.textContent = (sg >= 0 ? '+' : '') + sg.toFixed(1);
-  el.style.color = sg >= 0 ? '#3aaf5c' : '#e05555';
-}
-
-// ── OVERLAYS ──────────────────────────────────────────────────────────────
-function openOv(id) {
-  if (id === 'sc-ov') buildSC();
-  if (id === 'stats-ov') buildStats();
-  document.getElementById(id).classList.add('open');
-}
-function closeOv(id) { document.getElementById(id).classList.remove('open'); }
-
-function buildSC() {
-  const body = document.getElementById('sc-body');
-  if (!shots.length) { body.innerHTML = '<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>'; return; }
-  const bh = {};
-  shots.forEach(s => { if (!bh[s.hole]) bh[s.hole] = []; bh[s.hole].push(s); });
-  body.innerHTML = Object.entries(bh).map(function([h, hs]) {
-    const td = hs.reduce((a,s) => a+s.distYards, 0);
-    const putts = hs.filter(s => s.category==='putt').length;
-    return '<div class="hcard"><div class="hcard-top"><div class="hcard-num">HOLE ' + h + '</div><div class="hcard-meta">' + hs.length + ' shots · ' + putts + 'p · ' + td + 'y</div></div>' +
-      hs.map(function(s, i) {
-        const sg = i < hs.length-1 ? calcSG(s, hs[i+1]) : 0;
-        return '<div class="srow"><span class="sbadge ' + s.category + '">' + s.category + '</span><span>' + s.club + '</span><span class="sdist">' + (s.distYards>0?s.distYards+'y':'—') + '</span><span class="sgv ' + (sg>=0?'pos':'neg') + '">' + (sg!==0?(sg>0?'+':'')+sg.toFixed(2):'') + '</span></div>';
-      }).join('') + '</div>';
-  }).join('') + '<button id="btn-export" onclick="exportRound()">EXPORT CSV</button>';
-}
-
-function buildStats() {
-  const body = document.getElementById('stats-body');
-  if (!shots.length) { body.innerHTML = '<p style="color:rgba(255,255,255,0.25);text-align:center;padding:40px 0;font-family:DM Mono,monospace;font-size:12px">No shots yet</p>'; return; }
-  const tees2 = shots.filter(s=>s.category==='tee');
-  const apps = shots.filter(s=>s.category==='approach');
-  const chips = shots.filter(s=>s.category==='chip');
-  const putts = shots.filter(s=>s.category==='putt');
-  let sgT=0, sgA=0, sgC=0, sgP=0, sgTot=0;
-  for (let i=0; i<shots.length-1; i++) {
-    const sg = calcSG(shots[i], shots[i+1]); sgTot+=sg;
-    if (shots[i].category==='tee') sgT+=sg;
-    else if (shots[i].category==='approach') sgA+=sg;
-    else if (shots[i].category==='chip') sgC+=sg;
-    else if (shots[i].category==='putt') sgP+=sg;
-  }
-  const avgDr = tees2.length ? Math.round(tees2.reduce((a,s)=>a+s.distYards,0)/tees2.length) : 0;
-  const h2 = Math.max(hole-1, 1);
-  function bar(l, v) {
-    const p = Math.min(Math.abs(v)/1.5*100, 100);
-    return '<div class="sg-row"><div class="sg-lbl">'+l+'</div><div class="sg-track"><div class="sg-fill '+(v>=0?'pos':'neg')+'" style="width:'+p+'%"></div></div><div class="sg-n '+(v>=0?'pos':'neg')+'">'+(v>=0?'+':'')+v.toFixed(2)+'</div></div>';
-  }
-  body.innerHTML = '<div class="stat-grid"><div class="stat-c"><div class="stat-v">'+shots.length+'</div><div class="stat-l">Total Shots</div></div><div class="stat-c"><div class="stat-v">'+(putts.length/h2).toFixed(1)+'</div><div class="stat-l">Putts/Hole</div></div><div class="stat-c"><div class="stat-v">'+(avgDr>0?avgDr+'y':'—')+'</div><div class="stat-l">Avg Drive</div></div><div class="stat-c"><div class="stat-v" style="color:'+(sgTot>=0?'#3aaf5c':'#e05555')+'">'+(sgTot>=0?'+':'')+sgTot.toFixed(1)+'</div><div class="stat-l">Total SG</div></div></div><div class="sg-block"><div class="sg-ttl">STROKES GAINED</div>'+bar('Off Tee',sgT)+bar('Approach',sgA)+bar('Chipping',sgC)+bar('Putting',sgP)+'</div>';
-}
-
-function exportRound() {
-  if (!shots.length) { showToast('No shots'); return; }
-  let csv = 'Caddie\n' + (activeCourse ? activeCourse.n : 'Round') + '\n' + new Date().toLocaleDateString() + '\n\nHole,Shot,Cat,Club,Yards,PlaysLike,DistToPin,Lat,Lng\n';
-  shots.forEach(function(s) { csv += s.hole+','+s.shotNum+','+s.category+','+s.club+','+s.distYards+','+(s.playsLike||'')+','+(s.distToPin||'')+','+s.lat.toFixed(6)+','+s.lng.toFixed(6)+'\n'; });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'caddie_round.csv';
-  a.click();
-  showToast('Exported');
-}
-
-// ── CLUBS ─────────────────────────────────────────────────────────────────
-function buildClubs() {
-  const el = document.getElementById('clubs'); el.innerHTML = '';
-  CLUBS.forEach(function(c) {
-    const btn = document.createElement('button');
-    btn.className = 'cbt' + (c === club ? ' on' : '');
-    btn.textContent = c;
-    btn.onclick = function() { club = c; document.querySelectorAll('.cbt').forEach(b => b.classList.toggle('on', b.textContent===c)); updateCat(); };
-    el.appendChild(btn);
-  });
-}
-
-// ── SAVE ──────────────────────────────────────────────────────────────────
-function saveLib() {
-  if (!activeCourse) return;
-  activeCourse.pins = pins;
-  activeCourse.tees = tees;
-  localStorage.setItem('caddie_lib', JSON.stringify(lib));
-}
-function saveCourse() { saveLib(); showToast('Course saved'); }
-
-// ── UTILS ─────────────────────────────────────────────────────────────────
-function hvy(a, b) {
-  const R=6371000, dL=(b[0]-a[0])*Math.PI/180, dG=(b[1]-a[1])*Math.PI/180;
-  const x = Math.sin(dL/2)**2 + Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dG/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x)) * 1.09361;
-}
-
-let toastT;
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(function() { el.classList.remove('show'); }, 2400);
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────
-filterList();
+// INIT
+document.getElementById('hcp-slider').value=handicap;
+document.getElementById('hcp-disp').textContent=handicap;
+renderRounds();
+filterCourses();
 renderSaved();
 </script>
 </body>
